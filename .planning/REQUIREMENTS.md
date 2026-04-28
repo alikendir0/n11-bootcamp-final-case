@@ -208,18 +208,123 @@ Explicitly excluded. Documented to prevent scope creep and to demonstrate to gra
 
 ## Traceability
 
-Empty initially. Populated by the roadmapper agent during ROADMAP.md creation.
+Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to exactly one phase.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Will be populated by roadmapper) |  |  |
+| AUTH-01 | Phase 3 | Pending |
+| AUTH-02 | Phase 3 | Pending |
+| AUTH-03 | Phase 3 | Pending |
+| AUTH-04 | Phase 3 | Pending |
+| AUTH-05 | Phase 3 | Pending |
+| AUTH-06 | Phase 3 | Pending |
+| AUTH-07 | Phase 3 | Pending |
+| AUTH-08 | Phase 3 | Pending |
+| PROD-01 | Phase 4 | Pending |
+| PROD-02 | Phase 4 | Pending |
+| PROD-03 | Phase 4 | Pending |
+| PROD-04 | Phase 4 | Pending |
+| PROD-05 | Phase 4 | Pending |
+| PROD-06 | Phase 4 | Pending |
+| PROD-07 | Phase 4 | Pending |
+| PROD-08 | Phase 4 | Pending |
+| PROD-09 | Phase 4 | Pending |
+| CART-01 | Phase 5 | Pending |
+| CART-02 | Phase 5 | Pending |
+| CART-03 | Phase 5 | Pending |
+| CART-04 | Phase 5 | Pending |
+| CART-05 | Phase 5 | Pending |
+| CART-06 | Phase 5 | Pending |
+| ORD-01 | Phase 5 | Pending |
+| ORD-02 | Phase 5 | Pending |
+| ORD-03 | Phase 5 | Pending |
+| ORD-04 | Phase 5 | Pending |
+| ORD-05 | Phase 5 | Pending |
+| ORD-06 | Phase 5 | Pending |
+| PAY-01 | Phase 6 | Pending |
+| PAY-02 | Phase 6 | Pending |
+| PAY-03 | Phase 6 | Pending |
+| PAY-04 | Phase 6 | Pending |
+| PAY-05 | Phase 6 | Pending |
+| PAY-06 | Phase 6 | Pending |
+| PAY-07 | Phase 6 | Pending |
+| NOTIF-01 | Phase 7 | Pending |
+| NOTIF-02 | Phase 7 | Pending |
+| NOTIF-03 | Phase 7 | Pending |
+| AI-01 | Phase 8 | Pending |
+| AI-02 | Phase 8 | Pending |
+| AI-03 | Phase 8 | Pending |
+| AI-04 | Phase 8 | Pending |
+| AI-05 | Phase 8 | Pending |
+| AI-06 | Phase 8 | Pending |
+| AI-07 | Phase 8 | Pending |
+| AI-08 | Phase 8 | Pending |
+| AI-09 | Phase 8 | Pending |
+| AI-10 | Phase 8 | Pending |
+| AI-11 | Phase 9 | Pending |
+| AI-12 | Phase 9 | Pending |
+| AI-13 | Phase 9 | Pending |
+| AI-14 | Phase 8 | Pending |
+| AI-15 | Phase 8 | Pending |
+| FE-01 | Phase 2 | Pending |
+| FE-02 | Phase 10 | Pending |
+| FE-03 | Phase 10 | Pending |
+| FE-04 | Phase 10 | Pending |
+| FE-05 | Phase 10 | Pending |
+| FE-06 | Phase 10 | Pending |
+| FE-07 | Phase 10 | Pending |
+| FE-08 | Phase 10 | Pending |
+| FE-09 | Phase 10 | Pending |
+| FE-10 | Phase 10 | Pending |
+| FE-11 | Phase 10 | Pending |
+| FE-12 | Phase 11 | Pending |
+| FE-13 | Phase 10 | Pending |
+| FE-14 | Phase 10 | Pending |
+| FE-15 | Phase 10 | Pending |
+| FE-16 | Phase 10 | Pending |
+| LOC-01 | Phase 10 | Pending |
+| LOC-02 | Phase 10 | Pending |
+| LOC-03 | Phase 10 | Pending |
+| LOC-04 | Phase 10 | Pending |
+| LOC-05 | Phase 10 | Pending |
+| ARCH-01 | Phase 1 | Pending |
+| ARCH-02 | Phase 1 | Pending |
+| ARCH-03 | Phase 1 | Pending |
+| ARCH-04 | Phase 1 | Pending |
+| ARCH-05 | Phase 1 | Pending |
+| ARCH-06 | Phase 5 | Pending |
+| ARCH-07 | Phase 5 | Pending |
+| ARCH-08 | Phase 5 | Pending |
+| ARCH-09 | Phase 1 | Pending |
+| ARCH-10 | Phase 1 | Pending |
+| ARCH-11 | Phase 1 | Pending |
+| ARCH-12 | Phase 1 | Pending |
+| QUAL-01 | Phase 1 | Pending |
+| QUAL-02 | Phase 3 | Pending |
+| QUAL-03 | Phase 5 | Pending |
+| QUAL-04 | Phase 7 | Pending |
+| QUAL-05 | Phase 6 | Pending |
+| QUAL-06 | Phase 1 | Pending |
+| QUAL-07 | Phase 1 | Pending |
+| QUAL-08 | Phase 8 | Pending |
+| QUAL-09 | Phase 1 | Pending |
+| DEV-01 | Phase 11 | Pending |
+| DEV-02 | Phase 11 | Pending |
+| DEV-03 | Phase 11 | Pending |
+| DEV-04 | Phase 11 | Pending |
+| DEV-05 | Phase 11 | Pending |
+| DEV-06 | Phase 11 | Pending |
+| DEV-07 | Phase 1 | Pending |
+| DEV-08 | Phase 11 | Pending |
+| DEV-09 | Phase 11 | Pending |
 
 **Coverage:**
 - v1 requirements: 105 total (AUTH 8 · PROD 9 · CART 6 · ORD 6 · PAY 7 · NOTIF 3 · AI 15 · FE 16 · LOC 5 · ARCH 12 · QUAL 9 · DEV 9)
-- v2 requirements: 9 (stretch)
-- Mapped to phases: TBD (populated by roadmapper)
-- Unmapped: TBD
+- v2 requirements: 9 (stretch — not yet mapped)
+- Mapped to phases: 105 / 105 (100% v1 coverage)
+- Unmapped: 0
+- Phase distribution: P1=14 · P2=1 · P3=9 · P4=9 · P5=16 · P6=8 · P7=4 · P8=13 · P9=3 · P10=19 · P11=9
 
 ---
 *Requirements defined: 2026-04-28*
-*Last updated: 2026-04-28 after initial definition*
+*Last updated: 2026-04-28 after roadmap creation (11 phases)*
