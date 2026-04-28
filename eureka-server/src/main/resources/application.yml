@@ -1,0 +1,44 @@
+# eureka-server self-config (RESEARCH §4.3 lines 363-377).
+#
+# This is the Eureka SERVER's own application.yml. There is intentionally no client-side
+# Spring Cloud Config import key here -- the server has no Eureka peer to discover and a
+# config-server import would invert the dependency graph (config-server is the consumer of
+# eureka in this minimal Phase-1 posture, not the other way around). Pitfall #4 cold-boot
+# retry config belongs in the CLIENT-side baseline (service-template/application.yml --
+# owned by Plan 01-07), NOT here.
+server:
+  port: 8761
+
+spring:
+  application:
+    name: eureka-server
+
+# Eureka server self-config (RESEARCH §4.3 lines 363-377)
+eureka:
+  client:
+    # The server does NOT register against itself and does NOT fetch a registry.
+    # This is the ROOT of the discovery graph -- there is no peer to discover.
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    # Demo posture: disable self-preservation so dead instances evict quickly on restart
+    # (PITFALLS.md #9 -- self-preservation hides stale instances). Production multi-AZ
+    # would re-enable this.
+    enable-self-preservation: false
+    # Reduce response-cache update interval from default 30s -> 5s so the gateway sees
+    # newly registered services within ~10-15s of compose up (RESEARCH §4.3 line 381 --
+    # "warm-up window").
+    response-cache-update-interval-ms: 5000
+    # Match eviction cadence: evict expired leases every 5s instead of default 60s.
+    eviction-interval-timer-in-ms: 5000
+
+# Actuator -- health + info ONLY (T-01-04 -- env/beans/configprops would leak config and
+# are NOT exposed)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
