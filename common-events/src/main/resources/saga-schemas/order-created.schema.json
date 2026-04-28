@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n11clone/saga/order-created.schema.json",
+  "title": "order.created payload",
+  "type": "object",
+  "required": ["orderId", "userId", "currency", "totalAmount", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "orderId":     { "type": "string", "format": "uuid" },
+    "userId":      { "type": "string", "format": "uuid" },
+    "currency":    { "type": "string", "enum": ["TRY"] },
+    "totalAmount": { "type": "number", "minimum": 0 },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["productId", "qty", "unitPrice", "nameSnapshot"],
+        "additionalProperties": false,
+        "properties": {
+          "productId":     { "type": "string", "format": "uuid" },
+          "qty":           { "type": "integer", "minimum": 1 },
+          "unitPrice":     { "type": "number", "minimum": 0 },
+          "nameSnapshot":  { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
