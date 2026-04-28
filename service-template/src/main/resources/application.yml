@@ -1,0 +1,18 @@
+# Phase 1 archetype — minimal client-side bootstrap.
+# All other config inherited from config-server (config/application.yml + config/service-template.yml).
+# Cross-Cutting #2: spring.config.import (NOT bootstrap.yml — Boot 3.x dropped bootstrap context as default).
+#
+# `optional:` prefix lets this archetype build in CI without a running config-server. Each business
+# service that clones from skeleton/ STRIPS `optional:` so its production posture is "config-server
+# is required; if absent, fail loud" (ARCH-11). Documented in service-template/skeleton/README.md.
+#
+# Query-string params satisfy ARCH-11 cold-boot resilience:
+#   max-attempts=10 × initial-interval=1100ms × multiplier=1.2 capped at max-interval=1500ms
+#   ≈ 12s total wait window — bridges config-server boot lag in docker-compose.
+# fail-fast=true: after retry budget exhausts, fail the boot rather than silently start with stale config.
+
+spring:
+  application:
+    name: service-template
+  config:
+    import: optional:configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
