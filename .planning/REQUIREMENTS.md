@@ -116,8 +116,8 @@
 ### Architecture Mandates (microservices coordinator requirements)
 
 - [ ] **ARCH-01**: System decomposed into ≥ 10 microservices — actual: 13 (eureka-server, config-server, api-gateway, identity-service, product-service, inventory-service, cart-service, order-service, payment-service, notification-service, search-service, ai-service, mcp-server)
-- [ ] **ARCH-02**: Eureka service discovery — every business service registers and discovers via Eureka client
-- [ ] **ARCH-03**: Spring Cloud Config Server centralizes per-service config; bootstrap properties point to it
+- [x] **ARCH-02**: Eureka service discovery — every business service registers and discovers via Eureka client *(Plan 01-05: eureka-server runnable Boot app at port 8761; clients land in 01-06+)*
+- [x] **ARCH-03**: Spring Cloud Config Server centralizes per-service config; bootstrap properties point to it *(Plan 01-05: config-server native profile + shared CD-05 baseline at config/application.yml; clients use spring.config.import per Cross-Cutting #2 in 01-06+)*
 - [ ] **ARCH-04**: Spring Cloud Gateway (reactive) fronts all business services; routes via Eureka discovery
 - [ ] **ARCH-05**: RabbitMQ messaging — exchanges and queues defined per saga step; dead-letter queue per consumer
 - [ ] **ARCH-06**: SAGA pattern implemented as choreography via RabbitMQ events — full happy path + 4 compensation paths (stock-fail, payment-fail, user-cancel, payment-timeout)
@@ -125,7 +125,7 @@
 - [ ] **ARCH-08**: Saga events carry correlation ID + idempotency key + business payload; correlation ID flows through MDC/SLF4J for log tracing
 - [ ] **ARCH-09**: Schema-per-service on a single PostgreSQL host; each service has a distinct DB user with role-level deny on other schemas (boundary enforced at the data layer)
 - [ ] **ARCH-10**: Per-service Flyway migrations; no cross-service joins; no shared tables
-- [ ] **ARCH-11**: All services start cleanly even if Eureka is briefly unreachable (registration retry with backoff)
+- [~] **ARCH-11**: All services start cleanly even if Eureka is briefly unreachable (registration retry with backoff) *(Plan 01-05 SERVER-half: eureka-server posture documented — no client retry config installed on the server itself per Pitfall #4 boundary; CLIENT-half retry config baked into service-template/application.yml in Plan 01-07)*
 - [ ] **ARCH-12**: Saga event contracts and inter-service REST contracts locked into `.planning/saga-contracts.md` and `.planning/api-contracts.md` by EOD Phase 1 (Day 1 deliverable)
 
 ### Cross-Cutting Quality
@@ -289,8 +289,8 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | LOC-04 | Phase 10 | Pending |
 | LOC-05 | Phase 10 | Pending |
 | ARCH-01 | Phase 1 | Pending |
-| ARCH-02 | Phase 1 | Pending |
-| ARCH-03 | Phase 1 | Pending |
+| ARCH-02 | Phase 1 (01-05) | Complete |
+| ARCH-03 | Phase 1 (01-05) | Complete |
 | ARCH-04 | Phase 1 | Pending |
 | ARCH-05 | Phase 1 | Pending |
 | ARCH-06 | Phase 5 | Pending |
@@ -298,7 +298,7 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | ARCH-08 | Phase 5 | Pending |
 | ARCH-09 | Phase 1 | Pending |
 | ARCH-10 | Phase 1 | Pending |
-| ARCH-11 | Phase 1 | Pending |
+| ARCH-11 | Phase 1 (01-05 + 01-07) | Partial (01-05 server-half done — Pitfall #4 boundary; 01-07 client-half pending — service-template retry+backoff config) |
 | ARCH-12 | Phase 1 | Pending |
 | QUAL-01 | Phase 1 | Pending |
 | QUAL-02 | Phase 3 | Pending |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Plan 01-04 complete (common-error / common-logging / common-events shared library JARs: RFC-7807 ProblemDetailControllerAdvice, 5 correlation-ID propagation wires registered via Spring Boot 3 AutoConfiguration.imports, Envelope record + RabbitRetryConfig + classpath-only schema-validation drift gate); Wave 1 closed — Wave 2 begins with 01-05 (eureka + config-server)."
-last_updated: "2026-04-28T19:30:11.000Z"
-last_activity: 2026-04-28 -- Plan 01-04 complete (3 java-library JARs; commits c5f60d8, a20f825, 4125832; 3 auto-fixed deviations: JUnit launcher Rule-3, Spring AMQP retry import Rule-1, networknt 3.0.2 API adaptation Rule-1)
+stopped_at: "Plan 01-05 complete (eureka-server + config-server runnable Boot apps + shared CD-05 baseline + additive docker-compose merge; both services cold-boot to (healthy) in ~15s -- well within SC-1 60s budget); Wave 2 continues with 01-06 (api-gateway WebFlux shell), then 01-07 (service-template archetype)."
+last_updated: "2026-04-28T19:46:23.000Z"
+last_activity: 2026-04-28 -- Plan 01-05 complete (eureka-server + config-server + shared baseline + docker-compose merge; commits 21c2452, 91b335b, 52b2e79; 0 deviations -- plan ran clean on first attempt)
 progress:
   total_phases: 11
   completed_phases: 0
   total_plans: 8
-  completed_plans: 4
-  percent: 5
+  completed_plans: 5
+  percent: 6
 ---
 
 # Project State
@@ -26,30 +26,30 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 01 (foundations-day-1-contracts) — EXECUTING
-Plan: 5 of 8 (next: 01-05 eureka-server + config-server skeletons — Wave 2 entry)
+Plan: 6 of 8 (next: 01-06 api-gateway WebFlux shell — Wave 2 continues)
 Status: Executing Phase 01
-Last activity: 2026-04-28 -- Plan 01-04 complete (3 java-library JARs: common-error / common-logging / common-events; commits c5f60d8, a20f825, 4125832)
+Last activity: 2026-04-28 -- Plan 01-05 complete (eureka-server + config-server runnable Boot apps + shared CD-05 baseline + additive docker-compose merge; commits 21c2452, 91b335b, 52b2e79)
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 63%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 4
-- Average duration: ~14 min (01-01 ~30 min; 01-02 ~5 min; 01-03 ~5 min; 01-04 ~17 min)
-- Total execution time: ~57 min
+- Total plans completed: 5
+- Average duration: ~13 min (01-01 ~30 min; 01-02 ~5 min; 01-03 ~5 min; 01-04 ~17 min; 01-05 ~8 min)
+- Total execution time: ~65 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 (foundations-day-1-contracts) | 4 | ~57 min | ~14 min |
+| 01 (foundations-day-1-contracts) | 5 | ~65 min | ~13 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (~30 min, 3 tasks, 23 files), 01-02 (~5 min, 2 tasks, 11 files), 01-03 (~5 min, 3 tasks, 4 files + 1 Rule-3 deviation), 01-04 (~17 min, 3 tasks, 27 files + 3 deviations: JUnit launcher Rule-3, Spring AMQP retry import Rule-1, networknt 3.0.2 API adaptation Rule-1)
-- Trend: code-shipping plans (01-04 with 27 files + actual Java compilation) take ~3× the wall-clock of contract-only plans. Three deviations on 01-04 reflect the cost of plans drafted against pre-resolved JAR APIs (junit-platform-launcher needs explicit testRuntimeOnly with Gradle 8.10, Spring AMQP 3.2.x reorganized retry classes, networknt 3.0.2 renamed half its API). All three caught at first compile/test, fixed inline, none required user input.
+- Last 5 plans: 01-01 (~30 min, 3 tasks, 23 files), 01-02 (~5 min, 2 tasks, 11 files), 01-03 (~5 min, 3 tasks, 4 files + 1 Rule-3 deviation), 01-04 (~17 min, 3 tasks, 27 files + 3 deviations: JUnit launcher Rule-3, Spring AMQP retry import Rule-1, networknt 3.0.2 API adaptation Rule-1), 01-05 (~8 min, 3 tasks, 8 files + 0 deviations -- plan ran clean on first attempt; cold-boot smoke ~15s for eureka+config to (healthy) is well under SC-1's 60s budget thanks to Jib pre-build)
+- Trend: 01-05's clean run against 01-04's 3-deviation churn signals the value of plans citing post-Plan-01-04 fixed patterns (testRuntimeOnly junit-platform-launcher prophylactic, Boot+Jib plugin shape verbatim from Plan 01-04 lessons) rather than re-deriving them. The Jib-built local image pattern delivered the SC-1 60s budget with margin (15s actual vs 60s allowance).
 
 *Updated after each plan completion*
 
@@ -70,6 +70,12 @@ Recent decisions affecting current work:
 - 2026-04-28 (Plan 01-04): RabbitTemplate augmentation pattern locked: BeanPostProcessor.postProcessAfterInitialization → `addBeforePublishPostProcessors(...)` (additive). NEVER register a second @Primary RabbitTemplate; that would shadow Spring Boot's auto-configured bean and lose all Boot defaults (transaction-aware connection wrapping, spring.rabbitmq.template.* settings, etc.).
 - 2026-04-28 (Plan 01-04): JUnit Platform launcher pinned at testRuntimeOnly across all three library modules. Gradle 8.10 ships an older bundled launcher than the engine resolved transitively from the Spring Boot 3.5.14 BOM ("OutputDirectoryProvider not available"). `testRuntimeOnly("org.junit.platform:junit-platform-launcher")` is the universal fix; recommend rolling into Plan 01-07's service-template build.gradle.kts.
 - 2026-04-28 (Plan 01-04): StatefulRetryOperationsInterceptor lives in `org.springframework.retry.interceptor`, NOT `org.springframework.amqp.rabbit.config`. Spring AMQP 3.2.x removed the spring-rabbit shadow class — only RetryInterceptorBuilder (and its inner builder class) remains there.
+- 2026-04-28 (Plan 01-05): Boot-app Gradle shape locked: `plugins { id("org.springframework.boot"); id("com.google.cloud.tools.jib") }` only — `java`, `io.spring.dependency-management`, Java 21 toolchain, and Spring Boot + Spring Cloud BOM imports all flow from the root `subprojects { }` block (Plan 01-01 Task 2). Per Cross-Cutting #1: Boot+Jib plugins applied selectively (eureka-server + config-server here; api-gateway in 01-06 next). Library modules (common-error/logging/events) keep `java-library` only.
+- 2026-04-28 (Plan 01-05): Compose healthcheck for Spring Boot services in Jib images uses `wget` (not `curl`) — `eclipse-temurin:21-jre` ships BusyBox utilities including wget but NOT curl. Idiom: `["CMD-SHELL", "wget -q -O- http://localhost:<PORT>/actuator/health | grep -q '\"status\":\"UP\"'"]`. Replicate for api-gateway (port 8080) in 01-06.
+- 2026-04-28 (Plan 01-05): Pitfall #4 boundary kept tight on the eureka-server self-config — NO `spring.config.import` and NO `registry-fetch-interval-seconds` keys. The server is the discovery root (no peer to retry against); cold-boot CLIENT retry config belongs in service-template/application.yml owned by Plan 01-07. Verified by grep -- both keys absent.
+- 2026-04-28 (Plan 01-05): config-server self-config (src/main/resources/application.yml) versus content-config (src/main/resources/config/application.yml) are TWO DIFFERENT FILES. Self-config tells the server how to serve (port, profile, search-locations); content-config is the SHARED BASELINE (CD-05) served to every business service requesting profile `default`. The shared baseline ships ONLY keys that legitimately apply to ALL services (Eureka URL, datasource template with placeholder substitution for db.user/db.password, Hikari/JPA defaults, Springdoc paths, actuator surface, logging defaults) — no `spring.cloud.gateway.*` (owned by 01-06), no `spring.flyway.*` with concrete schemas (owned by 01-07), no hardcoded passwords.
+- 2026-04-28 (Plan 01-05): Cold-boot smoke timing observed for eureka-server + config-server: both `(healthy)` in ~15s from `docker compose up -d` on a warm Docker daemon (Jib images pre-populated). Pitfall #4 budget allowance was 30-60s + 20-30s = ~50-90s combined; we came in at less than half the lower bound. The Jib pre-build pattern (`./gradlew :<svc>:jibDockerBuild` once per code change) is the canonical Wave-2 launch sequence — 01-PLAN-OUTLINE.md and PATTERNS Cross-Cutting #1 record this.
+- 2026-04-28 (Plan 01-05): docker-compose additive-merge pattern verified — read existing file, ADD new keys under the same `services:` map, never re-write the file. `grep -c '^  postgres:'` and `grep -c '^  rabbitmq:'` returning exactly 1 after the merge prove additivity. Plan 01-06 will follow the same idiom for api-gateway.
 
 ### Pending Todos
 
@@ -91,7 +97,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-28 (execute-phase 1, plan 01-04)
-Stopped at: Plan 01-04 complete; Wave 1 closed. Wave 2 begins with 01-05 (eureka-server + config-server skeletons), then 01-06 (api-gateway WebFlux shell — depends on 01-05), then 01-07 (service-template archetype — parallel-safe with 01-06 once 01-05 ships). 01-08 (infra-tests Testcontainers cross-schema deny smoke) blocks on 01-03 + 01-07.
-Resume file: .planning/phases/01-foundations-day-1-contracts/01-05-PLAN.md (next dispatch unit)
+Last session: 2026-04-28 (execute-phase 1, plan 01-05)
+Stopped at: Plan 01-05 complete; eureka-server + config-server are runnable Boot apps with Jib-built local images (n11/eureka-server:dev, n11/config-server:dev), the shared CD-05 baseline ships at config-server/src/main/resources/config/application.yml, and docker-compose.yml has been additively merged so `docker compose up -d eureka-server config-server` brings both to (healthy) in ~15s. Wave 2 continues with 01-06 (api-gateway WebFlux shell — depends on 01-05), then 01-07 (service-template archetype — parallel-safe with 01-06 once 01-05 ships). 01-08 (infra-tests Testcontainers cross-schema deny smoke) blocks on 01-03 + 01-07.
+Resume file: .planning/phases/01-foundations-day-1-contracts/01-06-PLAN.md (next dispatch unit)
 Next: /gsd-execute-phase 1 (continue Wave 2)
