@@ -1,0 +1,94 @@
+# ---------------------------------------------------------------------------
+# config-server/src/main/resources/config/api-gateway.yml
+# Gateway-specific runtime config (CD-05).
+#
+# The shared baseline (Eureka URL, datasource template, Springdoc paths, actuator
+# baseline, logging defaults) lives in
+# config-server/src/main/resources/config/application.yml (owned by Plan 01-05).
+# This file overlays gateway-specific values: discovery-locator on, /actuator/gateway/routes
+# exposed, Springdoc aggregator with empty urls list, commented-out SSE forward-ref
+# for Phase 8.
+#
+# CRITICAL: property prefix is `spring.cloud.gateway.server.webflux.*` (Northfields
+# rename per RESEARCH §4.1 / Spring Cloud 2025.0 release notes; Spring Cloud Gateway
+# Server WebFlux 4.3.0 verified via jar inspection). The flat
+# `spring.cloud.gateway.*` prefix is DEPRECATED. The `spring-boot-properties-migrator`
+# runtime dep (api-gateway/build.gradle.kts) bridges any flat strays and logs the
+# canonical binding on first :bootRun (Cross-Cutting #6 verify gate).
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              # D-14: discovery-locator is the Phase 1 routing mode. Eureka-registered
+              # service IDs auto-route under /<service-id>/**. Phase 3+ services will
+              # set spring.application.name=identity-service / product-service / etc.,
+              # and the gateway will pick them up without any per-service route YAML
+              # until a service NEEDS a non-canonical route shape (e.g., SSE in Phase 8).
+              enabled: true
+              lower-case-service-id: true
+          httpclient:
+            # Global default for non-streaming routes. SSE routes will OVERRIDE this
+            # to -1 per route via metadata.response-timeout (see commented block below).
+            response-timeout: 60s
+
+          # ─────────────────────────────────────────────────────────────────
+          # Phase 8 SSE forward-reference (DO NOT enable in Phase 1 -- no
+          # ai-service exists yet). Documented here so Phase 8's planner has a
+          # known-good shape to copy-paste. See RESEARCH §4.10 lines 871-893
+          # and .planning/api-contracts.md §SSE-routing.
+          # ─────────────────────────────────────────────────────────────────
+          # routes:
+          #   - id: ai-service-chat-stream
+          #     uri: lb://ai-service
+          #     predicates:
+          #       - Path=/api/v1/chat/stream/**
+          #     metadata:
+          #       response-timeout: -1     # SSE: disable per-route timeout
+          #       connect-timeout: 5000
+          #     filters:
+          #       - PreserveHostHeader=true
+          # NOTE for Phase 8: NO ModifyResponseBody filter, NO RetryFilter on SSE
+          # routes -- both buffer the response and break token-by-token streaming.
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # T-01-04 mitigation: explicitly enumerate exposed endpoints. NEVER use '*' here.
+        # /actuator/env and /actuator/heapdump remain unexposed.
+        # `gateway` is the magic value that exposes /actuator/gateway/routes (success
+        # criterion #1 in Phase 1: routes visible).
+        include: 'health,info,gateway'
+  endpoint:
+    gateway:
+      access: read_only          # Boot 3.5+ explicit access mode
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    use-root-path: true
+    # T-01-10 mitigation + D-14: empty list. Phase 4+ phases append entries below
+    # as services come online. Until then, the aggregator surfaces NOTHING -- no
+    # internal routes leak via Springdoc.
+    urls: []
+    # Phase 4+ append-shape (DO NOT add in Phase 1):
+    # urls:
+    #   - name: identity-service
+    #     url: /api/v1/identity/v3/api-docs
+    #   - name: product-service
+    #     url: /api/v1/product/v3/api-docs
+
+# Phase 3 will add an `oauth2.resource-server.jwt.issuer-uri` block here once
+# identity-service publishes a JWKS endpoint. NOT in Phase 1.
