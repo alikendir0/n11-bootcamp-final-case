@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Plan 01-06 complete (api-gateway Spring Cloud Gateway 2025.0 Northfields reactive WebFlux shell on the new spring-cloud-starter-gateway-server-webflux coordinate; permitAll() chain + GatewayCorrelationIdFilter + GatewayHeaderInjectionFilter stub; api-gateway.yml CD-05 overlay; SC-1 5-service stack cold-boots to (healthy) in 25s -- well within 60s budget); Wave 2 continues with 01-07 (service-template archetype), then 01-08 (infra-tests cross-schema deny smoke) opens Wave 3."
-last_updated: "2026-04-28T20:10:11.000Z"
-last_activity: 2026-04-28 -- Plan 01-06 complete (api-gateway WebFlux shell + 2 reactive GlobalFilters + api-gateway.yml + docker-compose append; commits 8508db6, 13507fb, 040c394, 905eff9, 6890116; 2 deviations -- Rule-1 :common-logging dep dropped due to servlet-filter-on-reactive-runtime crash, Rule-3 stale config-server Jib image rebuild required after touching config/api-gateway.yml)
+stopped_at: "Plan 01-07 complete (service-template archetype: runnable Boot subproject + skeleton/ copy-paste tree + config-server overlay; CD-02 hybrid pattern); Wave 2 done; Wave 3 = 01-08 only (infra-tests cross-schema deny Testcontainers smoke)."
+last_updated: "2026-04-28T20:40:00.000Z"
+last_activity: 2026-04-28 -- Plan 01-07 complete (service-template archetype + skeleton + config-server overlay; commits 3d9b4ea, 7991afd, 324e02c; inline execution per credit-conserve directive)
 progress:
   total_phases: 11
   completed_phases: 0
   total_plans: 8
-  completed_plans: 6
-  percent: 7
+  completed_plans: 7
+  percent: 8
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 01 (foundations-day-1-contracts) — EXECUTING
-Plan: 7 of 8 (next: 01-07 service-template archetype — Wave 2 continues)
+Plan: 8 of 8 (next: 01-08 infra-tests cross-schema deny smoke — Wave 3, final plan)
 Status: Executing Phase 01
-Last activity: 2026-04-28 -- Plan 01-06 complete (api-gateway WebFlux shell + 2 reactive GlobalFilters + api-gateway.yml CD-05 overlay + docker-compose append; commits 8508db6, 13507fb, 040c394, 905eff9, 6890116)
+Last activity: 2026-04-28 -- Plan 01-07 complete (service-template archetype + skeleton + config-server overlay; commits 3d9b4ea, 7991afd, 324e02c)
 
-Progress: [███████░░░] 75%
+Progress: [████████░░] 88%
 
 ## Performance Metrics
 
