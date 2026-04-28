@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 1 planned — 8 plans across 4 waves; plan-checker review applied inline (BLOCKERs: RabbitTemplate BPP pattern + @Import chains + classpath-only schema loader + Jib/SC-1 60s budget; WARNINGs: Path B drop, optional+fail-fast reconciliation, env.test drift guard; NOTEs: T-ID dedupe, schema-count clarification, grep regex hygiene, RESEARCH Open Questions block)."
-last_updated: "2026-04-28T18:50:00.000Z"
-last_activity: 2026-04-28 -- Plan 01-01 complete (Gradle 8.10 multi-module skeleton + gitleaks CI)
+stopped_at: "Plan 01-02 complete (Day-1 saga + REST contracts locked); Wave 1 continues with 01-03 (postgres + rabbit) and 01-04 (common libs) — both parallel-safe with 01-02 outputs."
+last_updated: "2026-04-28T18:50:30.000Z"
+last_activity: 2026-04-28 -- Plan 01-02 complete (saga-contracts.md + 9 JSON-Schema 2020-12 + api-contracts.md; commits 7b95a2e, 7ab6b21)
 progress:
   total_phases: 11
   completed_phases: 0
   total_plans: 8
-  completed_plans: 1
-  percent: 1
+  completed_plans: 2
+  percent: 2
 ---
 
 # Project State
@@ -26,30 +26,30 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 01 (foundations-day-1-contracts) — EXECUTING
-Plan: 2 of 8 (next: 01-02 saga + API contracts)
+Plan: 3 of 8 (next: 01-03 postgres + rabbit infra; can run in parallel with 01-04 common libs)
 Status: Executing Phase 01
-Last activity: 2026-04-28 -- Plan 01-01 complete (Gradle 8.10 multi-module skeleton + gitleaks CI; 2 commits: a921f42, 66d45dd)
+Last activity: 2026-04-28 -- Plan 01-02 complete (Day-1 saga + REST contracts locked; 2 commits: 7b95a2e, 7ab6b21)
 
-Progress: [█░░░░░░░░░] 12%
+Progress: [██░░░░░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: —
+- Total plans completed: 2
+- Average duration: ~17 min (01-01 ~30 min including 500-error retries; 01-02 ~5 min)
+- Total execution time: ~35 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| — | — | — | — |
+| 01 (foundations-day-1-contracts) | 2 | ~35 min | ~17 min |
 
 **Recent Trend:**
 
-- Last 5 plans: —
-- Trend: —
+- Last 5 plans: 01-01 (~30 min, 3 tasks, 23 files), 01-02 (~5 min, 2 tasks, 11 files)
+- Trend: faster on contract-only plans (no toolchain friction); 01-01's 30 min was inflated by sandbox 500-errors during agent spawn
 
 *Updated after each plan completion*
 
@@ -85,7 +85,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-28 (plan-phase 1)
-Stopped at: Phase 1 planned — 8 plans across 4 waves; plan-checker review applied inline (BLOCKERs: RabbitTemplate BPP pattern + @Import chains + classpath-only schema loader + Jib/SC-1 60s budget; WARNINGs: Path B drop, optional+fail-fast reconciliation, env.test drift guard; NOTEs: T-ID dedupe, schema-count clarification, grep regex hygiene, RESEARCH Open Questions block).
-Resume file: .planning/phases/01-foundations-day-1-contracts/01-01-PLAN.md (Wave 0 — start here)
-Next: /gsd-execute-phase 1
+Last session: 2026-04-28 (execute-phase 1, plan 01-02)
+Stopped at: Plan 01-02 complete; Wave 1 has 2 remaining plans (01-03 postgres + rabbit infra, 01-04 common-error/common-logging/common-events) — both parallel-safe (no file overlap with 01-02 outputs or with each other).
+Resume file: .planning/phases/01-foundations-day-1-contracts/01-03-PLAN.md (next dispatch unit)
+Next: /gsd-execute-phase 1 (continue Wave 1)
