@@ -12,7 +12,7 @@ A 6-day, AI-assisted build of a 13-service Spring Boot microservices e-commerce 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundations + Day-1 Contracts** - Multi-module skeleton, infra services, saga + REST contracts locked, deploy target locked to local docker-compose (no AWS)
+- [x] **Phase 1: Foundations + Day-1 Contracts** - Multi-module skeleton, infra services, saga + REST contracts locked, deploy target locked to local docker-compose (no AWS) — completed 2026-04-28 (8/8 plans, 4 waves; SC-1 stack healthy in 25s under 60s budget)
 - [ ] **Phase 2: Frontend Recon + Toolchain Lock** - Playwright recon of n11.com, frontend toolchain decision recorded
 - [ ] **Phase 3: Identity + Gateway Auth** - identity-service issues JWT; gateway validates and injects user headers
 - [ ] **Phase 4: Catalog + Inventory** - product-service, inventory-service, Turkish seed data, basic ILIKE search
