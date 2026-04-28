@@ -13,11 +13,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * <p>The gateway runtime is REACTIVE (WebFlux). Pitfall #2 is structurally prevented in
  * {@code build.gradle.kts} via {@code configurations.all { exclude(... starter-tomcat); ... }}.
  *
- * <p>The {@code @SpringBootApplication} component-scan is rooted at {@code com.n11.gateway}
- * by default, so the {@code com.n11.logging.CorrelationIdFilter} servlet filter from
- * {@code :common-logging} is NOT picked up here -- which is what we want, because the
- * gateway is reactive. The gateway-side reactive equivalent lives at
- * {@link GatewayCorrelationIdFilter} (a {@code GlobalFilter}, NOT a servlet filter).
+ * <p>The gateway intentionally does NOT depend on {@code :common-logging}: its
+ * {@code AutoConfiguration.imports} pulls in a servlet filter that fails to
+ * load on the reactive WebFlux runtime (jakarta.servlet API correctly absent
+ * thanks to Pitfall #2 lockdown in {@code build.gradle.kts}). The gateway-side
+ * reactive equivalent lives at {@link GatewayCorrelationIdFilter} (a
+ * {@code GlobalFilter}, NOT a servlet filter); the two systems stay in sync via
+ * the shared {@code X-Correlation-Id} wire-format header name.
  */
 @SpringBootApplication
 public class ApiGatewayApplication {

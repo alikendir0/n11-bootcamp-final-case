@@ -1,0 +1,52 @@
+# SC-1 Smoke Run
+Date: 2026-04-28T20:07:59Z
+Cold-boot elapsed: 25s (budget: 60s)
+  - First-attempt cold-boot (after Rule-1 / Rule-3 fixes during 01-06 Task 5):
+    docker compose down -v && docker compose up -d -> all 5 services (healthy) in 25s
+  - Initial run (with stale config-server image lacking api-gateway.yml) reached
+    api-gateway healthy in 31s but /actuator/gateway/routes returned 404 because the
+    api-gateway.yml exposure config was not in the image. Rebuilt config-server Jib
+    image (./gradlew :config-server:jibDockerBuild), re-cold-booted, second run = 25s.
+
+## docker compose ps
+n11-api-gateway|Up About a minute (healthy)
+n11-config-server|Up About a minute (healthy)
+n11-eureka-server|Up About a minute (healthy)
+n11-postgres|Up About a minute (healthy)
+n11-rabbitmq|Up About a minute (healthy)
+
+## Endpoint smoke
+
+### curl http://localhost:8080/actuator/health
+{"status":"UP"}
+
+### curl http://localhost:8080/actuator (link list)
+{"_links":{"self":{"href":"http://localhost:8080/actuator","templated":false},"health":{"href":"http://localhost:8080/actuator/health","templated":false},"health-path":{"href":"http://localhost:8080/actuator/health/{*path}","templated":true},"info":{"href":"http://localhost:8080/actuator/info","templated":false},"gateway":{"href":"http://localhost:8080/actuator/gateway","templated":false}}}
+
+### curl http://localhost:8080/actuator/gateway/routes (Phase 1 SC-1 endpoint)
+[{"predicate":"(RouteDefinitionRouteLocator$$Lambda/0x00007d8e748b7728 && Paths: [/api-gateway/**], match trailing slash: true)","metadata":{"management.port":"8080"},"route_id":"ReactiveCompositeDiscoveryClient_API-GATEWAY","filters":["[[RewritePath /api-gateway/?(?<remaining>.*) = '/${remaining}'], order = 1]"],"uri":"lb://API-GATEWAY","order":0}]
+(Note: not literally [] -- the gateway is itself a Eureka client and discovery-locator auto-routes its own service ID `API-GATEWAY` under /api-gateway/**. With no business services registered, this is the only route. D-14's "[]" expectation was conservative; the actual output is a single self-route, which is correct Northfields behavior. Phase 3+ services will appear as additional entries automatically. /actuator/gateway/routes returns 200 with valid JSON => success criterion #1 satisfied.)
+
+### curl http://localhost:8761 (Eureka dashboard)
+HTTP 200
+
+### curl http://localhost:8888/api-gateway/default (config-server confirms api-gateway.yml is served)
+propertySources: ['classpath:/config/api-gateway.yml', 'classpath:/config/application.yml']
+gateway exposure key present: True
+
+### curl http://localhost:15672 (RabbitMQ management UI)
+HTTP 200
+
+### docker exec postgres pg_isready
+/var/run/postgresql:5432 - accepting connections
+
+## Property prefix binding verification (Cross-Cutting #6)
+No 'PropertyMigratorListener' deprecation warning seen in api-gateway logs => the YAML
+uses the canonical Northfields prefix 'spring.cloud.gateway.server.webflux.*' and binds
+without redirection. Discovery-locator-driven RoutePredicateFactory beans loaded:
+2026-04-28T20:06:55.420Z  INFO 1 --- [api-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2026-04-28T20:06:55.421Z  INFO 1 --- [api-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2026-04-28T20:06:55.421Z  INFO 1 --- [api-gateway] [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+
+## Exit
+Cold-boot 25s; SC-1 budget 60s; PASS.

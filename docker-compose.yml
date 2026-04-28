@@ -148,6 +148,51 @@ services:
     networks:
       - n11-net
 
+  # ---------------------------------------------------------------------------
+  # api-gateway -- Spring Cloud Gateway 2025.0 Northfields, reactive WebFlux (ARCH-04, D-14).
+  # Owned by Plan 01-06. Image built by `./gradlew :api-gateway:jibDockerBuild`.
+  #
+  # Bundle the build with eureka + config:
+  #   ./gradlew :eureka-server:jibDockerBuild :config-server:jibDockerBuild :api-gateway:jibDockerBuild
+  # (one Gradle invocation, three images -- the canonical Wave-2 launch sequence).
+  #
+  # depends_on: service_healthy on BOTH eureka-server and config-server. The gateway
+  # registers with Eureka and pulls its config from config-server -- bringing it up
+  # before either is healthy will trigger spring.config.import retry storms (max
+  # ~30s window per api-gateway/src/main/resources/application.yml).
+  #
+  # Healthcheck: same wget-based pattern as eureka/config (eclipse-temurin:21-jre
+  # ships BusyBox utilities including wget but NOT curl). Timing matches 01-05:
+  # start_period:15s + interval:5s x retries:6 = ~45s tolerance, within SC-1 60s.
+  #
+  # SPRING_PROFILES_ACTIVE=docker hints to config-server that this is a docker-compose
+  # consumer (no special profile-specific config in Phase 1, but reserved for Phase 11
+  # tunnel config / production-like overrides).
+  # ---------------------------------------------------------------------------
+  api-gateway:
+    image: n11/api-gateway:dev
+    container_name: n11-api-gateway
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
 volumes:
   postgres-data:
   rabbitmq-data:

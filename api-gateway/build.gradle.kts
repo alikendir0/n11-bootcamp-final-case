@@ -60,14 +60,30 @@ dependencies {
     // spring-boot-starter-web; see exclusion block above for defense in depth.)
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.17")
 
-    // Internal cross-cutting modules from 01-04. NOTE: common-logging's RestClient
-    // and RabbitTemplate auto-configurations are servlet/MDC-scoped and DO NOT bind
-    // in the reactive gateway runtime -- that's expected. The dependency is kept so
-    // shared neutral classes (e.g. CorrelationIdFilter.HEADER constants, RFC-7807
-    // ProblemDetail mapping in common-error) are reusable. The gateway implements
-    // its own reactive correlation filter (GatewayCorrelationIdFilter) -- see Task 3.
+    // Internal cross-cutting module from 01-04 (common-error only).
+    //
+    // ── Why NOT :common-logging? ──────────────────────────────────────
+    // common-logging's AutoConfiguration.imports lists RestClientConfig +
+    // RabbitTemplateConfig, both of which @Import the servlet-side
+    // CorrelationIdFilter (extends OncePerRequestFilter -> GenericFilterBean ->
+    // references jakarta.servlet.Filter). Even with @ConditionalOnClass on the
+    // RestClient/RabbitTemplate beans, Spring's ConfigurationClassParser reads
+    // the class metadata for the @Import targets BEFORE the conditional gates
+    // fire, causing FileNotFoundException: jakarta/servlet/Filter.class on the
+    // reactive gateway runtime (jakarta.servlet API is correctly absent thanks
+    // to the spring-boot-starter-web exclusion above).
+    //
+    // The gateway has its own reactive GatewayCorrelationIdFilter (Task 3) that
+    // uses the same X-Correlation-Id header name as common-logging's servlet
+    // filter, so the two systems stay in sync via the wire-format header --
+    // not via a shared Java constant.
+    //
+    // 01-04-SUMMARY and 01-05-SUMMARY both flagged this as a known landmine for
+    // 01-06; the dependency-drop here is the cleanest structural fix (per
+    // executor deviation Rule 1: bug found in plan-cited dependency wiring;
+    // fix narrowly without architectural change).
+    // ──────────────────────────────────────────────────────────────────
     implementation(project(":common-error"))
-    implementation(project(":common-logging"))
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
