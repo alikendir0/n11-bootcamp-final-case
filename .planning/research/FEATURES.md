@@ -127,7 +127,7 @@ These mirror `PROJECT.md` Out of Scope. Naming them defends scope and shows the 
 | **Admin dashboard / merchant tools** | Traditional e-com expectation. | Not in brief. | Postman collection + Swagger + DB seed scripts demonstrate everything an admin would touch. |
 | **Mobile app** | "Real" Turkish marketplaces have one. | Brief is React-only. | Responsive web; mobile breakpoint tested but no PWA install. |
 | **Production observability stack (ELK / Loki / tracing)** | Looks impressive. | 6 days. | Structured JSON logs with correlation IDs. Grader can grep. |
-| **Strict DB-per-service on separate Postgres instances** | Microservices purist signal. | AWS cost. | One Postgres host, one schema per service. The boundary is at the schema, not the instance. |
+| **Strict DB-per-service on separate Postgres instances** | Microservices purist signal. | Local docker-compose deploy on a single host; multiple instances add ops surface for zero architectural gain. | One Postgres host, one schema per service + per-service DB user with role-deny. The boundary is at the schema + role, not the instance. |
 | **Real-time stock updates (live "Son 1 kaldı!")** | Adds urgency. | Not in brief, distracts. | Stock checked at page load + at order time (SAGA reservation step). |
 | **Test coverage > 70%** | Quality signal. | 6-day window. | Smoke unit + 1-2 integration per service on critical path. Visible in every service. |
 

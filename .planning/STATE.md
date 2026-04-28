@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 1 of 11 (Foundations + Day-1 Contracts)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-04-28 — Roadmap created (11 phases, 105 v1 requirements mapped)
+Plan: 0 of 8 in current phase
+Status: Ready to execute
+Last activity: 2026-04-28 — Phase 1 plans written (8 plans, 4 waves; chunked-mode + inline revision applied 4 BLOCKERs / 7 WARNINGs / 3 NOTEs from plan-checker)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -53,9 +53,9 @@ None yet.
 
 ### Blockers/Concerns
 
-- **AWS deploy scope** (Phase 1 deliverable): coordinator answer required before Phase 11 plans. Fallbacks documented: EB single-instance Docker / ECS Fargate / EC2 + docker-compose. HIGH-severity per research (pitfall #12).
+- **AWS deploy scope** — RESOLVED 2026-04-28 (revised): AWS dropped. Deploy = local docker-compose on the candidate's machine; demo URL exposed via Cloudflare Tunnel (preferred) or ngrok. Earlier EB+RDS decision is superseded — Pitfall #12 is no longer in scope. **Caveat:** confirm with bootcamp coordinator that local-host + tunnel deployment is acceptable for grading (the brief originally listed AWS as must-have).
 - **Gemini 3 Flash model identifier** (Phase 8 deliverable): verify `gemini-3-flash-preview` against ai.google.dev at impl time; fallback `gemini-2.5-flash`. MEDIUM confidence per stack research.
-- **Iyzico webhook public reachability** (Phase 6 deliverable): ngrok / Cloudflare tunnel / EB public URL — choose and document in `payment-service/README.md`. HIGH severity (pitfall #5).
+- **Iyzico webhook public reachability** (Phase 6 deliverable): Cloudflare Tunnel (preferred) or ngrok — choose and document in `payment-service/README.md`. HIGH severity (pitfall #5).
 
 ## Deferred Items
 
@@ -67,6 +67,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-28 12:30
-Stopped at: Roadmap created (11 phases, 105/105 v1 requirements mapped); REQUIREMENTS.md traceability populated; ready to plan Phase 1.
-Resume file: None
+Last session: 2026-04-28 (plan-phase 1)
+Stopped at: Phase 1 planned — 8 plans across 4 waves; plan-checker review applied inline (BLOCKERs: RabbitTemplate BPP pattern + @Import chains + classpath-only schema loader + Jib/SC-1 60s budget; WARNINGs: Path B drop, optional+fail-fast reconciliation, env.test drift guard; NOTEs: T-ID dedupe, schema-count clarification, grep regex hygiene, RESEARCH Open Questions block).
+Resume file: .planning/phases/01-foundations-day-1-contracts/01-01-PLAN.md (Wave 0 — start here)
+Next: /gsd-execute-phase 1

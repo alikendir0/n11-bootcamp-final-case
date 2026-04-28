@@ -2,7 +2,7 @@
 
 ## Overview
 
-A 6-day, AI-assisted build of a 13-service Spring Boot microservices e-commerce backend with a Turkish React storefront and an agentic-commerce layer (Gemini chat assistant + MCP server sharing one toolset). The journey runs Foundations → Identity → Catalog → Cart/Order → Payment → Notification → AI Port (the SOLID centerpiece) → MCP → Frontend → Deploy. Day-1 deliverables (saga + REST contracts, AWS scope query, n11 Playwright recon) front-load every blocker that can sink the demo. Granularity is fine; phases are sized so an AI agent can complete one in ~half a day. Parallelization is encoded: Phases 2 and 4 can run alongside earlier phases, and Phase 7 can run alongside Phase 6.
+A 6-day, AI-assisted build of a 13-service Spring Boot microservices e-commerce backend with a Turkish React storefront and an agentic-commerce layer (Gemini chat assistant + MCP server sharing one toolset). The journey runs Foundations → Identity → Catalog → Cart/Order → Payment → Notification → AI Port (the SOLID centerpiece) → MCP → Frontend → Deploy. Day-1 deliverables (saga + REST contracts, n11 Playwright recon) front-load every blocker that can sink the demo. Deploy target is the candidate's local machine via docker-compose (sufficient compute on hand); the demo URL is exposed publicly via a Cloudflare Tunnel or ngrok for the interview window. Granularity is fine; phases are sized so an AI agent can complete one in ~half a day. Parallelization is encoded: Phases 2 and 4 can run alongside earlier phases, and Phase 7 can run alongside Phase 6.
 
 ## Phases
 
@@ -12,7 +12,7 @@ A 6-day, AI-assisted build of a 13-service Spring Boot microservices e-commerce 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundations + Day-1 Contracts** - Multi-module skeleton, infra services, saga + REST contracts locked, AWS scope query sent
+- [ ] **Phase 1: Foundations + Day-1 Contracts** - Multi-module skeleton, infra services, saga + REST contracts locked, deploy target locked to local docker-compose (no AWS)
 - [ ] **Phase 2: Frontend Recon + Toolchain Lock** - Playwright recon of n11.com, frontend toolchain decision recorded
 - [ ] **Phase 3: Identity + Gateway Auth** - identity-service issues JWT; gateway validates and injects user headers
 - [ ] **Phase 4: Catalog + Inventory** - product-service, inventory-service, Turkish seed data, basic ILIKE search
@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat
 - [ ] **Phase 9: MCP Server** - mcp-server consumes shared agent-toolset, stdio + HTTP+SSE transports, API-key auth bridge
 - [ ] **Phase 10: Frontend Storefront** - Turkish React storefront: header/footer/hero/listing/PDP/cart/checkout/account
-- [ ] **Phase 11: Frontend Chat Assistant + DevOps Deploy** - Floating chat bubble with SSE streaming, Jib for every service, GH Actions, AWS deploy, Slack webhook
+- [ ] **Phase 11: Frontend Chat Assistant + DevOps Deploy** - Floating chat bubble with SSE streaming, Jib for every service, GH Actions build/test, local docker-compose deploy on the candidate's machine, public demo URL via Cloudflare Tunnel / ngrok, Slack webhook
 
 ## Phase Details
 
@@ -33,10 +33,34 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Success Criteria** (what must be TRUE):
   1. `docker-compose up` boots Postgres 16 (with pgvector), RabbitMQ 4.x, eureka-server, config-server, and an empty api-gateway, all healthy within 60 seconds, and gateway routes are visible in `/actuator/gateway/routes`.
   2. `.planning/saga-contracts.md` and `.planning/api-contracts.md` are committed and lock every saga event (envelope + 7 event payloads), every cross-service REST call, and every queue/exchange/DLX in RabbitMQ — verified by every later phase referencing them, not redefining them.
-  3. The AWS deploy scope question is sent to the bootcamp coordinator on Day 1 morning, and the answer (or a defaulted fallback) is recorded in PROJECT.md Key Decisions before Phase 11 plans.
+  3. The deploy target is locked to "local docker-compose on the candidate's machine, demo URL via tunnel" and recorded in PROJECT.md Key Decisions; no AWS coordinator query is sent.
   4. Per-service Postgres schemas + distinct DB users + Flyway migrations are in place; a smoke integration test fails when one service tries to query another schema.
   5. JSON-structured Logback config + correlation-ID MDC propagation + RFC-7807 problem+json error shape are scaffolded as shared conventions, and no secrets (JWT key, Iyzico key, Gemini key, Slack URL) live in source — gitleaks runs clean in CI.
-**Plans**: TBD
+**Plans**: 8 (4 waves)
+
+  **Wave 0** — bootstrap (no deps)
+  - 01-01: Gradle multi-module skeleton + version catalog + gitleaks CI + PROJECT.md deploy-target update (local docker-compose, no AWS) — `ARCH-01, QUAL-09, DEV-07`
+
+  **Wave 1** *(blocked on Wave 0 completion)* — parallel docs + infra + libs
+  - 01-02: Day-1 contracts (saga-contracts.md + 9 JSON schemas + api-contracts.md) — `ARCH-12, ARCH-05, QUAL-07`
+  - 01-03: Postgres + RabbitMQ infra (init.sh env-aware bootstrap, 10 schemas, role-deny matrix, docker-compose infra-only) — `ARCH-09, ARCH-10, DEV-07`
+  - 01-04: Shared library modules (common-error / common-logging / common-events with classpath-only schema loader) — `QUAL-06, QUAL-07`
+
+  **Wave 2** *(blocked on Wave 1 completion)* — parallel Boot apps (Jib-built local images for SC-1 60s budget)
+  - 01-05: Eureka server + Config server (native profile, shared application.yml baseline) — `ARCH-02, ARCH-03, ARCH-11`
+  - 01-06: api-gateway WebFlux shell (Northfields starter, discovery locator, /actuator/gateway/routes, SC-1 stack smoke owner) — `ARCH-04, QUAL-01`
+  - 01-07: service-template archetype (CD-02 hybrid: subproject + skeleton/) — `QUAL-01, ARCH-11, ARCH-10`
+
+  **Wave 3** *(blocked on 01-03 + 01-07 completion)* — boundary verification
+  - 01-08: infra-tests Testcontainers cross-schema deny smoke (D-05 / T-01-02 verification) — `ARCH-09`
+
+  **Cross-cutting constraints** (truths recurring across ≥2 plans):
+  - Pre-compose Jib build: `./gradlew :eureka-server:jibDockerBuild :config-server:jibDockerBuild :api-gateway:jibDockerBuild` is the single Wave-2 launch step (01-05, 01-06)
+  - docker-compose.yml is touched additively by 01-03, 01-05, 01-06 — serialize 01-05 → 01-06 in Wave 2 to prevent file-write races
+  - Northfields starter `spring-cloud-starter-gateway-server-webflux` (01-06) — old `spring-cloud-starter-gateway` is forbidden; 01-04 + 01-06 + 01-07 enforce via grep acceptance
+  - `orders` (plural) schema rename — 01-02 saga-contracts §9, 01-03 init.sh, 01-08 connectAs all use `orders` not `order` (SQL reserved word)
+  - `spring.config.import` (NOT bootstrap.yml) — 01-06 + 01-07 client posture per Boot 3.x
+
 **Risks**: Pitfall #2 (gateway reactive vs MVC classpath collision), Pitfall #4 (Eureka cold-boot race), Pitfall #26 (Day-1 bikeshedding)
 **Research need**: MEDIUM — Spring Cloud 2025.0 Northfields wiring quirks, distinct DB user policy specifics, gateway aggregator config.
 
@@ -102,7 +126,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Requirements**: PAY-01, PAY-02, PAY-03, PAY-04, PAY-05, PAY-06, PAY-07, QUAL-05
 **Success Criteria** (what must be TRUE):
   1. User can complete a full sandbox payment with Iyzico test card `5528 7900 0000 0008` end-to-end: cart → checkout → Iyzico hosted form → 3DS OTP → callback → order CONFIRMED.
-  2. The webhook URL is publicly reachable (ngrok / Cloudflare tunnel / EB public URL — choice documented in `payment-service/README.md`); Iyzico's POST hits a non-JWT-gated callback path; signature is verified server-side via `payment.retrieve(paymentId)`.
+  2. The webhook URL is publicly reachable through the same Cloudflare Tunnel / ngrok used for the demo (choice documented in `payment-service/README.md`); Iyzico's POST hits a non-JWT-gated callback path; signature is verified server-side via `payment.retrieve(paymentId)`.
   3. payment-service consumes `stock.reserved` → initiates Iyzico checkout (publishes `payment.completed` on success or `payment.failed` on decline); the saga compensation integration test forces a payment failure and asserts inventory releases stock and order moves to CANCELLED.
   4. A scheduled payment-timeout job marks payments TIMED_OUT after N minutes and emits `payment.failed`, taking the same compensation path; the timeout integration test simulates a stuck Iyzico response.
   5. payment-service has Springdoc Swagger UI; idempotency on the callback uses `iyzico_payment_id` as the dedup key.
@@ -166,18 +190,18 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Research need**: LOW — toolchain locked in Phase 2; remaining work is straightforward React + recon-driven layout.
 
 ### Phase 11: Frontend Chat Assistant + DevOps Deploy
-**Goal**: Add the floating Turkish chat-assistant bubble to the storefront (persistent across pages, SSE token streaming, tool-use round-trips visible in UI), and ship the deploy: Jib for every service, GitHub Actions CI/CD with OIDC AWS creds, Slack webhook on success/failure, AWS deploy per the Phase 1 coordinator answer (EB single-instance Docker / ECS Fargate / EC2 + docker-compose), plus the Jenkins comparison doc and a complete README.
-**Depends on**: Phase 8 (chat backend), Phase 10 (storefront to embed the bubble in), Phase 1 (AWS scope answer in PROJECT.md)
+**Goal**: Add the floating Turkish chat-assistant bubble to the storefront (persistent across pages, SSE token streaming, tool-use round-trips visible in UI), and ship the deploy: Jib for every service, GitHub Actions CI for build + test (with image-publish on release tags), local docker-compose stack on the candidate's machine running all 13 services + Postgres + RabbitMQ, public demo URL via Cloudflare Tunnel (preferred) or ngrok, Slack notifications on CI build success/failure, plus the Jenkins comparison doc and a complete README.
+**Depends on**: Phase 8 (chat backend), Phase 10 (storefront to embed the bubble in), Phase 1 (deploy target locked in PROJECT.md)
 **Requirements**: FE-12, DEV-01, DEV-02, DEV-03, DEV-04, DEV-05, DEV-06, DEV-08, DEV-09
 **Success Criteria** (what must be TRUE):
   1. A floating chat bubble appears bottom-right on every page (homepage, listing, PDP, cart, checkout, account); opening it overlays a chat panel that streams Gemini responses token-by-token via SSE without freezing the UI; tool-use indicators appear mid-stream; the conversation persists across page navigation and refresh.
   2. Adding a product to cart from the chat bubble is reflected in the header cart-counter within 1 second (visual feedback that bridges chat-action and UI), and the chat panel summarizes the cart with localized Turkish text.
-  3. `gradle :<service>:jib` builds an OCI image for every backend service with no Dockerfile in the repo; GitHub Actions pipeline (`build`, `test`, `deploy`) runs on push (build+test) and on main-branch push (deploy); first green deploy produces a Slack notification ("✅ deploy to <env> succeeded") and a deploy-failure produces a "❌" notification.
-  4. AWS deploy is reachable from outside the VPC (a `curl https://<deployed-url>/api/v1/products` returns a 200 with seed products); AWS credentials use GH Actions OIDC (no static keys in repo secrets); the deployed-URL pointer + env-var matrix + demo card numbers + local-run instructions live in `README.md`; `docs/devops-pipeline-comparison.md` covers the Jenkins-vs-GH-Actions pipeline-logic comparison.
+  3. `gradle :<service>:jib` builds an OCI image for every backend service with no Dockerfile in the repo; GitHub Actions pipeline runs `build` + `test` on push/PR; on a `v*` release tag the same pipeline pushes the 13 Jib images to GHCR (or Docker Hub) so the local docker-compose can pull them by tag; build success/failure produces a Slack notification ("✅ build green on <ref>" / "❌ build failed on <ref>").
+  4. The full stack runs on the candidate's machine via `docker compose --profile full up`; an external `curl https://<tunnel-hostname>/api/v1/products` (Cloudflare Tunnel preferred, ngrok fallback) returns a 200 with seed products; tunnel access tokens live in env vars (never in repo); the public demo URL pointer + env-var matrix + demo card numbers + local-run instructions live in `README.md`; `docs/devops-pipeline-comparison.md` covers the Jenkins-vs-GH-Actions pipeline-logic comparison.
 **Plans**: TBD
 **UI hint**: yes
-**Risks**: Pitfall #12 (Beanstalk fit — already resolved in P1 coordinator query), Pitfall #19 (chat streaming UI freeze — token buffering), Pitfall #21 (Slack webhook leaked — env var only), Pitfall #25 (GH Actions OIDC misconfig — first deploy proves trust policy)
-**Research need**: MEDIUM — depends on the AWS scope answer; if EB single-instance Docker, multi-container Docker config; if ECS, task def + service definitions; if EC2 + docker-compose, single-instance bootstrap script.
+**Risks**: Pitfall #19 (chat streaming UI freeze — token buffering), Pitfall #21 (Slack webhook leaked — env var only), tunnel-dependency risk (interview-time tunnel outage — mitigation: keep an ngrok fallback ready in the README so the candidate can re-expose in under a minute if Cloudflare misbehaves), candidate-machine-dependency risk (machine reboot mid-demo — mitigation: docker-compose `restart: unless-stopped`, and a 30-second `compose up` rehearsal documented in the README).
+**Research need**: LOW — docker-compose on a single host is well-trodden; tunnel choice is the only fresh research (Cloudflare Tunnel with `cloudflared` quickstart vs ngrok agent token).
 
 ## Progress
 

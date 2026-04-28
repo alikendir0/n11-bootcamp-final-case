@@ -45,10 +45,10 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 #### Bootcamp Brief — DevOps & Deployment (must-have, locked by spec)
 
 - [ ] Backend services containerized (Jib, no Dockerfiles)
-- [ ] GitHub Actions CI/CD pipeline (build, test, deploy)
+- [ ] GitHub Actions CI pipeline (build, test) on push/PR; release-tagging job builds + pushes Jib images for the local docker-compose pull
 - [ ] Jenkins comparison documented (pipeline-logic understanding)
-- [ ] AWS deployment (Elastic Beanstalk + RDS — pending coordinator confirmation)
-- [ ] Slack deploy notifications
+- [ ] Full-stack deployment via docker-compose on the candidate's machine (local production-like host); public demo URL exposed via Cloudflare Tunnel or ngrok during the interview window
+- [ ] Slack notifications fire on CI build success/failure (deploy-equivalent signal for the local deploy)
 
 #### Bootcamp Coordinator — Architectural Mandates
 
@@ -73,7 +73,7 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 - **Mobile app / native clients** — web-first only. Why: brief is React-only.
 - **Real email / SMS sending in notification-service** — log-only mock for the demo. Why: time, no SMTP/Twilio account setup.
 - **Production-grade observability stack (ELK, Loki, Grafana, distributed tracing)** — basic SLF4J/Logback per service + structured logs only. Why: 6-day window, not in brief.
-- **Strict DB-per-service on separate Postgres instances** — single Postgres host with one schema per service instead. Why: AWS cost, time.
+- **Strict DB-per-service on separate Postgres instances** — single Postgres host with one schema per service instead. Why: deploy is a single docker-compose stack on the candidate's machine; multiple Postgres instances add ops surface for zero architectural gain (the boundary already lives at schema + DB-user role-deny).
 - **Real-time WebSocket features (live stock, live cart sync)** — not required by brief, distracts from AI focus. Why: scope.
 - **Heavy test coverage (>70%)** — smoke unit + 1–2 integration per service on critical path is the target. Why: 6-day window.
 
@@ -89,7 +89,7 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 
 **Reconnaissance plan.** Before frontend implementation, run a Playwright pass against [n11.com](https://www.n11.com) to capture header/nav/grid/PDP/cart layout structure, common Turkish copy patterns, and category taxonomy. This recon also informs frontend toolchain choice (Vite vs Next, styling approach).
 
-**Verify-before-implement policy.** External SDKs (Gemini, Iyzico, AWS, Spring Cloud) drift. Before any plan-phase commits to specific calls, the researcher fetches official docs and the planner cites the relevant section. No SDK code is written from training-data recall alone.
+**Verify-before-implement policy.** External SDKs (Gemini, Iyzico, Spring Cloud, MCP) drift. Before any plan-phase commits to specific calls, the researcher fetches official docs and the planner cites the relevant section. No SDK code is written from training-data recall alone.
 
 ## Constraints
 
@@ -97,12 +97,12 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 - **Tech stack — Backend**: Java 21, Spring Boot 3.x, Spring Cloud (Eureka, Gateway, Config), Spring Data JPA, Springdoc OpenAPI, RabbitMQ (Spring AMQP), PostgreSQL 16, pgvector extension for embeddings, Iyzico Java SDK (sandbox).
 - **Tech stack — AI**: Gemini 3.0 Flash for chat (verify model availability against official Google AI docs at research time), Gemini Embedding model for semantic search. Behind a provider-agnostic `ChatProvider` / `EmbeddingProvider` port.
 - **Tech stack — Frontend**: React (toolchain TBD post Playwright n11 recon — likely Vite + TypeScript + Tailwind + Zustand, but confirmed only after the recon pass).
-- **Tech stack — DevOps**: Jib (no Dockerfiles), GitHub Actions, AWS (Elastic Beanstalk + RDS pending coordinator confirmation), Slack webhook for deploy notifications.
+- **Tech stack — DevOps**: Jib (no Dockerfiles), GitHub Actions for build + test (and Jib image publish on release tags), local docker-compose as the deploy target on the candidate's machine, Cloudflare Tunnel (preferred) or ngrok for exposing the demo URL + Iyzico webhook to the public internet, Slack webhook for CI/build notifications.
 - **Architecture**: 13 microservices — `eureka-server`, `config-server`, `api-gateway`, `identity-service`, `product-service`, `inventory-service`, `cart-service`, `order-service`, `payment-service`, `notification-service`, `search-service`, `mcp-server`, `ai-service`. DB-per-service on a single Postgres host. SAGA via RabbitMQ choreography.
 - **Auth posture**: JWT issued by `identity-service`, validated **only at the gateway**, downstream services trust gateway-injected `X-User-Id` / `X-User-Roles` headers. Internal-mesh trust boundary at the gateway.
 - **Localization**: Frontend UI copy is Turkish. Product seed data uses Turkish names/descriptions. Backend logs and code identifiers stay English.
-- **Security**: Iyzico sandbox keys only; no real card data. Slack webhook URL kept out of source. AWS credentials via GitHub Actions OIDC (preferred) or repository secrets.
-- **Budget**: AWS demo window only — instances run during interview week, then torn down. Gemini API: free-tier coverage targeted for demo; key kept out of source.
+- **Security**: Iyzico sandbox keys only; no real card data. Slack webhook URL kept out of source. Tunnel access tokens (Cloudflare Tunnel / ngrok) treated as secrets — env vars only, never committed. The local Postgres + RabbitMQ are bound to localhost only; the gateway is the sole port the tunnel exposes externally.
+- **Budget**: $0 cloud spend — deploy runs on the candidate's machine. Tunnel: Cloudflare Tunnel (free tier with a personal domain) or ngrok (free tier with random subdomain). Gemini API: free-tier coverage targeted for demo; key kept out of source.
 
 ## Key Decisions
 
@@ -112,7 +112,7 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 | 13-service decomposition (eureka + config + gateway + identity + product + inventory + cart + order + payment + notification + search + mcp + ai-service) | Comfortably exceeds the 10-service mandate; every service has a clearly bounded responsibility | — Pending |
 | Choreography SAGA via RabbitMQ events | RabbitMQ is required by the brief; choreography is the natural fit and avoids inventing a new orchestrator service. Order saga: `OrderCreated` → reserve stock → `StockReserved` → take payment → `PaymentCompleted` → notify; compensating events on failure | — Pending |
 | JWT validated only at the gateway | Standard pattern; gateway injects `X-User-Id` headers; internal services trust the mesh — fewer JWT secrets distributed, simpler service code | — Pending |
-| DB-per-service on a single Postgres instance | Microservices boundary enforced at the data layer (one schema/db per service); single host keeps RDS cost realistic | — Pending |
+| DB-per-service on a single Postgres instance | Microservices boundary enforced at the data layer (one schema per service + per-service DB user with role-level deny on other schemas); single host keeps the local docker-compose stack lean | — Pending |
 | Choreography over orchestration for SAGA | Simpler infra (no orchestrator service); each service owns its participation in the saga. Tradeoff: harder to trace — mitigated by structured logs with correlation IDs | — Pending |
 | Provider-agnostic LLM abstraction (`ChatProvider` / `EmbeddingProvider` ports + Gemini adapter only) | Direct demo of dependency inversion + open-closed; serves the "code quality + SOLID" grading lens, makes AI a first-class architectural citizen | — Pending |
 | Dedicated `ai-service` (not folded into search-service) | Bounded context for Gemini integration, prompt management, conversation state, tool dispatch. Cleaner service contracts; bumps total to 13, well past the 10 minimum | — Pending |
@@ -122,15 +122,19 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 | Playwright recon before frontend phase | Capture header/nav/grid/PDP/cart structure + Turkish copy patterns from n11.com to inform layout, save guesswork | — Pending |
 | Tests: smoke unit + 1–2 integration per service on critical path | Visible test coverage in every service, not chasing %. Realistic for 6 days | — Pending |
 | Notification-service: log-only mock email | Service exists, consumes events, full SAGA participant; mocks the SMTP send. All architecture credit, no real-email plumbing | — Pending |
+| Deploy target = local docker-compose on the candidate's machine; demo URL exposed via Cloudflare Tunnel (preferred) or ngrok | User-locked 2026-04-28: candidate's machine has sufficient compute to host all 13 services + Postgres + RabbitMQ in a single docker-compose stack. AWS Elastic Beanstalk + RDS dropped — there is no architectural fit problem to mitigate (Pitfall #12 vanishes) and no AWS spend to manage. Trade-off: deploy is online only while the candidate's machine + tunnel are running; demo posture is "live during the interview window." | Locked 2026-04-28 (revised from EB+RDS) |
 
 ## Open Questions
 
 These remain unresolved at project initialization. Each should be answered before the dependent phase plans:
 
-- **AWS deploy scope** — is "Elastic Beanstalk + RDS" a hard requirement, or is "deployed on AWS" acceptable? *Confirm with bootcamp coordinator.* Affects: Phase: Deploy, Phase: CI/CD.
-- **Demo posture** — live AWS during interview vs local docker-compose with AWS proven via CI? *Decide once AWS scope is confirmed.* Affects: Phase: Deploy, demo prep.
-- **MCP server hosting** — homelab + Cloudflare tunnel vs alongside AWS deploy vs local-only for demo? *Decide once AWS scope is confirmed.* Affects: Phase: MCP, demo prep.
+- **Public tunnel choice** — Cloudflare Tunnel (preferred for stable hostname + free tier with a personal domain) vs ngrok (zero-config but random subdomain unless paid)? *Decide in Phase 6 planning (the Iyzico webhook is the first real consumer).* Affects: Phase 6, Phase 11, demo prep.
+- **MCP server tunnel exposure** — share the gateway tunnel (same hostname, `/mcp/**` route) vs a separate dedicated tunnel for the MCP transport? *Decide in Phase 9 (MCP server) planning.* Affects: Phase 9, demo prep.
 - **Frontend toolchain** — Vite + TypeScript + Tailwind + Zustand (likely) vs Next.js (only if n11 dynamic enough to need SSR) vs plain Vite + JS? *Decide post Playwright n11 recon.* Affects: Phase: Frontend Foundation.
+
+### Resolved
+
+- **AWS deploy scope** — RESOLVED 2026-04-28 (revised): AWS deployment dropped entirely. Candidate's machine has sufficient compute; deploy = local docker-compose, demo URL via tunnel. Earlier decision (Elastic Beanstalk + RDS, locked 2026-04-28 morning) is superseded. See Key Decisions row. **Caveat:** the bootcamp brief originally listed "AWS deployment (Elastic Beanstalk + RDS)" as a must-have; the candidate is responsible for confirming with the bootcamp coordinator that local-host + tunnel deployment is acceptable, or for reframing this in the README as a deliberate trade-off (cloud-native AWS deploy is a 1–2 day stretch from the current architecture).
 
 ## Evolution
 
@@ -150,4 +154,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-28 after initialization*
+*Last updated: 2026-04-28 — deploy target changed from AWS Elastic Beanstalk + RDS to local docker-compose on the candidate's machine (with Cloudflare Tunnel / ngrok for demo URL). All cascading sections (DevOps brief, Out-of-Scope, Tech-stack, Security, Budget, Key Decisions, Open Questions) updated to match.*

@@ -16,7 +16,7 @@ Phase-area names used below (the roadmap will assign numbers):
 - **P:Search-RAG** — pgvector + embeddings + semantic search
 - **P:MCP** — MCP server exposing the toolset to external agents
 - **P:Frontend** — React storefront + chat bubble + Turkish copy
-- **P:DevOps** — Jib, GitHub Actions, AWS, Slack
+- **P:DevOps** — Jib, GitHub Actions, local docker-compose, Cloudflare Tunnel / ngrok, Slack
 - **P:Demo-Polish** — seed data, scripts, walkthrough, README
 
 ---
@@ -104,13 +104,13 @@ Developers assume "I sent one event, I'll get one delivery." RabbitMQ's [Reliabi
 **Severity:** HIGH (during demo) / MEDIUM (in dev)
 
 **What goes wrong:**
-Services start via `docker-compose up` or Beanstalk's container start. The gateway, identity, product, etc. boot before `eureka-server` finishes. Clients try to register, fail silently (DNS/connection refused), and only re-attempt on the default 30s heartbeat cycle. The first 60–90 seconds of the demo show "503 Service Unavailable" or "no instances available."
+Services start via `docker-compose up`. The gateway, identity, product, etc. boot before `eureka-server` finishes. Clients try to register, fail silently (DNS/connection refused), and only re-attempt on the default 30s heartbeat cycle. The first 60–90 seconds of the demo show "503 Service Unavailable" or "no instances available."
 
 **Why it happens:**
 Docker `depends_on` guarantees container start order, not application readiness. Eureka has a known cold-start lag (cache `responseCacheUpdateIntervalMs` defaults to 30s) — even after eureka is up, registered clients aren't visible to the gateway for up to 30s. See [Netflix/eureka #1150](https://github.com/Netflix/eureka/issues/1150).
 
 **How to avoid:**
-1. Eureka server gets a real Spring Boot Actuator health probe (`/actuator/health` with `liveness`/`readiness` groups). Compose / Beanstalk waits on the readiness probe, not on container "started."
+1. Eureka server gets a real Spring Boot Actuator health probe (`/actuator/health` with `liveness`/`readiness` groups). docker-compose `depends_on.condition: service_healthy` waits on the readiness probe, not on container "started."
 2. On clients, set `eureka.client.initial-instance-info-replication-interval-seconds: 5` and `eureka.client.registry-fetch-interval-seconds: 5` in dev — fast re-fetch.
 3. On Eureka server: `eureka.server.response-cache-update-interval-ms: 5000`, `eureka.server.eviction-interval-timer-in-ms: 5000`. Disables the production cache for demo speed.
 4. Disable self-preservation on the demo Eureka (`eureka.server.enable-self-preservation: false`) — otherwise stale instances linger after restart.
@@ -165,7 +165,7 @@ The locked auth posture is "JWT validated only at the gateway." That's correct, 
 **How to avoid:**
 1. Secret lives in `config-server` only, fetched at boot by `identity-service` (signer) and `api-gateway` (verifier). No other service ever sees it.
 2. Local dev: env var `JWT_SECRET` injected by `.env` (gitignored). `application.yml` reads `${JWT_SECRET}`.
-3. AWS: AWS Secrets Manager + Spring Cloud AWS, **or** Beanstalk environment variable. Never in the AMI.
+3. Local docker-compose deploy: same `.env` flow used in dev — gitignored `.env` on the candidate's host, loaded by `docker compose --env-file`. Production-grade secret stores (Vault, Doppler) noted in the README as a "next iteration" upgrade.
 4. Pre-commit hook runs `gitleaks` or `detect-secrets`. CI re-runs it.
 5. Use **RS256 with a keypair** instead of HS256 if time permits — public key on the gateway, private key on identity-service. No shared secret to leak. This is also a SOLID/security signal worth points.
 
@@ -209,7 +209,7 @@ Time pressure plus AI-assisted coding plus Gemini's SDK shape: the easy thing is
 **Severity:** HIGH
 
 **What goes wrong:**
-13 services each with HikariCP defaults (`maximum-pool-size: 10`) = up to 130 connections. PostgreSQL default `max_connections` is 100. RDS `db.t4g.micro` defaults to ~87. First load test or even a simultaneous saga step hangs with `HikariPool-1 - Connection is not available, request timed out`.
+13 services each with HikariCP defaults (`maximum-pool-size: 10`) = up to 130 connections. PostgreSQL default `max_connections` is 100. The compose Postgres container ships with the upstream default (~100). First load test or even a simultaneous saga step hangs with `HikariPool-1 - Connection is not available, request timed out`.
 
 **Why it happens:**
 Each Spring Boot service has its own pool with its own defaults. Nobody multiplies. The single-host DB-per-service decision (PROJECT.md, "DB-per-service on a single Postgres instance") is correct for cost but multiplies pool pressure.
@@ -217,8 +217,8 @@ Each Spring Boot service has its own pool with its own defaults. Nobody multipli
 **How to avoid:**
 1. Sized pool per service: services that don't need connections (notification with log-only mock) → `maximum-pool-size: 2`. Domain services → `5`. Infrastructure (eureka, config) → `0` (no DB).
 2. Compute the budget: `services × pool-size ≤ pg.max_connections × 0.8`. Document the math in `docs/architecture/db-budget.md`.
-3. Bump `max_connections` on the RDS parameter group to 200 if budget says so. Cheap.
-4. Use PgBouncer in front of RDS only if hitting the wall (extra service, probably skip for 6-day window — design the pool sizes correctly instead).
+3. Bump `max_connections` on the compose Postgres via a `command: postgres -c max_connections=200` override (or a `postgresql.conf` mount). Cheap.
+4. Use PgBouncer in front of Postgres only if hitting the wall (extra service, probably skip for 6-day window — design the pool sizes correctly instead).
 
 **Warning signs:**
 - HikariCP `request timed out` exceptions during integration tests.
@@ -314,29 +314,21 @@ Choreography SAGA forces every participant to define its compensation. Easy to m
 
 ---
 
-### Pitfall 12: AWS Elastic Beanstalk single-app vs 13 services mismatch
+### Pitfall 12: ~~AWS Elastic Beanstalk single-app vs 13 services mismatch~~ (DROPPED 2026-04-28)
 
-**Severity:** HIGH (deploy day) — possibly **terminal** if discovered late
+**Status:** DROPPED — the deploy target was changed from AWS Elastic Beanstalk + RDS to **local docker-compose on the candidate's machine** (with Cloudflare Tunnel / ngrok exposing the demo URL). The EB-vs-13-microservices fit problem only existed when EB had to host the services; on the candidate's local docker host the 13 Jib images run in a single compose stack as designed, with no platform-fit conflict.
 
-**What goes wrong:**
-Beanstalk's natural unit is one app per environment. 13 microservices = 13 environments = 13 EC2 instances at minimum, well over free tier and over what a 6-day budget can sustain. Or: the candidate tries the **Multi-container Docker** platform on Beanstalk — but [AWS deprecated the multi-container Docker on AL1 platform](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_ecstutorial.html) and the AL2/AL2023 path is single-container only. Discovery on Day 5 = sunk demo.
+**Original framing kept for audit trail:**
 
-**Why it happens:**
-PROJECT.md flags this as an open question (`AWS deploy scope — confirm with bootcamp coordinator`). The brief says "Elastic Beanstalk + RDS." Beanstalk's modern model genuinely doesn't fit microservices well.
+> Beanstalk's natural unit is one app per environment. 13 microservices = 13 environments = 13 EC2 instances at minimum, well over free tier and over what a 6-day budget can sustain. Or: the candidate tries the **Multi-container Docker** platform on Beanstalk — but AWS deprecated the multi-container Docker on AL1 platform and the AL2/AL2023 path is single-container only. Discovery on Day 5 = sunk demo.
 
-**How to avoid:**
-1. **Resolve the open question on Day 1.** Email the coordinator: "Is 'AWS deployed' acceptable, or must it be Beanstalk specifically?" Document the answer in PROJECT.md.
-2. If Beanstalk is hard-required: deploy a **single Beanstalk environment running docker-compose** via a single `Dockerrun.aws.json` (Beanstalk single-container Docker platform with `docker compose up` on the EC2). Crude but legal. Document the rationale.
-3. If "AWS deployed" is acceptable: use **ECS Fargate** with one task definition per service, behind a single ALB with path-based routing → gateway. This is the architecturally honest answer.
-4. Cheapest fallback: single EC2 + docker-compose + nginx + RDS. Document as "AWS-deployed; Beanstalk evaluated and rejected because [reason]." Demonstrates understanding, which is what the brief asks for ("Jenkins comparison documented" sets the precedent for tradeoff-documentation).
-5. RDS: single `db.t4g.micro` (free-tier eligible for 12 months, ~$15/mo after). One DB host, schema-per-service.
+**Residual risk after the revision:**
+- Local-host-dependency risk: machine reboot mid-demo, machine off when a grader visits. Mitigation: docker-compose `restart: unless-stopped`, README rehearsal of a 30-second `compose up`, and a documented note that the demo URL is "live during the interview window" (not a 24/7 hosted service).
+- Tunnel-dependency risk: Cloudflare Tunnel / ngrok outage. Mitigation: keep the alternate tunnel ready in the README so the candidate can swap in under a minute.
 
-**Warning signs:**
-- Day 4 thinking: "I'll figure out deploy on Day 5."
-- Beanstalk console asking for "Application source bundle" while you have 13 jars.
-- AWS billing alert before the demo.
+**Caveat:** the bootcamp brief originally listed AWS deployment as must-have. Coordinator confirmation that local-host + tunnel deployment is acceptable for grading is recommended; the candidate is responsible for that conversation.
 
-**Phase to address:** P:DevOps. Decision must be made in P:Foundations (Day 1).
+**Phase to address:** N/A (closed). Phase 11 owns tunnel wiring + the `full` compose profile per CONTEXT.md D-15..D-18 revised.
 
 ---
 
@@ -401,7 +393,7 @@ Per the [MCP spec](https://modelcontextprotocol.io/specification/2025-06-18/basi
 
 **How to avoid:**
 1. Decide demo target on Day 1: "Claude Desktop on grader's machine" (stdio + a local launch script) vs "remote, accessed by URL" (Streamable HTTP).
-2. Default recommendation: **Streamable HTTP**, hosted alongside AWS deploy or on homelab via Cloudflare tunnel. URL is in README. Anyone can connect. Demonstrates "agentic e-commerce *over the network*" which is the differentiation story.
+2. Default recommendation: **Streamable HTTP**, hosted alongside the local docker-compose deploy and exposed via the same Cloudflare Tunnel / ngrok used for the demo URL. URL is in README. Anyone can connect. Demonstrates "agentic e-commerce *over the network*" which is the differentiation story.
 3. Use the official Spring AI MCP server starter (`spring-ai-mcp-server-webmvc-spring-boot-starter` or webflux equivalent — pick to match the gateway choice). It handles the transport.
 4. Capability negotiation: declare only the tools you actually expose. The MCP `initialize` response lists tools; clients reject mismatches.
 
@@ -410,7 +402,7 @@ Per the [MCP spec](https://modelcontextprotocol.io/specification/2025-06-18/basi
 - Claude Desktop config requires editing `claude_desktop_config.json` on the grader's machine (high friction).
 - MCP `tools/list` returns tools the dispatcher doesn't actually implement.
 
-**Phase to address:** P:MCP. Decision made in P:Foundations alongside the AWS-scope decision.
+**Phase to address:** P:MCP. Decision made in P:Foundations alongside the deploy-target decision (local docker-compose + tunnel).
 
 ---
 
@@ -467,7 +459,7 @@ Conversation history is persisted in the DB as serialized Gemini `Content` JSON 
 **Severity:** MEDIUM
 
 **What goes wrong:**
-Identity service issues JWT with `exp = now + 1h`. Gateway validates with `now`. If their clocks differ by more than the leeway (default 0), tokens "from the future" or "expired" are rejected. On AWS this is rare (NTP), but in `docker-compose` with WSL2 host clock drift it's common. Demo intermittent failures: "user logged in but next request 401."
+Identity service issues JWT with `exp = now + 1h`. Gateway validates with `now`. If their clocks differ by more than the leeway (default 0), tokens "from the future" or "expired" are rejected. In `docker-compose` with WSL2 host clock drift it's common — every container shares the host clock, so drift on the candidate's machine surfaces immediately. Demo intermittent failures: "user logged in but next request 401."
 
 **Why it happens:**
 JWT spec uses NumericDate (seconds since epoch). Sub-second precision varies by SDK. Container clocks on dev machines drift.
@@ -476,7 +468,7 @@ JWT spec uses NumericDate (seconds since epoch). Sub-second precision varies by 
 1. Set `clockSkew` on the JWT verifier (Spring Security: `JwtTimestampValidator` with `Duration.ofSeconds(30)`).
 2. Token expiry: 1 hour for the demo. Refresh-token flow not needed for grading.
 3. Both services log `now` and the token's `iat`/`exp` at validation. Easy to spot drift.
-4. AWS: depend on NTP. Docker-compose: bind-mount `/etc/localtime` or use `time-sync` patterns.
+4. Docker-compose: bind-mount `/etc/localtime` or use `time-sync` patterns; on WSL2 hosts, run `wsl --shutdown` before the demo if drift accumulates after a long laptop sleep.
 
 **Warning signs:**
 - Login succeeds, immediate next request 401.
@@ -632,27 +624,13 @@ Spring Data and JS pagination libraries disagree by default.
 
 ---
 
-### Pitfall 25: GitHub Actions OIDC role trust policy misconfigured
+### Pitfall 25: ~~GitHub Actions OIDC role trust policy misconfigured~~ (DROPPED 2026-04-28)
 
-**Severity:** MEDIUM
+**Status:** DROPPED — there is no AWS account in the deploy story. The GitHub Actions release-tag job pushes Jib images to GHCR (or Docker Hub) using a registry token (`GITHUB_TOKEN` for GHCR, or a `DOCKERHUB_TOKEN` repo secret), not an AWS OIDC role. The OIDC trust-policy class of misconfiguration cannot apply.
 
-**What goes wrong:**
-Repo set up to use OIDC for AWS auth (preferred per PROJECT.md). The IAM role trust policy is wrong — wrong `aud`, wrong `sub` pattern, or thumbprint stale. Every deploy fails with `AssumeRoleWithWebIdentity: not authorized`.
+**Replacement risk to keep in mind (LOW):** registry-token misconfiguration on the release-tag job. Mitigation: GHCR via `GITHUB_TOKEN` works out of the box for the same repo's namespace; if Docker Hub is used, the `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN` repo secrets must be set before the first release tag. A `docker login` step at the top of the workflow fails fast if the secrets are missing.
 
-**Why it happens:**
-OIDC trust policies are fiddly. The `sub` claim format is `repo:owner/repo:ref:refs/heads/main` and easy to typo.
-
-**How to avoid:**
-1. Use AWS's [official action template](https://github.com/aws-actions/configure-aws-credentials#assuming-a-role) verbatim. Don't hand-roll.
-2. Trust policy `sub` condition: `"token.actions.githubusercontent.com:sub": "repo:OWNER/REPO:*"` (start permissive, tighten later).
-3. Test with a `aws sts get-caller-identity` step at the top of the workflow. If that fails, deploy fails fast.
-4. Alternative for the demo: GitHub Actions repository secrets with a long-lived IAM user. Less ideal, but works in 5 minutes when OIDC is fighting back.
-
-**Warning signs:**
-- `AssumeRoleWithWebIdentity ... is not authorized to perform sts:AssumeRoleWithWebIdentity` in workflow logs.
-- Workflow runs only on `main` and only from the canonical repo path.
-
-**Phase to address:** P:DevOps.
+**Phase to address:** P:DevOps (Phase 11) — register-and-publish step only.
 
 ---
 
@@ -767,7 +745,7 @@ Tests feel like overhead until they're not. Bootcamp brief explicitly requires t
 | Eureka + Gateway | Gateway uses `lb://service-name` but service-name has uppercase letters | Eureka lower-cases service names; route IDs must match. Audit: `eureka.instance.appname` lowercase, gateway routes lowercase |
 | Springdoc OpenAPI on gateway | Aggregate OpenAPI on gateway shows 0 endpoints because services use webmvc but gateway uses webflux Springdoc | Each service publishes its `/v3/api-docs`; gateway aggregates via `springdoc.swagger-ui.urls` list (configured manually) |
 | MCP server + Spring AI | Tool registration fails silently when method signatures don't match expected types | Use `@Tool` annotation with explicit description; integration test calls `tools/list` and asserts each tool present |
-| AWS RDS | Connecting from outside VPC for local dev → blocked | RDS publicly accessible **only for the demo window**, locked down by IP. Document the security tradeoff. |
+| Local Postgres in docker-compose | Connecting from outside the candidate's host → blocked by default (compose binds 5432 to localhost) | Keep Postgres bound to localhost only — the public tunnel exposes only the gateway port. Document this in the README as the deliberate boundary. |
 
 ---
 
@@ -798,9 +776,9 @@ Tests feel like overhead until they're not. Bootcamp brief explicitly requires t
 | 3DS callback endpoint behind JWT filter | Iyzico can't reach it; orders hang | Pitfall 5 — whitelist callback path; verify via signed `payment.retrieve` |
 | MCP server with no auth | Anyone on the internet places orders against your demo | API-key header on MCP, distinct from JWT. Document in README. |
 | Unprotected Actuator endpoints (`/actuator/env`) | Leaks secrets in env vars to anyone hitting the URL | Spring Security on Actuator; expose only `/health` and `/info` publicly; `/env`, `/configprops` require admin role |
-| Postgres password rotation never | If RDS leaks, no rotation path | Document rotation in README ("for production: rotate via Secrets Manager"); demo can keep static |
+| Postgres password rotation never | If a `.env` leaks, no rotation path | Document rotation in README ("for production: rotate via Vault / Doppler"); demo can keep static — Postgres is on the candidate's host, not internet-exposed |
 | Tool dispatcher trusts model-supplied IDs | Pitfall 10 — model creates phantom orders | Validate every ID against domain rules; never just "execute what the model says" |
-| AWS credentials in repo secrets (long-lived) | If repo public, credentials leaked | Prefer OIDC role assumption (Pitfall 25); rotate IAM keys if static |
+| Container-registry credentials in repo secrets (long-lived) | If repo public, credentials leaked | Prefer GHCR + `GITHUB_TOKEN` (no extra credential to rotate); if Docker Hub, use a scoped `DOCKERHUB_TOKEN` repo secret with read+write to the project's namespace only |
 
 ---
 
@@ -836,7 +814,7 @@ Tests feel like overhead until they're not. Bootcamp brief explicitly requires t
 - [ ] **MCP toolset reachable from a real MCP client**: tested with `npx @modelcontextprotocol/inspector` or Claude Desktop
 - [ ] **Turkish UI**: every visible string is Turkish; no hardcoded English in JSX
 - [ ] **Demo seed data**: 20+ Turkish products, real-looking names (e.g., "Apple iPhone 15 Pro 256 GB Doğal Titanyum"), test-card hint visible on checkout
-- [ ] **AWS deploy**: actually reachable from outside; not just "the workflow is green"
+- [ ] **Local-host deploy**: `docker compose --profile full up` brings up all 13 services + Postgres + RabbitMQ on the candidate's machine; the public tunnel hostname is reachable from outside (`curl https://<tunnel>/api/v1/products` returns 200 from a phone hotspot, not just the candidate's LAN)
 - [ ] **Slack notifications**: a real message lands on deploy success/failure
 - [ ] **README**: includes architecture diagram, service list, demo script, env vars list, license
 - [ ] **Logging**: every service writes structured logs with `traceId`/`correlationId`; demo can `grep correlationId=X` across all services and see the full saga
@@ -859,7 +837,7 @@ Tests feel like overhead until they're not. Bootcamp brief explicitly requires t
 | Pitfall 7 (Leaky AI port) | HIGH | Refactor port DTOs; add second adapter; re-test. Half a day. **Cannot fix at demo time.** |
 | Pitfall 9 (Gemini rate limit hit during demo) | LOW (with prep) / HIGH (without) | Prep: paid project + recorded fallback video. Without prep: cancel demo, reschedule |
 | Pitfall 11 (Compensation incomplete) | MEDIUM | Add missing handlers; integration test forced-failure paths. 2–4 hours |
-| Pitfall 12 (Beanstalk doesn't fit) | HIGH | Switch to docker-compose-on-EC2 or ECS Fargate. Day-of: nearly impossible. Resolve Day 1 |
+| Pitfall 12 (DROPPED) | — | No longer in scope; deploy = local docker-compose on candidate's host. Recovery N/A |
 | Pitfall 14 (Internal services exposed) | LOW (config) | Update security group; add `server.address: 127.0.0.1`. 30 min |
 | Pitfall 19 (Streaming UI freeze) | MEDIUM | Add token buffering. 1 hour |
 | Pitfall 20 (Turkish drift) | LOW | Strengthen system prompt; pin `systemInstruction`. 30 min |
@@ -886,7 +864,7 @@ Tests feel like overhead until they're not. Bootcamp brief explicitly requires t
 | 9. Gemini rate limit | HIGH | P:AI-Core + P:Demo-Polish | Demo runs on paid project; recorded fallback exists |
 | 10. Hallucinated tool args | HIGH | P:AI-Core | Tool dispatcher rejects unknown IDs in test |
 | 11. SAGA compensation incomplete | HIGH | P:Saga | Forced-failure tests for each saga step |
-| 12. Beanstalk fit | HIGH | P:Foundations (decision) + P:DevOps (execution) | Open question resolved Day 1; deploy plan documented |
+| 12. ~~Beanstalk fit~~ DROPPED | — | — (closed by deploy revision) | Local docker-compose deploy on candidate's host; Pitfall #12 no longer in scope |
 | 13. Schema migration coordination | MEDIUM | P:Foundations + P:Domain-Services | Schema bootstrap migration; cross-schema query test fails |
 | 14. Internal services exposed | MEDIUM/HIGH | P:DevOps | External `curl` to service port refused |
 | 15. MCP transport mismatch | MEDIUM | P:MCP | Demo target test: real client connects, lists tools |
@@ -899,7 +877,7 @@ Tests feel like overhead until they're not. Bootcamp brief explicitly requires t
 | 22. Testcontainers slow | MEDIUM | P:Foundations + P:DevOps | CI under 15 min |
 | 23. CORS/auth mismatch | MEDIUM | P:Foundations + P:Frontend | Frontend → gateway smoke test on every CI |
 | 24. Pagination off-by-one | LOW | P:Domain-Services + P:Frontend | OpenAPI documents convention; integration test |
-| 25. GitHub Actions OIDC misconfig | MEDIUM | P:DevOps | First green deploy; `aws sts get-caller-identity` step |
+| 25. ~~GitHub Actions OIDC misconfig~~ DROPPED | — | — (no AWS account) | OIDC not in scope; release-tag job uses GHCR / Docker Hub registry token instead |
 | 26. Day-1 bikeshedding | HIGH | P:Foundations | `.planning/saga-contracts.md` and `.planning/api-contracts.md` exist by EOD Day 1 |
 | 27. Scope creep | HIGH | P:Demo-Polish (vigilance throughout) | Branch list checked daily; nothing started after Day 4 |
 | 28. Tests deferred to Day 6 | HIGH | All implementation phases | CI runs on every commit from Day 1; test count > 0 per service |
@@ -923,9 +901,9 @@ Verified during research (2026-04-28):
 - [MCPcat Transport Comparison](https://mcpcat.io/guides/comparing-stdio-sse-streamablehttp/) — practical decision guide
 - [Netflix/eureka issue #1150](https://github.com/Netflix/eureka/issues/1150) — registration timing details
 - [Netflix/eureka issue #1256](https://github.com/Netflix/eureka/issues/1256) — delayed registration patterns
-- [AWS Elastic Beanstalk: ECS Multi-container Tutorial](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_ecstutorial.html) — multi-container constraints
-- [AWS re:Post — Beanstalk for microservices](https://repost.aws/questions/QUL4JIR5OcTKWaHrFiEwwMGA/elastic-beanstalk-to-deploy-a-microservices-based-application-with-multiple-components) — community guidance
-- [aws-actions/configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials) — OIDC trust policy reference
+- ~~[AWS Elastic Beanstalk: ECS Multi-container Tutorial](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_ecstutorial.html)~~ — kept as audit trail; no longer applicable after the local-deploy revision
+- ~~[AWS re:Post — Beanstalk for microservices](https://repost.aws/questions/QUL4JIR5OcTKWaHrFiEwwMGA/elastic-beanstalk-to-deploy-a-microservices-based-application-with-multiple-components)~~ — kept as audit trail; no longer applicable
+- [Cloudflare Tunnel — Get started with `cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/) — primary tunnel exposure path for the local-deploy demo URL + Iyzico webhook
 - PROJECT.md (locked decisions) and REQUIREMENTS-n11.md (bootcamp brief) — project constraints
 
 LOW confidence on:

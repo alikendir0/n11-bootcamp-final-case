@@ -26,7 +26,7 @@ If a file in `.planning/` conflicts with this CLAUDE.md, **the `.planning/` file
 
 **13 services:** `eureka-server`, `config-server`, `api-gateway`, `identity-service`, `product-service`, `inventory-service`, `cart-service`, `order-service`, `payment-service`, `notification-service`, `search-service`, `ai-service`, `mcp-server`.
 
-**Stack:** Java 21 + Spring Boot 3.5.14 + Spring Cloud 2025.0.x (Northfields) · Gradle multi-module · PostgreSQL 16 + pgvector 0.8.2 (schema-per-service, single host, distinct DB user per schema) · RabbitMQ 4.x · choreography SAGA via RabbitMQ events · JWT validated only at the gateway · Springdoc 2.8.17 · Jib Gradle 3.5.3 · GitHub Actions · React 19 + Vite 8 (TS/styling/state locked post-Playwright recon).
+**Stack:** Java 21 + Spring Boot 3.5.14 + Spring Cloud 2025.0.x (Northfields) · Gradle multi-module · PostgreSQL 16 + pgvector 0.8.2 (schema-per-service, single host, distinct DB user per schema) · RabbitMQ 4.x · choreography SAGA via RabbitMQ events · JWT validated only at the gateway · Springdoc 2.8.17 · Jib Gradle 3.5.3 · GitHub Actions (build + test only) · local docker-compose deploy on the candidate's machine, public demo URL via Cloudflare Tunnel / ngrok · React 19 + Vite 8 (TS/styling/state locked post-Playwright recon).
 
 **AI library split (don't conflate):**
 - `google-genai 1.51.0` → chat + embeddings (inside ai-service `GeminiChatAdapter` and `GeminiEmbeddingAdapter`)
@@ -55,7 +55,7 @@ If a file in `.planning/` conflicts with this CLAUDE.md, **the `.planning/` file
 
 | Question | Affects | Resolved by |
 |---|---|---|
-| AWS deploy scope (EB+RDS hard or "any AWS"?) | Phase 1 decision, Phase 11 execution | Day-1 query to bootcamp coordinator |
+| Public tunnel choice for demo URL + Iyzico webhook (Cloudflare Tunnel vs ngrok) | Phase 6 (payment webhook), Phase 11 (demo posture) | Phase 6 planning |
 | MCP transport choice (stdio / HTTP+SSE / both?) | Phase 9 (MCP Server) | Phase 9 planning |
 | Frontend toolchain (Vite+TS+Tailwind+Zustand or alt) | Phase 10 (Frontend Storefront) | Phase 2 (Playwright recon) outcome |
 | Conversation state store (Redis vs Postgres) | Phase 8 (AI port) | Phase 8 planning |
@@ -86,10 +86,11 @@ Workflow toggles (in `.planning/config.json`):
 (Full list: `.planning/research/PITFALLS.md` — 28 numbered, severity-tagged.)
 
 1. **#7 — Leaky `ChatProvider` abstraction** (Phase 8) — see Non-negotiable Rule #1
-2. **#12 — EB single-app vs 13 microservices mismatch** (Phase 1/11) — Day-1 coordinator query is critical
-3. **#26 — Day-1 bikeshedding** (Phase 1) — saga + API contracts must be written before any service code
-4. **#5 — Iyzico webhook unreachable on localhost** (Phase 6) — public tunnel decision is a deliverable
-5. **#11 — Cross-schema accidental joins** (every backend phase) — distinct DB users with role-level deny enforce the boundary
+2. **#26 — Day-1 bikeshedding** (Phase 1) — saga + API contracts must be written before any service code
+3. **#5 — Iyzico webhook unreachable on localhost** (Phase 6) — Cloudflare Tunnel / ngrok choice is a deliverable
+4. **#11 — Cross-schema accidental joins** (every backend phase) — distinct DB users with role-level deny enforce the boundary
+
+(Pitfall #12 — EB-vs-13-microservices mismatch — is no longer in scope. Deploy target is local docker-compose on the candidate's machine, not AWS.)
 
 ## When something feels off
 
@@ -99,4 +100,4 @@ Workflow toggles (in `.planning/config.json`):
 - "Which AI feature is in scope?" → only the chat assistant (with full tool use) and the MCP server. NL search and recommendations emerge from chat tool-use, NOT separate UIs (per PROJECT.md Out-of-Scope)
 
 ---
-*Last updated: 2026-04-28 after initial roadmap*
+*Last updated: 2026-04-28 — deploy target switched from AWS EB+RDS to local docker-compose on the candidate's machine (compute is sufficient locally; tunnel for demo URL).*

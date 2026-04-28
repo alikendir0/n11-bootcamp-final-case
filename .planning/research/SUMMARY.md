@@ -13,7 +13,7 @@ This is a 13-service Spring Boot microservices e-commerce backend with a React s
 
 The recommended approach is a conservative, well-documented Spring stack: **Java 21 + Spring Boot 3.5.14 + Spring Cloud 2025.0.x (Northfields) + Gradle multi-module**, with PostgreSQL 16 (schema-per-service on one host), RabbitMQ 4.x (choreography SAGA), and a carefully split AI library strategy. The AI layer uses google-genai 1.51.0 directly for the GeminiChatAdapter (Spring AI 1.1.5 does not enumerate gemini-3-flash-preview in its Gemini model list), and spring-ai-starter-mcp-server-webmvc 1.1.5 exclusively for the MCP server wire protocol. These are two libraries with clean, non-overlapping responsibilities. Spring Boot 4.0 is deliberately avoided; it is released but the Spring AI and Spring Cloud ecosystems remain on the 3.x line.
 
-The three highest-severity risks are: (1) the leaky `ChatProvider` abstraction, which collapses the SOLID thesis if Gemini types bleed into the port; (2) the AWS Elastic Beanstalk scope mismatch, which must be resolved on Day 1 or it becomes terminal on Day 5; and (3) Day-1 bikeshedding, where unresolved saga event contracts delay every downstream service. All three are preventable by front-loading decisions, and the research surfaces exactly how.
+The three highest-severity risks are: (1) the leaky `ChatProvider` abstraction, which collapses the SOLID thesis if Gemini types bleed into the port; (2) Iyzico webhook unreachability — the sandbox cannot hit `localhost`, so a tunnel choice (Cloudflare Tunnel preferred, ngrok fallback) is the binding deploy-day constraint; and (3) Day-1 bikeshedding, where unresolved saga event contracts delay every downstream service. The earlier "AWS Elastic Beanstalk scope mismatch" risk has been removed — the deploy target is now local docker-compose on the candidate's machine, eliminating the EB-vs-13-microservices fit question entirely. All three remaining risks are preventable by front-loading decisions, and the research surfaces exactly how.
 
 ## Key Findings
 
@@ -118,7 +118,7 @@ Full detail in [`ARCHITECTURE.md`](ARCHITECTURE.md). 13 services with bounded co
 7. **Search** (parallel with Commerce, after Catalog): pgvector setup + embedding pipeline
 8. **AI/agent layer** (sequential after Search + Cart + Order): `agent-toolset` shared module FIRST → ai-service ports + adapters → mcp-server registers from shared module
 9. **Frontend storefront + chat** (parallel with backend after gateway is up): foundation → storefront pages → chat assistant bubble
-10. **DevOps & deploy** (final): Jib pipelines + AWS deploy + Slack webhook
+10. **DevOps & deploy** (final): Jib pipelines + local docker-compose deploy on the candidate's machine + Cloudflare Tunnel / ngrok exposure + Slack webhook
 
 ### Critical Pitfalls
 
@@ -128,13 +128,13 @@ Full detail in [`PITFALLS.md`](PITFALLS.md). 28 numbered pitfalls with severity,
 
 1. **Leaky `ChatProvider` abstraction (HIGH, P:AI-Core)** — the SOLID thesis lives in this port. If Gemini SDK types (`Content`, `Part`, `FunctionCall`) bleed into it, the differentiator collapses. Prevention: zero-dep `ai-port` Gradle module with neutral DTOs; ship a trivial `EchoChatProvider` adapter alongside the Gemini one to prove substitutability. Cannot be fixed at demo time.
 
-2. **AWS EB single-app vs 13 microservices mismatch (HIGH, P:Foundations decision + P:DevOps execution)** — Beanstalk's modern single-app model genuinely doesn't fit 13 services. Discovering this on Day 5 is a sunk demo. Prevention: **resolve the open question with the bootcamp coordinator on Day 1 morning**. Three escape hatches: single-instance Docker on EB (cheapest), ECS Fargate (most cloud-native), single-EC2 + docker-compose (graders accept if reasoned).
+2. **~~AWS EB single-app vs 13 microservices mismatch~~ (DROPPED 2026-04-28)** — original Day-1 risk #2 from this list. Resolved by the deploy-target revision: the candidate's local machine hosts the full docker-compose stack (13 services + Postgres + RabbitMQ); the demo URL is exposed via Cloudflare Tunnel (preferred) or ngrok. AWS is no longer in scope, so the EB-vs-13-microservices fit question vanishes. Pitfall #12 in PITFALLS.md is marked dropped accordingly. **Caveat:** the bootcamp brief originally listed AWS as must-have — coordinator confirmation that local-host + tunnel deployment is acceptable for grading is recommended.
 
 3. **Day-1 bikeshedding instead of locking saga contracts (HIGH, P:Foundations)** — silent killer for 6-day timelines. Prevention: by EOD Day 1, `.planning/saga-contracts.md` and `.planning/api-contracts.md` must exist with every event name, payload schema, producer, consumer, and compensation event locked. Frontend toolchain debate happens **after** the morning Playwright recon, before lunch.
 
 4. **Non-idempotent saga consumers cause duplicate orders (HIGH, P:Cart-Order, P:Payment)** — RabbitMQ at-least-once delivery + inevitable redelivery + non-idempotent consumers = duplicate stock holds, double payments. Prevention: every consumer uses a `processed_events` inbox table keyed by event ID; `INSERT OR IGNORE` semantics; integration test for redelivery.
 
-5. **Iyzico webhook unreachable on localhost (HIGH, P:Payment)** — sandbox cannot hit `localhost`; saga stalls waiting for `payment.completed`. Prevention: payment phase plan must include public-tunnel decision (ngrok / Cloudflare tunnel / EB public URL); document the chosen option in `payment-service/README.md`.
+5. **Iyzico webhook unreachable on localhost (HIGH, P:Payment)** — sandbox cannot hit `localhost`; saga stalls waiting for `payment.completed`. Prevention: payment phase plan must include public-tunnel decision (Cloudflare Tunnel preferred, ngrok fallback — same tunnel exposes the demo URL); document the chosen option in `payment-service/README.md`.
 
 **Other phase-mapped pitfalls (sample):**
 - Eureka registration timing → Foundations phase health-check policy
@@ -156,7 +156,7 @@ The candidate locked granularity at FINE (8–12 phases). Research suggests 12 p
 **Rationale:** Everything depends on it. Includes the Day-1-critical bikeshedding kill: lock saga + API contracts before any service code exists.
 **Delivers:** Multi-module Gradle skeleton, base CI build, Postgres + RabbitMQ docker-compose, eureka-server, config-server, api-gateway shell, `saga-contracts.md` + `api-contracts.md` checked in.
 **Addresses:** All "Foundations" pitfalls (eureka timing, gateway reactive vs MVC, schema isolation policy).
-**Avoids:** Pitfall #26 (Day-1 bikeshedding), Pitfall #2 (eureka timing), Pitfall #11 (schema cross-joins), Pitfall #12 (EB scope — Day-1 coordinator query is a deliverable).
+**Avoids:** Pitfall #26 (Day-1 bikeshedding), Pitfall #2 (eureka timing), Pitfall #11 (schema cross-joins). (Pitfall #12 — EB scope — no longer in scope per the local-deploy revision.)
 
 ### Phase 2: Identity + Gateway Auth
 **Rationale:** Every other service needs JWT validation; gateway header-injection contract must lock before any service implements `@AuthenticationPrincipal`.
@@ -217,10 +217,10 @@ The candidate locked granularity at FINE (8–12 phases). Research suggests 12 p
 **Uses:** Vite 8 + React 19.2 + (TS/styling/state per Phase 3 decision).
 
 ### Phase 12: Frontend Chat Assistant + DevOps Deploy
-**Rationale:** The differentiator UI on top of the storefront. Bundled with deploy because both depend on everything else being green. Deploy answers come from Phase 1's Day-1 coordinator query.
-**Delivers:** Floating chat bubble, SSE streaming from gateway, tool-use round-trips visible in UI, Jib build for every service, GitHub Actions pipeline, AWS deploy per coordinator answer, Slack webhook for deploy notifications.
-**Uses:** Vite + EventSource, Jib Gradle 3.5.3, GH Actions OIDC.
-**Avoids:** Pitfall #13 (deploy mismatch — already resolved Day 1), Pitfall #24 (streaming UX), Pitfall #16 (CORS — already locked Day 1).
+**Rationale:** The differentiator UI on top of the storefront. Bundled with deploy because both depend on everything else being green. Deploy target is locked from Phase 1 (local docker-compose on the candidate's machine; demo URL via Cloudflare Tunnel / ngrok).
+**Delivers:** Floating chat bubble, SSE streaming from gateway, tool-use round-trips visible in UI, Jib build for every service, GitHub Actions build/test pipeline + release-tag image publish to GHCR/Docker Hub, local `docker compose --profile full up` deploy artifact, public tunnel sidecar (cloudflared / ngrok), Slack webhook for build notifications.
+**Uses:** Vite + EventSource, Jib Gradle 3.5.3, Cloudflare Tunnel `cloudflared` (or ngrok agent).
+**Avoids:** Pitfall #24 (streaming UX), Pitfall #16 (CORS — already locked Day 1). (Pitfall #12 / Pitfall #13 deploy-mismatch risks no longer in scope per the local-deploy revision.)
 
 ### Phase Ordering Rationale
 
@@ -231,7 +231,7 @@ The candidate locked granularity at FINE (8–12 phases). Research suggests 12 p
 - **Search and AI parallel-ish** — they share the embedding model but are different services; the AI port can build out while search is indexing.
 - **MCP after AI** because mcp-server imports the shared `agent-toolset` module from the AI phase; building MCP first guarantees toolset drift.
 - **Frontend pages before chat** so the chat assistant has a real UI to live inside.
-- **DevOps/deploy last** so the deploy artifact is feature-complete; Day-1 coordinator answer means we know the target shape from Day 1.
+- **DevOps/deploy last** so the deploy artifact is feature-complete; deploy target is locked Day 1 (local docker-compose on the candidate's machine, demo URL via Cloudflare Tunnel / ngrok).
 
 ### Research Flags
 
@@ -243,7 +243,7 @@ Phases likely needing their own `/gsd-research-phase` pass during planning:
 - **Phase 3 (Frontend Recon):** HIGH — Playwright must run; this is research IS the deliverable.
 - **Phase 1 (Foundations):** MEDIUM — Spring Cloud 2025.0 wiring quirks, distinct DB user policy specifics.
 - **Phase 8 (Search):** MEDIUM — pgvector index type (HNSW vs IVFFlat) and parameter tuning, embedding dimensionality.
-- **Phase 12 (DevOps):** MEDIUM — depends on the AWS scope answer; if EB stays, EB+microservices guidance; if ECS, ECS task def specifics.
+- **Phase 12 (DevOps):** LOW — local docker-compose on a single host is well-trodden; only fresh research is the public-tunnel choice (Cloudflare Tunnel quickstart vs ngrok agent token).
 
 Phases with standard patterns (skip per-phase research):
 - **Phase 2 (Identity):** standard JWT pattern.
@@ -259,14 +259,14 @@ Phases with standard patterns (skip per-phase research):
 | Stack | HIGH | Versions verified against official docs; Gemini model ID flagged MEDIUM with explicit fallback; Iyzico sample location flagged MEDIUM |
 | Features | HIGH | n11.com blocked WebFetch (anti-bot 403); Trendyol/Hepsiburada used as proxy; Playwright recon covers the gap |
 | Architecture | HIGH | Saga flow, contracts, build order all sourced from Spring Cloud + microservices.io + MCP spec |
-| Pitfalls | HIGH | 28 pitfalls cited against real Spring Cloud GitHub issues, RabbitMQ docs, Iyzico docs, MCP spec, EB docs |
+| Pitfalls | HIGH | 28 pitfalls cited against real Spring Cloud GitHub issues, RabbitMQ docs, Iyzico docs, MCP spec; pitfall #12 (EB fit) marked dropped after the local-deploy revision |
 
 **Overall confidence:** HIGH for architecture, stack, and pitfall coverage. MEDIUM for two specific items requiring impl-time verification (Gemini 3 Flash availability; Iyzico Checkout Form sample contents). The research surfaces the verification steps needed in each.
 
 ### Gaps to Address
 
 - **Gemini 3.0 Flash availability** — verify model ID at AI-Service phase (Phase 9). Fallback `gemini-2.5-flash` documented. Adapter abstraction means swap is one-file.
-- **AWS deploy scope** — open question; coordinator query is Phase 1 deliverable. Deploy phase shape (Phase 12) depends on the answer.
+- **~~AWS deploy scope~~** — RESOLVED 2026-04-28: AWS dropped. Deploy target = local docker-compose on the candidate's machine; demo URL via Cloudflare Tunnel / ngrok. Coordinator confirmation that this satisfies the brief's "AWS deployment" line is recommended.
 - **MCP transport choice** — both stdio and HTTP+SSE feasible since dispatch core is shared; decision deferred to Phase 10 planning.
 - **MCP auth bridge** — for mutating tools (cart, order), external agents need user mapping. Default to read-only if Phase 10 leaves this open. Differentiator weakens but doesn't break.
 - **Frontend toolchain** — locked post-Playwright recon (Phase 3 deliverable).
@@ -289,7 +289,7 @@ Phases with standard patterns (skip per-phase research):
 - trendyol.com (live recon 2026-04-28) — primary marketplace recon proxy after n11.com 403
 - hepsiburada.com / Crunchbase / Turkpidya — n11 specifics where direct fetch blocked
 - Spring Cloud Gateway issue tracker — reactive/MVC incompatibility
-- AWS Elastic Beanstalk multi-container Docker docs — single-instance fallback path
+- Cloudflare Tunnel `cloudflared` quickstart docs — sidecar exposure of localhost gateway port (replaces the previous AWS Elastic Beanstalk reference; AWS dropped from scope)
 
 ### Tertiary (LOW confidence — needs validation at impl time)
 - Gemini 3 Flash exact model ID and Preview-tier availability — verify at Phase 9

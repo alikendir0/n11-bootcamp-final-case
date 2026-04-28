@@ -58,7 +58,7 @@
 - [ ] **PAY-02**: payment-service consumes `stock.reserved` events and initiates Iyzico payment
 - [ ] **PAY-03**: payment-service publishes `payment.completed` or `payment.failed` events to drive saga
 - [ ] **PAY-04**: 3DS callback handler URL implemented; Iyzico can return to the app and complete the order
-- [ ] **PAY-05**: Public webhook reachability solution chosen (ngrok / Cloudflare tunnel / EB public URL) and documented in `payment-service/README.md`
+- [ ] **PAY-05**: Public webhook reachability solution chosen (Cloudflare Tunnel preferred, ngrok fallback) and documented in `payment-service/README.md`. The same tunnel exposes the gateway for the demo URL, so PAY-05 and DEV-05 share infrastructure.
 - [ ] **PAY-06**: Payment timeout job fires compensation events if Iyzico hangs (order stuck in `STOCK_RESERVED` for > N minutes)
 - [ ] **PAY-07**: User can complete a full sandbox payment with Iyzico test card `5528 7900 0000 0008`
 
@@ -144,13 +144,13 @@
 
 - [ ] **DEV-01**: Backend services containerized with Jib (Gradle plugin 3.5.3) — no Dockerfiles
 - [ ] **DEV-02**: GitHub Actions CI pipeline (`build`, `test`) on push/PR
-- [ ] **DEV-03**: GitHub Actions CD pipeline (`deploy`) on main-branch push
+- [ ] **DEV-03**: GitHub Actions release pipeline on `v*` tags publishes the 13 Jib images to a container registry (GHCR or Docker Hub) so the local docker-compose can pull them by tag (this is the "deploy" half of CI/CD reframed for a local-host deploy)
 - [ ] **DEV-04**: Jenkins comparison documented in `docs/devops-pipeline-comparison.md` (pipeline-logic understanding requirement)
-- [ ] **DEV-05**: AWS deploy completes successfully (target shape per coordinator answer — EB+RDS preferred per brief; ECS-Fargate or EC2+docker-compose are acceptable fallbacks)
-- [ ] **DEV-06**: Slack webhook fires deploy notifications on success/failure
-- [ ] **DEV-07**: docker-compose.yml provides full local stack (Postgres + RabbitMQ + all 13 services) for development and demo
-- [ ] **DEV-08**: AWS credentials via GitHub Actions OIDC (preferred) or repo secrets — never committed
-- [ ] **DEV-09**: README.md covers local-run instructions, env-var matrix, demo card numbers, and deployed-URL pointer
+- [ ] **DEV-05**: Full deployment runs on the candidate's machine via `docker compose --profile full up` (Postgres + RabbitMQ + all 13 services); the gateway is exposed publicly via a Cloudflare Tunnel (preferred) or ngrok (fallback); a `curl https://<tunnel-hostname>/api/v1/products` from outside the candidate's network returns 200 with seed products
+- [ ] **DEV-06**: Slack webhook fires CI build notifications on success/failure (the deploy-equivalent signal for the local-host deploy model)
+- [ ] **DEV-07**: docker-compose.yml provides full local stack (Postgres + RabbitMQ + all 13 services) for development and demo (this *is* the deploy artifact, not just a dev convenience)
+- [ ] **DEV-08**: Tunnel access token (Cloudflare Tunnel token or ngrok authtoken) and registry-publish credentials live as env vars / GitHub Actions secrets — never committed; OIDC is not in scope (no AWS account)
+- [ ] **DEV-09**: README.md covers local-run instructions, env-var matrix, demo card numbers, the public tunnel hostname pointer, and a 30-second `docker compose up` rehearsal so the candidate can re-launch the demo cleanly during the interview
 
 ---
 
@@ -194,7 +194,7 @@ Explicitly excluded. Documented to prevent scope creep and to demonstrate to gra
 | Mobile app / PWA | Brief is React-only. Responsive web only |
 | Real-time WebSocket cart sync | Polling/invalidation is sufficient. SSE for chat streaming is the only real-time we ship |
 | Production observability stack (ELK / Loki / tracing) | 6-day window. Structured JSON logs + correlation IDs is enough |
-| Strict DB-per-service on separate Postgres instances | AWS cost. Schema-per-service on one host is the boundary |
+| Strict DB-per-service on separate Postgres instances | Local docker-compose deploy = single Postgres host; multiple instances add ops surface for zero architectural gain. Schema-per-service + per-service DB user with role-deny is the boundary |
 | Real-time stock updates ("Son 1 kaldı!") | Not in brief; distracts. Stock checked at page load + saga reservation step |
 | Test coverage > 70% | 6-day window. Smoke unit + 1–2 integration per service on critical path |
 | Reviews / ratings backend | Not in brief; out of agentic-commerce wedge focus |
@@ -203,6 +203,7 @@ Explicitly excluded. Documented to prevent scope creep and to demonstrate to gra
 | Password reset via email | Same; defer to v2+ if SMTP appears |
 | OAuth login | Email/password sufficient for v1 brief |
 | TC kimlik validation | Optional in real e-commerce; cuts complexity for v1 |
+| AWS Elastic Beanstalk + RDS deployment | Candidate's local machine has sufficient compute to host all 13 services + Postgres + RabbitMQ via docker-compose; demo URL is exposed via Cloudflare Tunnel / ngrok. Eliminates Pitfall #12 (EB-vs-13-microservices fit), $0 cloud spend, and faster iteration. Note: original brief listed AWS as must-have; coordinator confirmation recommended |
 
 ---
 
@@ -327,4 +328,4 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 
 ---
 *Requirements defined: 2026-04-28*
-*Last updated: 2026-04-28 after roadmap creation (11 phases)*
+*Last updated: 2026-04-28 — DEV-03/-05/-06/-08/-09 reworded for local docker-compose deploy + tunnel exposure (AWS dropped). PAY-05 narrowed to Cloudflare Tunnel / ngrok. Out-of-Scope row added for AWS EB+RDS.*

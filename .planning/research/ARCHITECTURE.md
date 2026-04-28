@@ -635,7 +635,7 @@ Phase 6 — FRONTEND
   └── React storefront        (needs gateway up; Phase 0 is hard prereq)
 
 Phase 7 — DEVOPS / DEPLOY
-  └── Jib + GitHub Actions + AWS
+  └── Jib + GitHub Actions (build/test + release-tag image publish) + local docker-compose on candidate's machine + Cloudflare Tunnel / ngrok
 ```
 
 **Within Phase 2:** product-service first (catalog seed needed by everyone); inventory and cart can begin in parallel against the frozen product API.
@@ -682,8 +682,8 @@ Springdoc-openapi-starter-webmvc-ui per service. Gateway aggregates via `springd
 ### 8.5 Configuration
 
 - Bootstrap config (`bootstrap.yml`): only Eureka URL + config-server URL.
-- Everything else from config-server; profile per env (`dev`, `aws`).
-- Secrets (Iyzico keys, Gemini API key, JWT signing key): config-server pulls from env vars in dev; from AWS Parameter Store in prod (or GitHub Actions secrets injected at deploy time).
+- Everything else from config-server; profile per env (`dev`, `prod`).
+- Secrets (Iyzico keys, Gemini API key, JWT signing key, Slack webhook, tunnel token): config-server pulls from env vars sourced by docker-compose from a gitignored `.env` on the candidate's host. Production-grade upgrade (Vault / Doppler) is documented as a "next iteration" item in the README, not wired in.
 
 ---
 
@@ -711,7 +711,7 @@ Source: [microservices.io saga pattern](https://microservices.io/patterns/data/s
 ### Pattern 4 — Schema-per-Service on Single Postgres Host
 
 **What:** logical isolation (separate `*_db` databases on same Postgres) instead of per-service Postgres clusters.
-**When to use:** budget-constrained demos and bootcamps. Maintains the boundary at the data layer (no cross-service joins) without paying for N RDS instances.
+**When to use:** budget-constrained demos and bootcamps. Maintains the boundary at the data layer (no cross-service joins) without paying for N managed Postgres instances.
 **Trade-offs:** + cheap, fast to provision; − single-host failure domain, no per-service scaling. Acceptable for 6-day demo.
 
 ---
@@ -787,13 +787,13 @@ Source: [microservices.io saga pattern](https://microservices.io/patterns/data/s
 
 | Scale | Adjustments |
 |-------|-------------|
-| Demo (now) | Single instance per service; single Postgres; single RabbitMQ. All on AWS Beanstalk or compose. Fine. |
+| Demo (now) | Single instance per service; single Postgres; single RabbitMQ. All in one docker-compose stack on the candidate's machine, exposed via Cloudflare Tunnel / ngrok. Fine. |
 | 1k users | Horizontal scale gateway + ai-service (LLM latency = bottleneck). Add Redis for rate-limit + chat conversation cache. |
 | 100k users | Split Postgres per critical service (order, product); RabbitMQ cluster; CDN for product images; cache layer (Redis) in front of product-service GETs. |
 
 **First bottleneck:** ai-service (Gemini latency + token cost). Mitigation: streaming SSE (already in design), aggressive caching of search results, rate-limit per user.
 **Second bottleneck:** payment webhook ingress. Mitigation: dedicated route + auto-scaling group on gateway.
-**Third bottleneck:** Postgres single-host on order/product write contention. Mitigation: extract to dedicated RDS (no schema change required since DB-per-service is logical already).
+**Third bottleneck:** Postgres single-host on order/product write contention. Mitigation: extract to a dedicated managed Postgres (no schema change required since DB-per-service is logical already).
 
 ---
 

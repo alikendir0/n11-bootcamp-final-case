@@ -19,7 +19,7 @@
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Java (Amazon Corretto) | **21** (LTS) | JVM runtime | Bootcamp-locked; Beanstalk has a `Corretto 21` platform branch (`64bit Amazon Linux 2023 v4.11.1 running Corretto 21`); virtual threads available; pattern matching, records, sealed types. **Confidence: HIGH** (verified against AWS Beanstalk supported platforms doc). |
+| Java (Amazon Corretto) | **21** (LTS) | JVM runtime | Bootcamp-locked; runs in Jib-built OCI images on the local docker-compose host; virtual threads available; pattern matching, records, sealed types. **Confidence: HIGH**. |
 | Spring Boot | **3.5.14** | Application framework | Latest patch on the OSS-supported 3.5 line as of 2026-04-23; 3.5 still in OSS support. We deliberately do **not** jump to 4.0.x because Spring AI 1.1.x and most Spring Cloud trains are still pinned to the 3.x line. **Confidence: HIGH**. |
 | Spring Cloud (BOM) | **2025.0.x (Northfields)** train | Microservices BOM | Northfields is the train compatible with Spring Boot 3.5.x; 2024.0.x (Moorgate) is the 3.4 train. Use BOM `org.springframework.cloud:spring-cloud-dependencies:2025.0.0` (or the latest 2025.0 patch in Maven Central at build time). **Confidence: HIGH** (Spring Cloud project page lists train→Boot mapping explicitly). |
 | Gradle | **8.10+** (Kotlin DSL) | Build tool | Multi-module monorepo (13 services) is significantly cleaner in Gradle than Maven; Jib has first-class Gradle plugin support. We pick Gradle. Maven is the documented fallback (graders may expect Maven — see "Build" section below). |
@@ -41,8 +41,8 @@ All transitively versioned by the `2025.0.x` BOM; no explicit version on each st
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| PostgreSQL | **16** | Primary RDBMS | Project-locked. RDS supports 16; pgvector 0.8.2 supports 13+. **Confidence: HIGH**. |
-| pgvector | **0.8.2** | Vector embedding extension | Latest stable; supports cosine + L2 + inner product; HNSW + IVFFlat indexes. Install via `CREATE EXTENSION vector;` after enabling on RDS parameter group (`shared_preload_libraries`). **Confidence: HIGH**. |
+| PostgreSQL | **16** | Primary RDBMS | Project-locked. Runs as a `pgvector/pgvector:pg16` container in the local docker-compose stack. **Confidence: HIGH**. |
+| pgvector | **0.8.2** | Vector embedding extension | Latest stable; supports cosine + L2 + inner product; HNSW + IVFFlat indexes. The `pgvector/pgvector:pg16` image ships with the extension pre-installed; `CREATE EXTENSION vector;` runs from `infra/postgres/init.sh`. **Confidence: HIGH**. |
 | Hibernate ORM | **6.6.x** | JPA implementation | Transitive via Spring Boot 3.5.14 — do not override. Supports Java 21, sealed types, records as DTOs. |
 | HikariCP | bundled | JDBC connection pool | Default in Spring Boot. Config: `spring.datasource.hikari.maximum-pool-size=10` per service is fine for the demo. |
 | Flyway | **12.5.0** | DB migrations | Released 2025-04-27, latest. Per-service `db/migration/V1__init.sql`. **Use Flyway over Liquibase** — simpler, plain SQL files map well to graders' mental model. **Confidence: HIGH**. |
@@ -59,7 +59,7 @@ org.postgresql:postgresql                        # version managed by Boot BOM
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| RabbitMQ broker | **4.3** (or 3.13 LTS as fallback) | Message broker | RabbitMQ 4.x is current; 4.3 is the latest minor. For Beanstalk demo use a managed broker (Amazon MQ for RabbitMQ) **OR** docker-compose locally. **Confidence: HIGH** (rabbitmq.com displayed `RabbitMQ 4.3 is out` banner). |
+| RabbitMQ broker | **4.3** (or 3.13 LTS as fallback) | Message broker | RabbitMQ 4.x is current; 4.3 is the latest minor. Runs as a `rabbitmq:4.3-management` container in the local docker-compose stack. **Confidence: HIGH** (rabbitmq.com displayed `RabbitMQ 4.3 is out` banner). |
 | Spring AMQP / Spring Boot Starter | bundled (Spring Boot 3.5.14) | RabbitMQ client | `org.springframework.boot:spring-boot-starter-amqp`. Provides `RabbitTemplate`, `@RabbitListener`, declarative exchanges/queues. |
 
 **SAGA topology recommendation** (choreography):
@@ -164,14 +164,15 @@ Same beans are also called by the `ai-service` chat handler — the **DRY one-to
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Jib Gradle plugin | **3.5.3** (released 2025-02-06) | Container image build w/o Dockerfile | Plugin id: `com.google.cloud.tools.jib`. Configure once in root `build.gradle.kts`, override per service. Push to ECR or Docker Hub. **Confidence: HIGH**. |
+| Jib Gradle plugin | **3.5.3** (released 2025-02-06) | Container image build w/o Dockerfile | Plugin id: `com.google.cloud.tools.jib`. Configure once in root `build.gradle.kts`, override per service. Push to GHCR (preferred — `GITHUB_TOKEN` works out of the box) or Docker Hub on release tags so the local docker-compose can pull by tag. **Confidence: HIGH**. |
 | Jib Maven plugin | 3.5.1 | Maven equivalent | If we switch to Maven, same plugin under `com.google.cloud.tools:jib-maven-plugin:3.5.1`. |
 | GitHub Actions: setup-java | `actions/setup-java@v4` | Provision Corretto 21 in CI | `distribution: corretto`, `java-version: 21` |
 | GitHub Actions: gradle | `gradle/actions/setup-gradle@v4` | Cached Gradle execution | Replaces deprecated `gradle/gradle-build-action` |
-| GitHub Actions: AWS auth | `aws-actions/configure-aws-credentials@v4` | OIDC-based AWS creds (no static keys) | Configure GitHub OIDC trust against an IAM role with `AWSElasticBeanstalkWebTier` policy |
-| GitHub Actions: EB deploy | `einaregilsson/beanstalk-deploy@v22` | Push artifact to Beanstalk env | Established community action; or use `aws elasticbeanstalk` CLI in a `run:` step for simpler control |
-| GitHub Actions: Slack | `slackapi/slack-github-action@v2` | Slack deploy notifications | Use webhook stored in `secrets.SLACK_WEBHOOK_URL`. Send on `success` AND `failure` job conclusions. |
-| AWS Elastic Beanstalk platform | `64bit Amazon Linux 2023 v4.11.1 running Corretto 21` | Java 21 runtime | One env per service is excessive (and expensive). Recommendation: **deploy gateway + a few core services on Beanstalk**; run the rest via docker-compose on a single EC2 if cost matters, or fold everything into a single Beanstalk multi-container Docker env. **Confirm AWS scope with bootcamp coordinator** (open question in PROJECT.md). |
+| GitHub Actions: registry auth | `docker/login-action@v3` | Authenticate to GHCR / Docker Hub for the release-tag image push | GHCR uses `${{ secrets.GITHUB_TOKEN }}` (zero setup); Docker Hub uses `DOCKERHUB_USERNAME` + `DOCKERHUB_TOKEN` repo secrets |
+| GitHub Actions: Slack | `slackapi/slack-github-action@v2` | Slack build notifications | Use webhook stored in `secrets.SLACK_WEBHOOK_URL`. Send on `success` AND `failure` job conclusions. |
+| Cloudflare Tunnel (`cloudflared`) | latest stable container image | Public exposure of the local gateway port | Sidecar container in the same docker-compose stack. Stable hostname requires a personal Cloudflare-managed domain (free tier). The same tunnel serves the demo URL and the Iyzico webhook. |
+| ngrok | latest stable agent | Fallback public exposure | Zero-config; random subdomain on free tier (paid for stable hostname). Quick to swap if Cloudflare misbehaves the morning of the demo. |
+| Local docker-compose host | candidate's machine | Deploy target | Hosts all 13 service Jib images + Postgres-16 + RabbitMQ-4 in one compose stack. `restart: unless-stopped` posture so the demo survives a reboot. |
 
 ### API Documentation
 
@@ -290,23 +291,23 @@ dependencies {
 | `gemini-embedding-001` | Older embedding API w/ separate `taskType` parameter | `gemini-embedding-2` (current) |
 | Manually-coded MCP JSON-RPC handler | Spring AI's `@McpTool` does this for you with auto-discovered Spring beans | `spring-ai-starter-mcp-server-webmvc` |
 | Iyzico direct 3DS API | Adds PCI scope, iframe gymnastics, callback choreography for no demo value | `CheckoutFormInitialize` (Hosted Payment Page) |
-| Storing JWT signing key in source | Obvious security smell | `application.yml` with placeholder + real key in env var or AWS Secrets Manager |
-| Static AWS access keys in GitHub Actions | Credential leakage risk | OIDC federation: `aws-actions/configure-aws-credentials@v4` with role-to-assume |
+| Storing JWT signing key in source | Obvious security smell | `application.yml` with placeholder + real key in env var (loaded by docker-compose from gitignored `.env`); production-grade upgrade is Vault / Doppler |
+| Static container-registry credentials committed to repo | Credential leakage risk | GHCR via `${{ secrets.GITHUB_TOKEN }}` (zero setup) or scoped Docker Hub `DOCKERHUB_TOKEN` repo secret with read+write to project namespace only |
 
 ---
 
 ## Stack Patterns by Variant
 
-**If demo runs locally only (no AWS at all):**
-- Drop EB platform decision; use docker-compose with a single Postgres container, one RabbitMQ container, and 13 Jib-built service images
-- GitHub Actions still does `gradle build` + `jib dockerBuild` to prove containerization
-- Slack webhook fires from CI on green build
+**Locked variant: local docker-compose deploy on the candidate's machine (current decision)**
+- Single docker-compose stack with a `full` profile = 13 Jib-built service images + `pgvector/pgvector:pg16` + `rabbitmq:4.3-management` on the candidate's host
+- GitHub Actions does `gradle build` + `gradle :<svc>:jib` on push (proves containerization); on `v*` release tags it pushes the 13 images to GHCR (or Docker Hub) so compose can pull by tag
+- Cloudflare Tunnel sidecar (`cloudflared` container in the same compose) exposes the gateway port to the public internet; ngrok is the documented fallback if Cloudflare misbehaves
+- Slack webhook fires from CI on build success/failure (the deploy-equivalent signal — there is no separate "deploy" job because deploy = the candidate runs `docker compose up`)
+- Demo posture: live during the interview window only; `restart: unless-stopped` keeps the stack up across reboots
 
-**If we get AWS budget for full deploy:**
-- One Beanstalk env per critical service (gateway, identity, product, order, payment) = ~5 envs
-- Other services co-located on one EC2 via docker-compose, behind the gateway via internal hostnames
-- RDS Postgres single instance, one DB per service (DB-per-service via schema isolation)
-- Amazon MQ for RabbitMQ (single-instance for cost)
+**If a graders-mandated AWS path returns later (kept as a stretch escape hatch, not active):**
+- Cleanest fit: ECS Fargate, one task definition per service, behind a single ALB with path-based routing → gateway. RDS Postgres single instance. Amazon MQ for RabbitMQ.
+- ~1–2 day translation from the current architecture (Jib already produces the right OCI images; only the orchestration layer changes).
 
 **If Gemini 3 Flash Preview proves unstable mid-build:**
 - Flip `ai.gemini.model` config to `gemini-2.5-flash` in `config-server`
@@ -359,7 +360,8 @@ dependencies {
 | `docs.iyzico.com` (sandbox + checkout-form sample) | `https://sandbox-api.iyzipay.com`; `CheckoutFormSample` reference | MEDIUM (full sample code not extracted; class names match Iyzico's Java SDK conventions) |
 | `github.com/pgvector/pgvector` | 0.8.2, Postgres 13+ | HIGH |
 | `github.com/GoogleContainerTools/jib/releases` | Gradle 3.5.3 (2025-02-06); Maven 3.5.1 (2024-11) | HIGH |
-| `docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html` | Corretto 21 platform branch confirmed (`64bit Amazon Linux 2023 v4.11.1 running Corretto 21`) | HIGH |
+| ~~`docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html`~~ | (kept as audit trail; no longer applicable after the local-deploy revision) | — |
+| `developers.cloudflare.com/cloudflare-one/connections/connect-networks/` | Cloudflare Tunnel `cloudflared` quickstart, free-tier domain requirement | HIGH |
 | `rabbitmq.com/docs/which-erlang` | RabbitMQ 4.3 current | HIGH |
 | `springdoc.org` | springdoc-openapi 2.8.17, Spring Boot 3.x compatible | HIGH |
 | `github.com/jwtk/jjwt` | jjwt 0.13.0 | HIGH |
@@ -375,7 +377,7 @@ dependencies {
 1. **Gemini 3 Flash model ID volatility (MEDIUM).** Google has been re-tagging models actively. Implementer must run a single `curl` against `ai.google.dev/gemini-api/docs/models` on the day they add the dependency to confirm `gemini-3-flash-preview` is still the live string. Have `gemini-2.5-flash` config-ready as a fallback.
 2. **Iyzico Checkout Form Java sample (MEDIUM).** The Iyzico Java SDK README does not show the Checkout Form sample inline; the sample lives in `src/test/java/com/iyzipay/sample/CheckoutFormSample.java` in the SDK repo. Implementer should clone iyzipay-java and read that file before writing the payment-service integration. The sandbox base URL `https://sandbox-api.iyzipay.com` is verified.
 3. **Spring Cloud 2025.0 patch level (MEDIUM).** We pin to `2025.0.0` because that's the GA version surfaced in releases. Maven Central likely has 2025.0.x patches by now — implementer should pin to the latest patch at build time (e.g., 2025.0.1+ if available). Plain `2025.0.0` is the safe minimum.
-4. **AWS deploy scope (open question, in PROJECT.md).** Stack assumes Beanstalk + RDS but flags single-EC2-docker-compose as the cost-realistic alternative. Deferred to coordinator confirmation.
+4. **~~AWS deploy scope~~ RESOLVED 2026-04-28.** AWS dropped from scope; deploy = local docker-compose on the candidate's machine, demo URL via Cloudflare Tunnel / ngrok. Stretch path back to ECS Fargate is documented under "Stack Patterns by Variant" but not active.
 5. **Spring AI Gemini 3 support (LOW-likelihood watch-item).** If Spring AI 1.2.x ships during build week with Gemini 3 model IDs added, swap from google-genai to Spring AI's `VertexAiGeminiChatModel` for a smaller dependency footprint. Until then, the split is correct.
 
 ---
