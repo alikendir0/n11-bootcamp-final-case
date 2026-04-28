@@ -1,0 +1,11 @@
+title = "n11-clone gitleaks config"
+
+[extend]
+useDefault = true
+
+# Allow Spring Boot placeholder syntax in checked-in YAML/properties:
+# e.g. `password: ${DB_PASSWORD:changeme}` — these are NOT real secrets,
+# they are env-var references resolved at runtime.
+[[allowlists]]
+description = "Spring Boot ${...} placeholder syntax in committed config"
+regexes = ['''(?i)(secret|password|key)[:=]\s*\$\{[A-Z_]+(:[a-z0-9-]+)?\}''']

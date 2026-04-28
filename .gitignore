@@ -1,0 +1,27 @@
+# Build outputs
+build/
+.gradle/
+out/
+
+# Secrets — NEVER commit
+.env
+.env.local
+.env.*.local
+secrets/
+**/application-local.yml
+*.pem
+*.key
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+**/target/
+**/.attach_pid*
+hs_err_pid*.log
