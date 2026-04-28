@@ -1,0 +1,35 @@
+# config-server SELF-config (RESEARCH §4.2 lines 282-295).
+#
+# This file configures the config-server itself -- it is NEVER served to clients. The
+# CONTENT served to clients lives one directory deeper at src/main/resources/config/.
+#
+# Per CD-05: native profile -> classpath:/config/ (config repo bundled inside the JAR;
+# no external git/filesystem mount needed in Phase 1).
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          # CD-05: ship the config repo INSIDE the JAR via classpath; Spring Cloud Config
+          # walks this directory at request time and serves matching <name>[-<profile>].yml
+          # files. /<service>/default returns the shared baseline merged with <service>.yml.
+          search-locations: classpath:/config/
+
+# Actuator -- health + info ONLY (T-01-04 / T-01-08 -- /actuator/env on config-server
+# would dump the resolved (decrypted) per-service datasource URLs/passwords on every
+# request, so it is structurally NOT exposed)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

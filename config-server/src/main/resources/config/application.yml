@@ -1,0 +1,82 @@
+# ---------------------------------------------------------------------------
+# config-server/src/main/resources/config/application.yml
+# SHARED BASELINE -- served by config-server to ANY service requesting profile `default`.
+#
+# Per CD-05: this is the project-wide default config. Every business service that calls
+# config-server with `spring.application.name=<svc>` receives this file's contents merged
+# with the per-service `<svc>-service.yml` (those land in 01-06+/Phase 3+).
+#
+# Per-service overrides land in `<svc>-service.yml` files OWNED BY OTHER PLANS:
+#   - api-gateway.yml      -> 01-06 (api-gateway shell)
+#   - service-template.yml -> 01-07 (service-template archetype + per-service Eureka
+#                                    client cold-boot retry)
+#   - identity-service.yml -> Phase 3
+#   - product-service.yml  -> Phase 4
+#   - ...etc
+#
+# This plan (01-05) MUST NOT create those files. (See 01-PLAN-OUTLINE.md file-ownership
+# matrix.)
+# ---------------------------------------------------------------------------
+
+# --- Eureka client default (every service inherits this URL) ---------------
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
+  instance:
+    # Default instance metadata -- services can override per-svc (e.g., SSE timeout in
+    # Phase 8). prefer-ip-address:true sidesteps Docker's hostname-resolution edge cases.
+    prefer-ip-address: true
+
+# --- Datasource template ---------------------------------------------------
+# All 10 stateful business services share the same Postgres host (D-01..D-04 -- single
+# DB `n11`, schema-per-service via `ALTER USER ... SET search_path` from
+# infra/postgres/init.sh in Plan 01-03). Per-service `<svc>-service.yml` injects
+# `db.user` / `db.password` / `flyway.schema` from env vars.
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:postgres}:${POSTGRES_PORT:5432}/${POSTGRES_DB:n11}
+    username: ${db.user:CHANGE-ME-IN-PER-SERVICE-YAML}
+    password: ${db.password:CHANGE-ME-IN-PER-SERVICE-YAML}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 5000
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        # Service users own their schema; let JPA learn the schema from the JDBC
+        # search_path rather than hardcoding it (D-04). Flyway separately sets
+        # `default-schema` in service-template.yml (Plan 01-07).
+        jdbc.lob.non_contextual_creation: true
+
+# --- Springdoc baseline (every service exposes /v3/api-docs + /swagger-ui.html) ---
+# Per-service overrides live in service-template.yml (Plan 01-07).
+# The aggregator at the gateway (api-gateway.yml owned by Plan 01-06) consumes these
+# endpoints to build a uniform `urls=[]` list for the Swagger UI dropdown.
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    use-root-path: true
+
+# --- Actuator baseline -----------------------------------------------------
+# T-01-04: every service exposes ONLY health + info by default. Per-service yamls may
+# add specific endpoints (e.g., api-gateway.yml adds `gateway` for /actuator/gateway/routes).
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# --- Logging defaults (correlation-ID propagation lives in common-logging from 01-04) ---
+logging:
+  level:
+    root: INFO
+    com.n11: DEBUG
