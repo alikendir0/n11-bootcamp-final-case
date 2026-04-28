@@ -1,0 +1,96 @@
+# docker-compose.yml — Phase 1 infra-only profile (D-13).
+#
+# Phase 1 ships postgres + rabbitmq only. eureka-server, config-server, api-gateway are
+# added in Plans 05-06; the 10 business services run from IDE/`:bootRun` against this
+# infra during dev. Phase 11 will extend this same compose file with a `full` profile
+# that adds business services as Jib images (DEV-07's full multi-service compose).
+#
+# Boundary model (per CONTEXT.md D-01..D-04 + PATTERNS Cross-Cutting #7):
+#   - postgres exposes one DB `n11` with 10 schemas (one per stateful service)
+#   - init.sh (mounted read-only) creates the schemas, users, search_path, deny matrix
+#   - the order-service schema is named `orders` (plural -- `order` is SQL reserved)
+#
+# Threat-model surfaces this addresses:
+#   - T-01-01: all passwords from .env (gitignored) -- never hardcoded
+#   - T-01-02: postgres role-level deny enforced inside init.sh
+#   - T-01-03: pgvector extension created in init.sh as superuser; service users get
+#              USAGE only on `public` (for pgvector types), no superuser leakage
+#   - T-01-05: RabbitMQ default guest/guest creds disabled via RABBITMQ_DEFAULT_USER/PASS
+
+name: n11
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    # Why pgvector/pgvector:pg16 (not plain postgres:16): saves the manual
+    # CREATE EXTENSION step at scale and pins pgvector to a known-good 0.8.x version.
+    # [VERIFIED: github.com/pgvector/pgvector#docker; STACK.md row.]
+    container_name: n11-postgres
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: n11
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      # Per-service passwords -- passed through so init.sh's heredoc can interpolate them:
+      IDENTITY_DB_PASSWORD: ${IDENTITY_DB_PASSWORD}
+      PRODUCT_DB_PASSWORD: ${PRODUCT_DB_PASSWORD}
+      INVENTORY_DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
+      CART_DB_PASSWORD: ${CART_DB_PASSWORD}
+      ORDERS_DB_PASSWORD: ${ORDERS_DB_PASSWORD}
+      PAYMENT_DB_PASSWORD: ${PAYMENT_DB_PASSWORD}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      SEARCH_DB_PASSWORD: ${SEARCH_DB_PASSWORD}
+      AI_DB_PASSWORD: ${AI_DB_PASSWORD}
+      MCP_DB_PASSWORD: ${MCP_DB_PASSWORD}
+    volumes:
+      # init.sh runs ONCE on first container boot (Postgres entrypoint convention).
+      # Re-running requires `docker compose down -v` to discard postgres-data volume.
+      - ./infra/postgres/init.sh:/docker-entrypoint-initdb.d/00-init.sh:ro
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d n11"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
+  rabbitmq:
+    image: rabbitmq:4.3-management
+    # rabbitmq:4.3-management = RabbitMQ 4.3 (current -- STACK.md / RESEARCH §3) plus
+    # the management plugin (UI on :15672 for dev sanity checks). Default guest/guest
+    # creds are DISABLED -- RABBITMQ_DEFAULT_USER/PASS override them.
+    container_name: n11-rabbitmq
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"      # AMQP wire protocol (Phase 5+ services connect here)
+      - "15672:15672"    # management UI -- http://localhost:15672 (dev only)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s   # rabbitmq 4.x cold-boot is ~10-15s on a warm Docker daemon
+    restart: unless-stopped
+    networks:
+      - n11-net
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+
+networks:
+  n11-net:
+    driver: bridge
+    name: n11-net
