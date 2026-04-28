@@ -86,6 +86,68 @@ services:
     networks:
       - n11-net
 
+  # ---------------------------------------------------------------------------
+  # eureka-server -- Spring Cloud Netflix Eureka discovery server (ARCH-02).
+  # The discovery root: api-gateway and every business service registers HERE.
+  # Owned by Plan 01-05. Image built by `./gradlew :eureka-server:jibDockerBuild`.
+  #
+  # No depends_on -- eureka-server is independent (no `spring.config.import`, no
+  # Eureka client config). The api-gateway (Plan 01-06) will declare
+  # `depends_on: { eureka-server: { condition: service_healthy } }`.
+  #
+  # Healthcheck timing: start_period:15s + interval:5s x retries:6 = up to ~45s
+  # before unhealthy -- fits within ROADMAP SC-1's 60-second budget once the Jib
+  # image is in the local Docker daemon (cold-boot ~8-12s on a modern laptop).
+  #
+  # Healthcheck shell: `wget` (BusyBox utility shipped in eclipse-temurin:21-jre);
+  # `curl` is NOT in the JRE base image. If a Phase-11 base-image change drops
+  # wget, switch to a /dev/tcp probe in bash.
+  # ---------------------------------------------------------------------------
+  eureka-server:
+    image: n11/eureka-server:dev
+    container_name: n11-eureka-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8761/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
+  # ---------------------------------------------------------------------------
+  # config-server -- Spring Cloud Config Server (CD-05 native profile, ARCH-03).
+  # Serves config-repo from classpath:/config/ inside its JAR.
+  # Owned by Plan 01-05. Image built by `./gradlew :config-server:jibDockerBuild`.
+  #
+  # SPRING_PROFILES_ACTIVE=native is baked into the Jib image's container env
+  # (config-server/build.gradle.kts) but explicitly re-asserted here for the
+  # `docker compose config` reader's benefit.
+  #
+  # No depends_on on eureka-server -- config-server in Phase 1 is NOT a Eureka
+  # client (the gateway and business services route to it by hostname). Future
+  # hardening could register it; out of scope for Phase 1.
+  # ---------------------------------------------------------------------------
+  config-server:
+    image: n11/config-server:dev
+    container_name: n11-config-server
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8888/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
 volumes:
   postgres-data:
   rabbitmq-data:
