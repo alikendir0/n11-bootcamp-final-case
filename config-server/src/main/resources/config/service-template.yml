@@ -1,0 +1,73 @@
+# Shared baseline overlay for every BUSINESS service whose spring.application.name resolves to "service-template"
+# (or services in Phase 3+ that copy this file as <svc>-service.yml and override per-service keys).
+#
+# Authoritative source for:
+#   - Eureka client cold-boot resilience (ARCH-11 / Pitfall #4)
+#   - Flyway non-owner-user config (ARCH-10 / RESEARCH §4.5)
+#   - Datasource template using per-service env-var refs (D-02 distinct user per schema)
+#   - Springdoc per-service paths (QUAL-01 per-service half)
+#   - Actuator endpoint exposure ALLOWLIST (T-01-04 — health,info ONLY)
+#
+# What it does NOT contain (lives in 01-05's config/application.yml):
+#   - eureka.client.service-url.defaultZone
+
+server:
+  # Each business service in Phase 3+ overrides this in its own <svc>-service.yml.
+  # service-template itself uses Boot's default 8080.
+  port: 8080
+
+# ── Eureka client — cold-boot resilience (ARCH-11, Pitfall #4 / RESEARCH §4.3) ──
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: true
+
+# ── Datasource (D-02 distinct user per schema) + Flyway non-owner (ARCH-10) ──
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/n11
+    username: ${SERVICE_DB_USER:notset}
+    password: ${SERVICE_DB_PASSWORD:notset}
+    hikari:
+      maximum-pool-size: 10
+  # Flyway non-owner-user wiring per RESEARCH §4.5:
+  #   - service runs Flyway as its own constrained user (which already owns its schema from 01-03 init.sh)
+  #   - create-schemas:false because init.sh already created the schema and the user lacks CREATE on public
+  #   - default-schema = schemas = ${flyway.schema}: history table AND migrations land in service's own schema
+  #   - each business service overrides ${flyway.schema} in its <svc>-service.yml
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: ${flyway.schema}
+    default-schema: ${flyway.schema}
+    create-schemas: false
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    placeholders:
+      schema: ${flyway.schema}
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: ${flyway.schema}
+
+# ── Actuator endpoint exposure ALLOWLIST (T-01-04) ──
+# Phase 1 ships ONLY health + info. NO env (leaks config), NO heapdump (heap leak), NO threaddump.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# ── Springdoc per-service (QUAL-01) ──
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
