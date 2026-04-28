@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n11clone/saga/payment-completed.schema.json",
+  "title": "payment.completed payload",
+  "type": "object",
+  "required": ["orderId", "paymentId", "iyzicoPaymentId", "amount", "currency"],
+  "additionalProperties": false,
+  "properties": {
+    "orderId":         { "type": "string", "format": "uuid" },
+    "paymentId":       { "type": "string", "format": "uuid" },
+    "iyzicoPaymentId": { "type": "string", "minLength": 1 },
+    "amount":          { "type": "number", "minimum": 0 },
+    "currency":        { "type": "string", "enum": ["TRY"] }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n11clone/saga/order-cancelled.schema.json",
+  "title": "order.cancelled payload",
+  "type": "object",
+  "required": ["orderId", "userId", "reason"],
+  "additionalProperties": false,
+  "properties": {
+    "orderId": { "type": "string", "format": "uuid" },
+    "userId":  { "type": "string", "format": "uuid" },
+    "reason":  { "type": "string", "enum": ["OUT_OF_STOCK", "PAYMENT_DECLINED", "USER_CANCELLED", "PAYMENT_TIMEOUT"] }
+  }
+}

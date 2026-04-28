@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n11clone/saga/stock-reserve-failed.schema.json",
+  "title": "stock.reserve_failed payload",
+  "type": "object",
+  "required": ["orderId", "failedItems", "reason"],
+  "additionalProperties": false,
+  "properties": {
+    "orderId": { "type": "string", "format": "uuid" },
+    "reason":  { "type": "string", "enum": ["INSUFFICIENT_STOCK", "PRODUCT_NOT_FOUND", "RESERVATION_CONFLICT"] },
+    "failedItems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["productId", "requestedQty", "availableQty"],
+        "additionalProperties": false,
+        "properties": {
+          "productId":     { "type": "string", "format": "uuid" },
+          "requestedQty":  { "type": "integer", "minimum": 1 },
+          "availableQty":  { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}
