@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Plan 01-05 complete (eureka-server + config-server runnable Boot apps + shared CD-05 baseline + additive docker-compose merge; both services cold-boot to (healthy) in ~15s -- well within SC-1 60s budget); Wave 2 continues with 01-06 (api-gateway WebFlux shell), then 01-07 (service-template archetype)."
-last_updated: "2026-04-28T19:46:23.000Z"
-last_activity: 2026-04-28 -- Plan 01-05 complete (eureka-server + config-server + shared baseline + docker-compose merge; commits 21c2452, 91b335b, 52b2e79; 0 deviations -- plan ran clean on first attempt)
+stopped_at: "Plan 01-06 complete (api-gateway Spring Cloud Gateway 2025.0 Northfields reactive WebFlux shell on the new spring-cloud-starter-gateway-server-webflux coordinate; permitAll() chain + GatewayCorrelationIdFilter + GatewayHeaderInjectionFilter stub; api-gateway.yml CD-05 overlay; SC-1 5-service stack cold-boots to (healthy) in 25s -- well within 60s budget); Wave 2 continues with 01-07 (service-template archetype), then 01-08 (infra-tests cross-schema deny smoke) opens Wave 3."
+last_updated: "2026-04-28T20:10:11.000Z"
+last_activity: 2026-04-28 -- Plan 01-06 complete (api-gateway WebFlux shell + 2 reactive GlobalFilters + api-gateway.yml + docker-compose append; commits 8508db6, 13507fb, 040c394, 905eff9, 6890116; 2 deviations -- Rule-1 :common-logging dep dropped due to servlet-filter-on-reactive-runtime crash, Rule-3 stale config-server Jib image rebuild required after touching config/api-gateway.yml)
 progress:
   total_phases: 11
   completed_phases: 0
   total_plans: 8
-  completed_plans: 5
-  percent: 6
+  completed_plans: 6
+  percent: 7
 ---
 
 # Project State
@@ -26,30 +26,30 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 01 (foundations-day-1-contracts) — EXECUTING
-Plan: 6 of 8 (next: 01-06 api-gateway WebFlux shell — Wave 2 continues)
+Plan: 7 of 8 (next: 01-07 service-template archetype — Wave 2 continues)
 Status: Executing Phase 01
-Last activity: 2026-04-28 -- Plan 01-05 complete (eureka-server + config-server runnable Boot apps + shared CD-05 baseline + additive docker-compose merge; commits 21c2452, 91b335b, 52b2e79)
+Last activity: 2026-04-28 -- Plan 01-06 complete (api-gateway WebFlux shell + 2 reactive GlobalFilters + api-gateway.yml CD-05 overlay + docker-compose append; commits 8508db6, 13507fb, 040c394, 905eff9, 6890116)
 
-Progress: [██████░░░░] 63%
+Progress: [███████░░░] 75%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 5
-- Average duration: ~13 min (01-01 ~30 min; 01-02 ~5 min; 01-03 ~5 min; 01-04 ~17 min; 01-05 ~8 min)
-- Total execution time: ~65 min
+- Total plans completed: 6
+- Average duration: ~14 min (01-01 ~30 min; 01-02 ~5 min; 01-03 ~5 min; 01-04 ~17 min; 01-05 ~8 min; 01-06 ~17 min)
+- Total execution time: ~82 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 (foundations-day-1-contracts) | 5 | ~65 min | ~13 min |
+| 01 (foundations-day-1-contracts) | 6 | ~82 min | ~14 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (~30 min, 3 tasks, 23 files), 01-02 (~5 min, 2 tasks, 11 files), 01-03 (~5 min, 3 tasks, 4 files + 1 Rule-3 deviation), 01-04 (~17 min, 3 tasks, 27 files + 3 deviations: JUnit launcher Rule-3, Spring AMQP retry import Rule-1, networknt 3.0.2 API adaptation Rule-1), 01-05 (~8 min, 3 tasks, 8 files + 0 deviations -- plan ran clean on first attempt; cold-boot smoke ~15s for eureka+config to (healthy) is well under SC-1's 60s budget thanks to Jib pre-build)
-- Trend: 01-05's clean run against 01-04's 3-deviation churn signals the value of plans citing post-Plan-01-04 fixed patterns (testRuntimeOnly junit-platform-launcher prophylactic, Boot+Jib plugin shape verbatim from Plan 01-04 lessons) rather than re-deriving them. The Jib-built local image pattern delivered the SC-1 60s budget with margin (15s actual vs 60s allowance).
+- Last 6 plans: 01-01 (~30 min, 3 tasks, 23 files), 01-02 (~5 min, 2 tasks, 11 files), 01-03 (~5 min, 3 tasks, 4 files + 1 Rule-3 deviation), 01-04 (~17 min, 3 tasks, 27 files + 3 deviations: JUnit launcher Rule-3, Spring AMQP retry import Rule-1, networknt 3.0.2 API adaptation Rule-1), 01-05 (~8 min, 3 tasks, 8 files + 0 deviations -- plan ran clean on first attempt), 01-06 (~17 min, 6 tasks, 9 files + 2 deviations: Rule-1 :common-logging dep dropped due to servlet-filter-on-reactive-runtime crash, Rule-3 stale config-server Jib image rebuild required after touching config/api-gateway.yml; SC-1 5-service stack cold-boot 25s vs 60s budget => margin > 50%)
+- Trend: Wave 2 unit cost stabilized at ~13-17 min once Jib pre-build pattern was canonized in 01-05 and replicated in 01-06. Plan 01-06's deviations were both pre-flagged in 01-04-SUMMARY and 01-05-SUMMARY (the :common-logging-on-reactive-runtime landmine and the stale-Jib-image-after-YAML-edit hazard) -- catching them at runtime rather than re-discovering them via stack trace would shave ~5 min off similar Wave-2 plans. Recommend Plan 01-07 cite these in CONTEXT.md to avoid the same churn.
 
 *Updated after each plan completion*
 
@@ -76,6 +76,11 @@ Recent decisions affecting current work:
 - 2026-04-28 (Plan 01-05): config-server self-config (src/main/resources/application.yml) versus content-config (src/main/resources/config/application.yml) are TWO DIFFERENT FILES. Self-config tells the server how to serve (port, profile, search-locations); content-config is the SHARED BASELINE (CD-05) served to every business service requesting profile `default`. The shared baseline ships ONLY keys that legitimately apply to ALL services (Eureka URL, datasource template with placeholder substitution for db.user/db.password, Hikari/JPA defaults, Springdoc paths, actuator surface, logging defaults) — no `spring.cloud.gateway.*` (owned by 01-06), no `spring.flyway.*` with concrete schemas (owned by 01-07), no hardcoded passwords.
 - 2026-04-28 (Plan 01-05): Cold-boot smoke timing observed for eureka-server + config-server: both `(healthy)` in ~15s from `docker compose up -d` on a warm Docker daemon (Jib images pre-populated). Pitfall #4 budget allowance was 30-60s + 20-30s = ~50-90s combined; we came in at less than half the lower bound. The Jib pre-build pattern (`./gradlew :<svc>:jibDockerBuild` once per code change) is the canonical Wave-2 launch sequence — 01-PLAN-OUTLINE.md and PATTERNS Cross-Cutting #1 record this.
 - 2026-04-28 (Plan 01-05): docker-compose additive-merge pattern verified — read existing file, ADD new keys under the same `services:` map, never re-write the file. `grep -c '^  postgres:'` and `grep -c '^  rabbitmq:'` returning exactly 1 after the merge prove additivity. Plan 01-06 will follow the same idiom for api-gateway.
+- 2026-04-28 (Plan 01-06): :common-logging dependency intentionally NOT carried into api-gateway. Spring's ConfigurationClassParser reads class metadata for @Import targets BEFORE @ConditionalOnClass gates fire, so common-logging's RestClientConfig (which @Imports the servlet CorrelationIdFilter referencing jakarta.servlet.Filter) cannot load on the reactive runtime even with the gate. The dependency-drop is the cleanest structural fix; the gateway's own GatewayCorrelationIdFilter shares the X-Correlation-Id wire-format header name with common-logging's servlet filter (no Java import sharing required). This decision is binding: any future reactive Spring service in this repo must follow the same pattern.
+- 2026-04-28 (Plan 01-06): GlobalFilter import package is org.springframework.cloud.gateway.filter (UNCHANGED in Northfields/Spring Cloud 2025.0). The 2025.0 rename was property-prefix-only (spring.cloud.gateway.* → spring.cloud.gateway.server.webflux.*) and starter-coordinate-only (spring-cloud-starter-gateway → spring-cloud-starter-gateway-server-webflux); class packages stayed the same. Verified by unzip of spring-cloud-gateway-server-4.3.0.jar.
+- 2026-04-28 (Plan 01-06): Stale-Jib-image hazard for config-server YAML edits surfaced. Editing config-server/src/main/resources/config/*.yml requires `./gradlew :config-server:jibDockerBuild` BEFORE `docker compose up -d` for the change to be served (Spring Cloud Config native profile reads classpath:/config/ which is JAR-bound at image-build time). Plan 01-07 should cite this as a CONTEXT note. Recommend baking the Wave-2+ workflow rule into all future plans that touch config-server YAMLs.
+- 2026-04-28 (Plan 01-06): Phase 1 SC-1 success criterion satisfied with margin -- 5-service stack (postgres, rabbitmq, eureka-server, config-server, api-gateway) cold-boots to (healthy) in 25s on a warm Docker daemon (budget 60s, margin > 50%). /actuator/gateway/routes returns 200 with one self-route entry (the gateway is itself a Eureka client and discovery-locator auto-routes API-GATEWAY under /api-gateway/**); D-14's "[]" expectation was conservative -- the actual single self-route is correct Northfields behavior. Recorded in .planning/phases/01-foundations-day-1-contracts/01-06-SC1-SMOKE.log.
+- 2026-04-28 (Plan 01-06): Pitfall #2 (gateway reactive vs MVC classpath collision) structurally locked down. configurations.all { exclude(group=org.springframework.boot, module=spring-boot-starter-tomcat); exclude(... starter-web); exclude(org.springdoc, springdoc-openapi-starter-webmvc-ui) } in api-gateway/build.gradle.kts. ./gradlew :api-gateway:dependencies --configuration runtimeClasspath shows zero matches for any of those.
 
 ### Pending Todos
 
@@ -97,7 +102,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-28 (execute-phase 1, plan 01-05)
-Stopped at: Plan 01-05 complete; eureka-server + config-server are runnable Boot apps with Jib-built local images (n11/eureka-server:dev, n11/config-server:dev), the shared CD-05 baseline ships at config-server/src/main/resources/config/application.yml, and docker-compose.yml has been additively merged so `docker compose up -d eureka-server config-server` brings both to (healthy) in ~15s. Wave 2 continues with 01-06 (api-gateway WebFlux shell — depends on 01-05), then 01-07 (service-template archetype — parallel-safe with 01-06 once 01-05 ships). 01-08 (infra-tests Testcontainers cross-schema deny smoke) blocks on 01-03 + 01-07.
-Resume file: .planning/phases/01-foundations-day-1-contracts/01-06-PLAN.md (next dispatch unit)
+Last session: 2026-04-28 (execute-phase 1, plan 01-06)
+Stopped at: Plan 01-06 complete; api-gateway is a runnable Spring Cloud Gateway 2025.0 (Northfields) reactive WebFlux Boot app with a Jib-built local image (n11/api-gateway:dev), permitAll() chain (D-14 -- Phase 3 will flip to JWT), reactive GatewayCorrelationIdFilter (D-09) + GatewayHeaderInjectionFilter stub (T-01-09), CD-05 overlay at config-server/src/main/resources/config/api-gateway.yml (discovery-locator on, /actuator/gateway/routes exposed, Springdoc aggregator with empty urls list, commented-out Phase 8 SSE forward-ref), and docker-compose.yml has been additively merged so `docker compose up -d` brings the full 5-service stack (postgres, rabbitmq, eureka-server, config-server, api-gateway) to (healthy) in 25s on a warm Docker daemon. Wave 2 continues with 01-07 (service-template archetype). 01-08 (infra-tests Testcontainers cross-schema deny smoke) blocks on 01-03 + 01-07 and opens Wave 3.
+Resume file: .planning/phases/01-foundations-day-1-contracts/01-07-PLAN.md (next dispatch unit)
 Next: /gsd-execute-phase 1 (continue Wave 2)

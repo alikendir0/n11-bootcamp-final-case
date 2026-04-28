@@ -118,7 +118,7 @@
 - [ ] **ARCH-01**: System decomposed into ≥ 10 microservices — actual: 13 (eureka-server, config-server, api-gateway, identity-service, product-service, inventory-service, cart-service, order-service, payment-service, notification-service, search-service, ai-service, mcp-server)
 - [x] **ARCH-02**: Eureka service discovery — every business service registers and discovers via Eureka client *(Plan 01-05: eureka-server runnable Boot app at port 8761; clients land in 01-06+)*
 - [x] **ARCH-03**: Spring Cloud Config Server centralizes per-service config; bootstrap properties point to it *(Plan 01-05: config-server native profile + shared CD-05 baseline at config/application.yml; clients use spring.config.import per Cross-Cutting #2 in 01-06+)*
-- [ ] **ARCH-04**: Spring Cloud Gateway (reactive) fronts all business services; routes via Eureka discovery
+- [x] **ARCH-04**: Spring Cloud Gateway (reactive) fronts all business services; routes via Eureka discovery
 - [ ] **ARCH-05**: RabbitMQ messaging — exchanges and queues defined per saga step; dead-letter queue per consumer
 - [ ] **ARCH-06**: SAGA pattern implemented as choreography via RabbitMQ events — full happy path + 4 compensation paths (stock-fail, payment-fail, user-cancel, payment-timeout)
 - [ ] **ARCH-07**: Saga consumers are idempotent — `processed_events` inbox table keyed by event ID; integration test for redelivery
@@ -291,7 +291,7 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | ARCH-01 | Phase 1 | Pending |
 | ARCH-02 | Phase 1 (01-05) | Complete |
 | ARCH-03 | Phase 1 (01-05) | Complete |
-| ARCH-04 | Phase 1 | Pending |
+| ARCH-04 | Phase 1 (01-06) | Complete |
 | ARCH-05 | Phase 1 | Pending |
 | ARCH-06 | Phase 5 | Pending |
 | ARCH-07 | Phase 5 | Pending |
@@ -300,7 +300,7 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | ARCH-10 | Phase 1 | Pending |
 | ARCH-11 | Phase 1 (01-05 + 01-07) | Partial (01-05 server-half done — Pitfall #4 boundary; 01-07 client-half pending — service-template retry+backoff config) |
 | ARCH-12 | Phase 1 | Pending |
-| QUAL-01 | Phase 1 | Pending |
+| QUAL-01 | Phase 1 (01-06 + Phase 4+) | Partial (01-06: Springdoc aggregator config with urls=[] empty; Phase 4+ phases append per-service entries as they come online) |
 | QUAL-02 | Phase 3 | Pending |
 | QUAL-03 | Phase 5 | Pending |
 | QUAL-04 | Phase 7 | Pending |
