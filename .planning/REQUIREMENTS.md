@@ -135,8 +135,8 @@
 - [ ] **QUAL-03**: Each service has 1–2 integration tests on the critical path (Testcontainers for Postgres + RabbitMQ where applicable)
 - [ ] **QUAL-04**: Saga happy-path integration test (with Awaitility async assertions) covering OrderCreated → StockReserved → PaymentCompleted → OrderConfirmed
 - [ ] **QUAL-05**: Saga compensation integration test for `payment.failed` (covers stock release)
-- [ ] **QUAL-06**: Structured JSON logs (Logback configured) with correlation ID propagated via MDC
-- [ ] **QUAL-07**: Standardized error response shape (problem+json or custom) across all services
+- [~] **QUAL-06**: Structured JSON logs (Logback configured) with correlation ID propagated via MDC — MDC propagation wires complete (Plan 01-04: 5 wires in common-logging registered via Spring Boot 3 AutoConfiguration.imports); Logback structured-JSON config (LogstashEncoder + `<includeMdcKeyName>correlationId</includeMdcKeyName>`) pending in Plan 01-07 service-template/logback-spring.xml
+- [x] **QUAL-07**: Standardized error response shape (problem+json or custom) across all services — RFC-7807 spec locked in Plan 01-02 (api-contracts.md §7); ProblemDetailControllerAdvice + ApiErrorCode enum shipped in Plan 01-04 common-error library
 - [ ] **QUAL-08**: SOLID principles auditable — clean layering per service (controller / application / domain / infrastructure), explicit ports for external integrations (LLM providers, payment gateway)
 - [ ] **QUAL-09**: No secrets in source — Iyzico keys, Gemini API key, JWT signing key, Slack webhook URL all via env vars / Spring Cloud Config
 
@@ -305,8 +305,8 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | QUAL-03 | Phase 5 | Pending |
 | QUAL-04 | Phase 7 | Pending |
 | QUAL-05 | Phase 6 | Pending |
-| QUAL-06 | Phase 1 | Pending |
-| QUAL-07 | Phase 1 | Pending |
+| QUAL-06 | Phase 1 (01-04 + 01-07) | Partial (01-04 done — MDC wires; 01-07 pending — Logback JSON encoder) |
+| QUAL-07 | Phase 1 (01-02 + 01-04) | Complete (01-04: ProblemDetailControllerAdvice in common-error) |
 | QUAL-08 | Phase 8 | Pending |
 | QUAL-09 | Phase 1 | Pending |
 | DEV-01 | Phase 11 | Pending |
