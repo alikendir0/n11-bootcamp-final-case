@@ -1,0 +1,24 @@
+# Enforce LF line endings for files that must run inside Linux containers or as
+# shell scripts. Without this, Windows clones with `core.autocrlf=true` would
+# rewrite these files with CRLF on commit/checkout, breaking Postgres' init.sh
+# entrypoint (the shebang line `#!/usr/bin/env bash\r` is not a valid shebang)
+# and any other shell script we ship.
+
+*.sh        text eol=lf
+*.bash      text eol=lf
+gradlew     text eol=lf
+
+# YAML / JSON / SQL also normalize to LF for consistent diffs across platforms.
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.json      text eol=lf
+*.sql       text eol=lf
+*.toml      text eol=lf
+
+# Dockerfiles + docker-compose
+Dockerfile  text eol=lf
+docker-compose*.yml text eol=lf
+
+# Windows-only assets keep CRLF
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
