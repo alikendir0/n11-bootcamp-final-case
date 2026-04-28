@@ -1,0 +1,24 @@
+# api-gateway/src/main/resources/application.yml
+#
+# Bootstrap-only. Runtime config (discovery-locator, actuator exposure, Springdoc
+# aggregator, etc.) comes from config-server's api-gateway.yml file. Per CD-05 the
+# config-server is THE single source of truth for runtime behavior.
+#
+# Per Cross-Cutting #2 (PATTERNS.md): Spring Boot 3.x uses spring.config.import,
+# NEVER bootstrap.yml. This file does NOT define routes, discovery-locator, or
+# actuator exposure -- those live in config-server/src/main/resources/config/api-gateway.yml.
+spring:
+  application:
+    name: api-gateway
+  config:
+    # Cold-boot resilience (Cross-Cutting #2 + ARCH-11):
+    # - fail-fast=true        → don't start half-configured if config-server is permanently down
+    # - max-attempts=10       → up to 10 retries on transient cold-boot failure
+    # - initial-interval=1100 → first retry after ~1.1s
+    # - multiplier=1.2        → exponential backoff
+    # - max-interval=1500     → cap each retry interval at 1.5s
+    # Total worst-case retry window: ~15-30s -- fits within the SC-1 60s budget.
+    #
+    # We DO NOT use the `optional:` prefix here; for a gateway, running with an empty
+    # discovery-locator config is worse than not running.
+    import: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
