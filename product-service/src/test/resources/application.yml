@@ -1,0 +1,8 @@
+# Test-only application configuration — overrides the main application.yml.
+# Disables config-server import so slice tests (@JdbcTest / @DataJpaTest) run offline.
+# Disables Flyway so slice tests can control whether Flyway runs via @ActiveProfiles.
+spring:
+  config:
+    import: "optional:configserver:"
+  flyway:
+    enabled: false

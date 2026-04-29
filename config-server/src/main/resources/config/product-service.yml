@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# config-server/src/main/resources/config/product-service.yml
+# Per-service config for product-service (Phase 4, port 8082).
+# Inherits the shared baseline from .../config/application.yml.
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: true
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/n11
+    username: product_user
+    password: ${PRODUCT_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: product
+    default-schema: product
+    create-schemas: false
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    placeholders:
+      schema: product
+      # flyway.schema used in V1 migration comment — must be defined to avoid Flyway
+      # placeholder substitution error (V1 SQL comment references ${flyway.schema}).
+      flyway.schema: product
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: product
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: ${RABBITMQ_DEFAULT_USER}
+    password: ${RABBITMQ_DEFAULT_PASS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
