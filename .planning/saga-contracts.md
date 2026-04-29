@@ -22,7 +22,7 @@ The envelope is wire-level metadata; the `payload` is the business event. Valida
 
 ## 2. Exchange / Queue Topology
 
-Exchanges (4 — all topic, durable):
+Exchanges (5 — all topic, durable):
 
 | Exchange | Purpose |
 |----------|---------|
@@ -30,8 +30,9 @@ Exchanges (4 — all topic, durable):
 | `inventory.tx` | Stock reservation lifecycle (reserved, reserve_failed, released) |
 | `payments.tx` | Payment lifecycle (completed, failed) |
 | `notifications.tx` | Optional fan-out to notification-service (Phase 7 wiring optional) |
+| `identity.tx` | User lifecycle (registered) — Phase 3 outbox |
 
-Queues (12) — bound to exchanges by routing key, each queue has one logical consumer service:
+Queues (13) — bound to exchanges by routing key, each queue has one logical consumer service:
 
 | Queue | Bound to | Routing key | Consumer |
 |-------|----------|-------------|----------|
@@ -47,6 +48,7 @@ Queues (12) — bound to exchanges by routing key, each queue has one logical co
 | `notify.q.order-confirmed` | `orders.tx` | `order.confirmed` | notification-service |
 | `notify.q.payment-failed` | `payments.tx` | `payment.failed` | notification-service |
 | `search.q.product-events` | `products.tx` | `product.*` | search-service |
+| `notify.q.user-registered` | `identity.tx` | `user.registered` | notification-service (Phase 7) |
 
 > Note: `products.tx` is added in Phase 4 alongside the search-service skeleton; it is not strictly part of the saga but is documented here so the topology table is complete.
 
@@ -127,8 +129,9 @@ This allows tracing one saga across all 13 services in flat logs (`grep '"correl
 | `order.confirmed` | `order-confirmed.schema.json` | order-service | cart-service, notification-service |
 | `order.cancelled` | `order-cancelled.schema.json` | order-service | inventory-service, notification-service |
 | `stock.released` | `stock-released.schema.json` | inventory-service | (audit; no Phase-1-locked consumer) |
+| `user.registered` | `user-registered.schema.json` | identity-service | notification-service (Phase 7 wiring) |
 
-All 8 payload schema files plus `envelope.schema.json` live in `.planning/saga-contracts/`.
+All 9 payload schema files plus `envelope.schema.json` live in `.planning/saga-contracts/`.
 
 ## 8. Drift Gate (D-08)
 
@@ -145,3 +148,6 @@ The order-service's Postgres schema is named `orders` (plural), NOT `order`, bec
 - This document's references to "the order-service schema" mean `orders` in DDL contexts
 
 The event-type and field names (`order.created`, `orderId`, etc.) are independent of the Postgres schema name and remain singular `order.*` per business semantics. This is the pragmatic split — saga vocabulary stays singular, DB schema goes plural.
+
+---
+*Updated 2026-04-29 (Phase 3): added `identity.tx` exchange + `notify.q.user-registered` queue + `user.registered` catalog entry. Schema file at `.planning/saga-contracts/user-registered.schema.json`.*
