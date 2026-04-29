@@ -1,0 +1,21 @@
+# api-gateway/src/test/resources/application.yml
+# Test-scope overrides: disable config-server import and Eureka registration
+# so @WebFluxTest slice tests can run without a running config-server or Eureka.
+spring:
+  application:
+    name: api-gateway
+  config:
+    # Make config-server optional in tests — no config-server running in CI or slice tests.
+    import: "optional:configserver:"
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+# Minimal security config for slice tests (actual value overridden in @TestPropertySource)
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://localhost:0/.well-known/jwks.json
