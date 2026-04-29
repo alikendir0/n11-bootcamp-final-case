@@ -193,6 +193,46 @@ services:
     networks:
       - n11-net
 
+  # ---------------------------------------------------------------------------
+  # identity-service -- first business service (Phase 3, D-21).
+  # Port 8081 (gateway is 8080; 808x convention per ARCHITECTURE.md).
+  # Image built by: ./gradlew :identity-service:jibDockerBuild
+  #
+  # IMPORTANT: NO `ports:` mapping -- Pitfall #14 (gateway path validation /
+  # direct-service bypass). Identity-service is reachable ONLY through the
+  # gateway on port 8080 from outside the Docker network.
+  # ---------------------------------------------------------------------------
+  identity-service:
+    image: n11/identity-service:dev
+    container_name: n11-identity-service
+    env_file:
+      - .env
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_PROFILES_ACTIVE: docker
+      # Plan 03-02 V2 admin-seed migration consumes ADMIN_SEED_EMAIL +
+      # ADMIN_SEED_PASSWORD_HASH (loaded from .env via env_file above).
+      # Plan 03-03 JwtConfig consumes JWT_PRIVATE_KEY + JWT_KEY_ID (same source).
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 20s    # Flyway migration adds ~5s vs infra services
+    restart: unless-stopped
+    networks:
+      - n11-net
+
 volumes:
   postgres-data:
   rabbitmq-data:
