@@ -39,3 +39,8 @@ eureka:
     enabled: false
     register-with-eureka: false
     fetch-registry: false
+
+logging:
+  level:
+    com.rabbitmq: DEBUG
+    org.springframework.amqp: DEBUG
