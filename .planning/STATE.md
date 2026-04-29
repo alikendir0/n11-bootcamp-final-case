@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Phase 2 planned. Three PLAN.md files landed in `.planning/phases/02-frontend-recon-toolchain-lock/`: 02-01 (recon project bootstrap, Wave 0, autonomous, 12 files incl. tools/recon/tsconfig.json), 02-02 (n11.com capture run, Wave 1, depends_on=[02-01], NOT autonomous due to human-verify checkpoint task 3), 02-03 (recon enrichment + toolchain lock + STATE update, Wave 2, depends_on=[02-02], autonomous). Plan-checker pass 2 = ## VERIFICATION PASSED. Six findings from pass 1 closed: BLOCKER-1 (VALIDATION.md path drift `specs/`→`tests/`), BLOCKER-2 (RESEARCH.md "Open Questions" → "Recon Discovery Targets (RESOLVED)"), WARNING-3 (brittle tsx -e verify → npx tsc --noEmit + tsconfig.json), WARNING-4 (hardcoded 2026-04-29 → $(date +%Y-%m-%d)), NOTE-1 (check-recon.ts 9th assertion for `## Decision Matrix`), NOTE-2 (Plan 02-02 Task 2 pins exit-1 + exactly-1-PROJECT.md-match). Plan 02-02 Task 3 is a `checkpoint:human-verify` blocking gate covering Pitfalls #19 + #20 (no chat panel callout, Turkish copy verbatim). VALIDATION.md frontmatter flipped: status=approved, nyquist_compliant=true, all 6 sign-off boxes ticked. Headless `headless: false` browser window will open during Wave 1 — execute on a machine with display."
-last_updated: "2026-04-29T00:51:01.128Z"
-last_activity: 2026-04-29 -- Phase 02 execution started
+stopped_at: "Phase 2 complete — all 3 plans (Wave 0/1/2) landed. Recon evidence captured: 7 screenshots in .planning/intel/screenshots/, 30+ Turkish phrases + 10+ color tokens harvested into .planning/intel/n11-recon.md (8 sections in order). Toolchain locked to Vite 8 + React 19 SPA + TypeScript strict + Tailwind 4 + Zustand 5 + React Router 7 + TanStack Query 5 in PROJECT.md Key Decisions (Vite 65 / Next 45 matrix). Ready for Phase 2 verify, then Phase 3 (Identity + Gateway Auth)."
+last_updated: "2026-04-29T07:34:40.000Z"
+last_activity: 2026-04-29 -- Plan 02-03 complete + Phase 2 closed (recon report committed; toolchain locked; PROJECT.md Key Decisions row added with Pitfall #23 carry-forward note)
 progress:
   total_phases: 11
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 11
+  percent: 18
 ---
 
 # Project State
@@ -25,32 +25,33 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 
 ## Current Position
 
-Phase: 02 (frontend-recon-toolchain-lock) — EXECUTING
-Plan: 1 of 3
-Next: /gsd-execute-phase 2 — Wave 0 (recon scaffold) → Wave 1 (n11.com captures, has human checkpoint) → Wave 2 (recon enrichment + PROJECT.md Key Decisions row)
-Status: Executing Phase 02
-Last activity: 2026-04-29 -- Phase 02 execution started
+Phase: 02 (frontend-recon-toolchain-lock) — ✓ COMPLETE (3/3 plans) — Ready for verify
+Next: /gsd-verify-work for Phase 2, then Phase 03 — Identity + Gateway Auth
+Status: Phase 2 closed
+Last activity: 2026-04-29 -- Plan 02-03 complete; toolchain locked (Vite 8 + React 19 SPA); recon report committed (.planning/intel/n11-recon.md, 8 sections)
 
-Progress: [█████████░] 9% (1 of 11 phases complete)
+Progress: [██░░░░░░░░] 18% (2 of 11 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6
-- Average duration: ~14 min (01-01 ~30 min; 01-02 ~5 min; 01-03 ~5 min; 01-04 ~17 min; 01-05 ~8 min; 01-06 ~17 min)
-- Total execution time: ~82 min
+- Total plans completed: 11 (Phase 1: 8 plans; Phase 2: 3 plans)
+- Average duration: ~12 min (Phase 1 avg ~14 min; Phase 2 avg ~6 min — recon-tooling phase is shorter than backend-infra phase)
+- Total execution time: ~100 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 (foundations-day-1-contracts) | 6 | ~82 min | ~14 min |
+| 01 (foundations-day-1-contracts) | 8 | ~110 min | ~14 min |
+| 02 (frontend-recon-toolchain-lock) | 3 | ~18 min | ~6 min |
 
 **Recent Trend:**
 
-- Last 6 plans: 01-01 (~30 min, 3 tasks, 23 files), 01-02 (~5 min, 2 tasks, 11 files), 01-03 (~5 min, 3 tasks, 4 files + 1 Rule-3 deviation), 01-04 (~17 min, 3 tasks, 27 files + 3 deviations: JUnit launcher Rule-3, Spring AMQP retry import Rule-1, networknt 3.0.2 API adaptation Rule-1), 01-05 (~8 min, 3 tasks, 8 files + 0 deviations -- plan ran clean on first attempt), 01-06 (~17 min, 6 tasks, 9 files + 2 deviations: Rule-1 :common-logging dep dropped due to servlet-filter-on-reactive-runtime crash, Rule-3 stale config-server Jib image rebuild required after touching config/api-gateway.yml; SC-1 5-service stack cold-boot 25s vs 60s budget => margin > 50%)
-- Trend: Wave 2 unit cost stabilized at ~13-17 min once Jib pre-build pattern was canonized in 01-05 and replicated in 01-06. Plan 01-06's deviations were both pre-flagged in 01-04-SUMMARY and 01-05-SUMMARY (the :common-logging-on-reactive-runtime landmine and the stale-Jib-image-after-YAML-edit hazard) -- catching them at runtime rather than re-discovering them via stack trace would shave ~5 min off similar Wave-2 plans. Recommend Plan 01-07 cite these in CONTEXT.md to avoid the same churn.
+- Last 6 plans: Plan 01-06 (~17 min, 6 tasks, 9 files + 2 deviations), Plan 01-07 / Plan 01-08 (Phase 1 close — 8/8 plans landed, recorded in .planning/phases/01-foundations-day-1-contracts/01-08-SUMMARY.md), Plan 02-01 (~7 min, 3 tasks, 12 files + 1 Rule-3 deviation: gradient-aware tsconfig.json contract edit), Plan 02-02 (~5 min capture wall-clock + 5 deviations: Xvfb host install, playwright timeout bump, /giris→/giris-yap URL fix, assemble-recon dash-collapse regex bug, artifact-lint regex tightened), Plan 02-03 (~6 min, 3 tasks, 3 files + 0 deviations — plan ran clean; the one Rule-1 was a chasmy outcome string that PROJECT.md mention-count expected exactly 2 vs 3, fixed inline by reflowing the legacy-row outcome wording).
+- Phase 02 narrative: anti-bot fallback was NOT needed — n11 captures completed on rung 1 (configured Playwright posture: headless:false + real desktop UA + slowMo:250 + tr-TR locale). Final counts: 644 phrases (≥30 threshold) + 25 color tokens (≥10 threshold) + 7 fullpage screenshots ≥50 KB each. The cross-plan contract pin (Plan 02-02 tightened scripts/check-phase-02-artifacts.sh to require `Vite 8 + React 19 SPA` + `Locked YYYY-MM-DD` on the SAME line of PROJECT.md Key Decisions) closed cleanly in 02-03 Task 2.
+- Trend: Wave 2 unit cost stabilized at ~13-17 min in Phase 1 once Jib pre-build pattern was canonized in 01-05 and replicated in 01-06. Phase 2's recon plans came in at ~5-7 min apiece — recon tooling is npm-driven (no Gradle pre-build), and the Decision Matrix subsection paste was a single Edit operation. Recommend Phase 3 plans (Identity + Gateway Auth) re-baseline back to Phase 1's ~14-min Wave 2 unit cost given the Jib + Spring Boot return.
 
 *Updated after each plan completion*
 
@@ -103,7 +104,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-29 (plan-phase 2)
-Stopped at: Phase 2 planned. Three PLAN.md files landed in `.planning/phases/02-frontend-recon-toolchain-lock/`: 02-01 (recon project bootstrap, Wave 0, autonomous, 12 files incl. tools/recon/tsconfig.json), 02-02 (n11.com capture run, Wave 1, depends_on=[02-01], NOT autonomous due to human-verify checkpoint task 3), 02-03 (recon enrichment + toolchain lock + STATE update, Wave 2, depends_on=[02-02], autonomous). Plan-checker pass 2 = ## VERIFICATION PASSED. Six findings from pass 1 closed: BLOCKER-1 (VALIDATION.md path drift `specs/`→`tests/`), BLOCKER-2 (RESEARCH.md "Open Questions" → "Recon Discovery Targets (RESOLVED)"), WARNING-3 (brittle tsx -e verify → npx tsc --noEmit + tsconfig.json), WARNING-4 (hardcoded 2026-04-29 → $(date +%Y-%m-%d)), NOTE-1 (check-recon.ts 9th assertion for `## Decision Matrix`), NOTE-2 (Plan 02-02 Task 2 pins exit-1 + exactly-1-PROJECT.md-match). Plan 02-02 Task 3 is a `checkpoint:human-verify` blocking gate covering Pitfalls #19 + #20 (no chat panel callout, Turkish copy verbatim). VALIDATION.md frontmatter flipped: status=approved, nyquist_compliant=true, all 6 sign-off boxes ticked. Headless `headless: false` browser window will open during Wave 1 — execute on a machine with display.
-Resume file: .planning/phases/02-frontend-recon-toolchain-lock/02-01-PLAN.md (next dispatch unit)
-Next: /gsd-execute-phase 2
+Last session: 2026-04-29 (execute-phase 2, plan 02-03)
+Stopped at: Plan 02-03 complete; Phase 2 closed. .planning/intel/n11-recon.md is the Phase 10/11 hand-off contract — 8 sections + Decision Matrix subsection. PROJECT.md Key Decisions has the toolchain row (Vite 8 + React 19 SPA, locked 2026-04-29). Open Questions: "Frontend toolchain" moved to Resolved; "Public tunnel choice" and "MCP server tunnel exposure" remain open (Phase 6/9).
+Resume file: (next dispatch) /gsd-verify-work for Phase 2 -- if green, /gsd-plan-phase 3 to start Phase 3 (Identity + Gateway Auth).
+Next: /gsd-verify-work for Phase 2
