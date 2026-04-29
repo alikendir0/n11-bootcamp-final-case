@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered — 22 decisions locked across JWT lifetime, RS256 keypair, roles+admin seeding, address book, user.registered saga seam, login response shape; ready for /gsd-plan-phase 3
-last_updated: "2026-04-29T19:06:37.846Z"
-last_activity: 2026-04-29 -- Phase 4 planning complete
+last_updated: "2026-04-29T19:48:00.000Z"
+last_activity: 2026-04-29 -- Phase 04 Plan 01 completed (product-service catalog)
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 20
-  completed_plans: 17
-  percent: 85
+  completed_plans: 18
+  percent: 90
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-28)
 
 **Core value:** A graders-impressing demonstration that the candidate can architect a clean, SOLID, microservices system AND layer differentiated AI capabilities on top of it.
-**Current focus:** Phase 03 — identity-gateway-auth
+**Current focus:** Phase 04 — catalog-inventory
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
-Next: /gsd-verify-work for Phase 2, then Phase 03 — Identity + Gateway Auth
-Status: Ready to execute
-Last activity: 2026-04-29 -- Phase 4 planning complete
+Phase: 04 (catalog-inventory) — EXECUTING
+Plan: 2 of 3 (Plan 01 complete)
+Next: Plan 04-02 — inventory-service (PROD-06, PROD-08, saga consumer)
+Status: Executing Phase 04
+Last activity: 2026-04-29 -- Phase 04 Plan 01 completed
 
-Progress: [██░░░░░░░░] 18% (2 of 11 phases complete)
+Progress: [███░░░░░░░] 27% (3 of 11 phases complete)
 
 ## Performance Metrics
 
@@ -47,8 +47,8 @@ Progress: [██░░░░░░░░] 18% (2 of 11 phases complete)
 |-------|-------|-------|----------|
 | 01 (foundations-day-1-contracts) | 8 | ~110 min | ~14 min |
 | 02 (frontend-recon-toolchain-lock) | 3 | ~18 min | ~6 min |
-| 02 | 3 | - | - |
-| 03 | 6 | - | - |
+| 03 (identity-gateway-auth) | 6 | ~84 min | ~14 min |
+| 04 (catalog-inventory) Plan 01 | 1 | ~32 min | ~32 min |
 
 **Recent Trend:**
 
@@ -85,6 +85,10 @@ Recent decisions affecting current work:
 - 2026-04-28 (Plan 01-06): GlobalFilter import package is org.springframework.cloud.gateway.filter (UNCHANGED in Northfields/Spring Cloud 2025.0). The 2025.0 rename was property-prefix-only (spring.cloud.gateway.* → spring.cloud.gateway.server.webflux.*) and starter-coordinate-only (spring-cloud-starter-gateway → spring-cloud-starter-gateway-server-webflux); class packages stayed the same. Verified by unzip of spring-cloud-gateway-server-4.3.0.jar.
 - 2026-04-28 (Plan 01-06): Stale-Jib-image hazard for config-server YAML edits surfaced. Editing config-server/src/main/resources/config/*.yml requires `./gradlew :config-server:jibDockerBuild` BEFORE `docker compose up -d` for the change to be served (Spring Cloud Config native profile reads classpath:/config/ which is JAR-bound at image-build time). Plan 01-07 should cite this as a CONTEXT note. Recommend baking the Wave-2+ workflow rule into all future plans that touch config-server YAMLs.
 - 2026-04-28 (Plan 01-06): Phase 1 SC-1 success criterion satisfied with margin -- 5-service stack (postgres, rabbitmq, eureka-server, config-server, api-gateway) cold-boots to (healthy) in 25s on a warm Docker daemon (budget 60s, margin > 50%). /actuator/gateway/routes returns 200 with one self-route entry (the gateway is itself a Eureka client and discovery-locator auto-routes API-GATEWAY under /api-gateway/**); D-14's "[]" expectation was conservative -- the actual single self-route is correct Northfields behavior. Recorded in .planning/phases/01-foundations-day-1-contracts/01-06-SC1-SMOKE.log.
+- 2026-04-29 (Plan 04-01): Native @Query sort fields must use snake_case column names (created_at, price_gross) not JPA camelCase property names. Spring Data passes sort fields as-is to native SQL; camelCase causes PSQLException.
+- 2026-04-29 (Plan 04-01): src/test/resources/application.yml with optional:configserver: is required for slice tests (@DataJpaTest/@JdbcTest) — Spring Boot 3.x loads this before profile-specific overrides, preventing ConfigClientFailFastException on bootstrap.
+- 2026-04-29 (Plan 04-01): Testcontainers Postgres native queries require hikari.connection-init-sql=SET search_path=<schema> in application-test.yml — no init.sh sets search_path for the test DB user.
+- 2026-04-29 (Plan 04-01): GIN trigram index EXPLAIN ANALYZE tests with small datasets (<1000 rows) must use SET enable_seqscan=off to force index use (planner chooses SeqScan for small tables). This proves index correctness without requiring full production data volume.
 - 2026-04-28 (Plan 01-06): Pitfall #2 (gateway reactive vs MVC classpath collision) structurally locked down. configurations.all { exclude(group=org.springframework.boot, module=spring-boot-starter-tomcat); exclude(... starter-web); exclude(org.springdoc, springdoc-openapi-starter-webmvc-ui) } in api-gateway/build.gradle.kts. ./gradlew :api-gateway:dependencies --configuration runtimeClasspath shows zero matches for any of those.
 
 ### Pending Todos
@@ -107,7 +111,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-29T08:06:37.389Z
-Stopped at: Phase 3 context gathered — 22 decisions locked across JWT lifetime, RS256 keypair, roles+admin seeding, address book, user.registered saga seam, login response shape; ready for /gsd-plan-phase 3
-Resume file: .planning/phases/03-identity-gateway-auth/03-CONTEXT.md
-Next: /gsd-verify-work for Phase 2
+Last session: 2026-04-29T19:48:00.000Z
+Stopped at: Phase 04 Plan 01 complete — product-service catalog with 19 passing tests, 52 Turkish seed products, GIN index ILIKE search, ROLE_ADMIN gate
+Resume file: .planning/phases/04-catalog-inventory/04-01-SUMMARY.md
+Next: Plan 04-02 (inventory-service)
