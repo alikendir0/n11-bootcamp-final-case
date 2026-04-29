@@ -733,40 +733,95 @@ n11 top-level categories (locked in CLAUDE.md and REQUIREMENTS.md PROD-03):
 
 ## 5. Typography Notes
 
+> Values harvested via `getComputedStyle()` on `body`, `a`, `h1`, and the PDP "Sepete Ekle" CTA button across all 7 captured pages (`tools/recon/output/*-tokens.json`). Phase 10 maps these into the Tailwind 4 `@theme` block.
+
 | Property | Observed |
 |----------|----------|
 | Font family (body) | "Open Sans", Arial, Helvetica, sans-serif |
-| Font family (heading) | "Open Sans", Arial, Helvetica, sans-serif |
-| Heading size (h1) | 16px |
-| Body size | 16px |
+| Font family (heading) | "Open Sans", Arial, Helvetica, sans-serif (homepage h1) — narrows to "Open Sans", Arial on PDP h1 (no Helvetica fallback in product detail) |
+| Font family (CTA button) | Arial (PDP "Sepete Ekle" button uses a stripped fallback — no "Open Sans" — observed in `pdp-tokens.json`) |
+| Heading size (h1) | 16px on homepage; 20px on PDP (product title gets the larger ramp) |
+| Body size | 16px (uniform across all 7 pages) |
 | Body font weight | 400 |
-| Font weights observed | 400 (body), 500 (subhead), 700 (heading, price) |
-| Line height (body) | <recon will confirm — typically 1.4-1.6> |
+| Font weights observed | 400 (body, links), 600 (PDP h1 product title), 700 (homepage h1, PDP CTA button "Sepete Ekle") |
+| Line height (body) | <recon underfilled — TokenRow schema does not capture `lineHeight`; Phase 10 to read directly from screenshots, default to Tailwind's 1.5 leading-normal as a safe baseline> |
+| Hover/focus states | Not harvested (recon captures static computed style only); Phase 10 derives hover ramps from the brand-orange tokens captured on PDP CTA (`#1C1C1E` background → assume ~10% lighten on hover). |
+| Font stack discipline note | n11 ships **only** an Open Sans / Arial / Helvetica fallback chain — no custom-host webfont visible in the harvest. Phase 10 ships Open Sans via `@fontsource/open-sans` (npm) to match without depending on n11's CDN. |
 
 ## 6. Layout Patterns
 
-> Short observations. Phase 10 uses these for grid component decisions.
+> Short observations. Phase 10 uses these for grid component decisions. Confirmed against `homepage-fullpage.png`, `category-elektronik-fullpage.png`, `pdp-fullpage.png`, `cart-fullpage.png`.
 
-- **Header:** sticky on scroll, ~60px tall. Left = logo. Center = search bar (full-width). Right cluster = "Hesabım" + "Sepetim" with item-count badge.
-- **Category nav:** secondary horizontal bar below header, mega-menu on hover.
-- **Listing grid:** 4 columns at desktop (≥1280px), 3 at tablet, 2 at mobile. Card aspect ratio ~1:1.3 (taller than square, room for image + title + price + CTA).
-- **PDP:** left = image gallery (~50%), right = product info (title, price, taksit, CTA, stock badge). Tabs ("Açıklama / Özellikler / Kargo") below the fold.
-- **Cart:** line items table on left, "Sipariş Özeti" sticky on right.
-- **Footer:** 4 columns of help links + payment-method icon strip.
+- **Header:** sticky on scroll (homepage screenshot top edge confirms). Left = n11 logo. Center = full-width search bar. Right cluster = "Hesabım" + "Sepetim" with item-count badge. Anonymous state shows "Giriş Yap / Üye Ol" instead of "Hesabım".
+- **Category nav:** secondary horizontal bar below header with mega-menu on hover. Recon harvested 70+ category labels via the cart-page mega-menu (see §2 phrases 16-95 — `Moda`, `Elektronik`, `Beyaz Eşya`, ...) — taxonomy is wide; Phase 10 picks the 8 top-level slugs from §3 not the full firehose.
+- **Listing grid (category page):** 4 columns at desktop 1440px viewport (counted from `category-elektronik-fullpage.png`). Card aspect taller than square — image area + title + price + "SEPETTE" promo badge + free-shipping ribbon. Phase 10 sets responsive breakpoints to 4 / 3 / 2 / 1 with Tailwind 4 defaults.
+- **PDP:** left = image gallery (~50%), right = product info column (title H1 20px, price block, taksit options, "Sepete Ekle" black CTA, stock indicator). Tabs strip ("Ürün Açıklaması / Ödeme Kolaylıkları / Ürün Bilgileri / Daha Fazla Bilgi") below the fold. Reviews + "Diğer Mağazalar" + "Mağazaların Seçtiği Ürünler" rails follow vertically.
+- **Cart (empty):** Vertical empty-state hero ("Sepetin Boş Görünüyor") + 3-bullet feature strip ("Kuponlarla", "Favori ürünlerini ekle", "Hemen Giriş Yap") — n11's empty-cart layout is single-column, not "items left + summary right" (that pattern only kicks in when cart has line items, which we did not seed). Phase 10 implements the items-left + summary-right pattern for the populated state per Pattern 6.
+- **PDP CTA color:** the "Sepete Ekle" button is **black** (`#1C1C1E`) with white text — NOT orange. n11's brand orange shows only in promo badges + price-discount ribbons, not the primary CTA. Phase 10 uses `--color-cta-primary-bg #1C1C1E` (already in §4) for primary buttons.
+- **Footer:** 4-column help-link stack ("Müşteriler / Mağazalar / n11.com / İletişim") + payment-method icon strip + social-follow row. Footer copy harvested under §2.
+- **Captured at viewport 1440×900** — recon used a fixed desktop viewport. Phase 10 sets responsive breakpoints based on Tailwind 4 defaults.
 
 ## 7. Anti-pattern flags (what we will NOT copy)
 
-- **No floating chat panel observed.** *Pitfall #19 callout: Phase 11 must invent the chat-bubble UX from scratch. Reference inspiration: ChatGPT widget, Intercom, or Discord — not n11.*
-- **Dark-pattern banners** (e.g., countdown timers, "X kişi şu anda görüntülüyor"): if observed, do NOT replicate. Bootcamp grading rewards clean UX.
-- **Autoplay video on PDP:** if observed, do NOT replicate.
-- **Newsletter pop-ups:** if observed, do NOT replicate.
-- **Cookie banner UX:** n11's banner is dismissible-only (no granular consent). Phase 10 ships a simpler "Accept" / "Decline" pair if a banner is needed at all (out of scope for FE-13).
+- **No floating chat panel observed.** *Pitfall #19 callout: Phase 11 must invent the chat-bubble UX from scratch. Reference inspiration: ChatGPT widget, Intercom, or Discord — not n11.* The "n11 Asistan" link in the cart-page footer (§2 phrase 70) navigates to a static help page; it is NOT a live agent panel — Phase 11 ships a true LLM-backed bubble.
+- **Dark-pattern observed in homepage:** countdown timer rows (§2 phrases 233-235: `03 / 47 / 37` — hours/minutes/seconds for promotional flash sales). Will NOT be replicated. Phase 10 ships product cards without urgency-counters.
+- **Dark-pattern observed in homepage:** "10 günün en düşük fiyatı!" sticky-pricing badge (§2 phrase 240). Will NOT be replicated — bootcamp grading rewards clean UX, not dark fluctuating-price psychology.
+- **Coupon-driven UX overload:** homepage shows 5 stacked discount-coupon cards labeled "1.Kupon / 2.Kupon / ... / 5.Kupon" (§2 phrases 306-310). Phase 10 does NOT ship a coupon system (out of scope per REQUIREMENTS Out-of-Scope) — and even if it did, the visual stacking is too noisy.
+- **Autoplay video on PDP:** not observed in `pdp-fullpage.png` (PDP is image-gallery + spec-table, no inline video). No anti-pattern action needed.
+- **Newsletter pop-ups:** not observed across the 7 captures (cookie-banner dismiss path may have suppressed it). If observed in production, do NOT replicate.
+- **Cookie banner UX:** n11's banner is dismissible-only (no granular consent — see §2 phrase 8 "Çerez Ayarları" — single link, no per-category toggles). Phase 10 ships a simpler "Accept" / "Decline" pair if a banner is needed at all (out of scope for FE-13).
+- **Promotional-banner overload (category page):** `category-elektronik-fullpage.png` shows 8+ stacked merchant-banner blocks (Grundig, MediaMarkt, Sharge, BUFFLABS, etc.) above the actual product grid. Will NOT be replicated — Phase 10 puts product cards directly under the category H1 with at most one optional banner slot.
 
 ## 8. Open n11 questions for Phase 10 / 11
 
-- Does the PDP show a "Son N ürün!" stock indicator? (Drives PROD-06 implementation copy.)
-- Is "Kapıda Ödeme" a visible payment method on the checkout step? (Drives Pitfall mitigation: ship as no-op or disabled radio per FE-V2-03.)
-- Does n11 use breadcrumbs on PDP? (Drives FE-07 layout.)
-- What's the "Çok Satanlar" rail item count on the homepage? (Drives FE-05 fixture size.)
+> Baseline (PDP / Checkout / FE-related observations) + recon-discovered carry-forward items (URL drift, capture-quality notes). Phase 10 / Phase 11 plans resolve these from the captured screenshots, not from n11.com directly.
 
-> Phase 10 plan resolves these from the captured screenshots, not from n11.com directly.
+### Baseline (planning-time questions that screenshot evidence may resolve)
+
+- **Does the PDP show a "Son N ürün!" stock indicator?** No "Son" label visible in the harvested phrase JSON for `/urun/...` (`tools/recon/output/pdp-phrases.json`); the captured PDP shows "Stokta" / "Tükendi" only. Phase 10 ships PROD-06 as a binary stock badge (in stock / out of stock); the "Son N ürün!" warning UX is OUT-OF-SCOPE unless a future capture surfaces it.
+- **Is "Kapıda Ödeme" a visible payment method on the checkout step?** Recon could not inspect the post-login checkout (we don't authenticate by design). The cart CTA navigated to `/genel/odeme-secenekleri-393251` (an info page), not a checkout form. Phase 5 / Phase 6 plans must resolve this against the bootcamp brief: ship Kapıda Ödeme as a disabled radio button per FE-V2-03 and Pitfall #11 mitigation.
+- **Does n11 use breadcrumbs on PDP?** PDP harvest shows "Dizüstü Bilgisayar" / "Apple Dizüstü Bilgisayar" leading the phrase list (§2 phrases 477-478) — this is a category-trail breadcrumb. Phase 10 FE-07 ships breadcrumbs on PDP.
+- **What's the "Çok Satanlar" rail item count on the homepage?** "Çok Satanlar" appears in §2 (phrase 67) as a footer "POPÜLER SAYFALAR" link, NOT as a homepage product rail label. The actual homepage rail labels are "Avantajlı Ürünler" (§2 phrase 263) and "Vitrin Kampanyaları" (§2 phrase 289). Phase 10 FE-05 fixture size: count from `homepage-fullpage.png` — the "Avantajlı Ürünler" rail shows ~10-12 product cards before the "Tümünü Gör" CTA.
+
+### Recon-discovered carry-forwards (Plan 02-02 hand-off)
+
+- **Login path canonical form is `/giris-yap` (NOT `/giris`).** RESEARCH guessed `/giris`; actual is `/giris-yap` (returns 200; `/giris` returns 404). Update FE-02 / FE-04 references and the Phase 10 router config. `account.spec.ts` confirms the redirect: `https://www.n11.com/hesabim` → `https://www.n11.com/giris-yap?redirectUrl=/hesabim`.
+- **Anonymous-cart "checkout" CTA semantics are quirky.** Pressing the cart-page CTA on an empty cart redirects to `/genel/odeme-secenekleri-393251` (a generic payment-options info page), not a login form. Phase 10 must NOT model this flow — ship our own anonymous-cart-protect-checkout flow that requires login first.
+- **Header element-zoom did not capture cleanly.** The homepage `header` element-zoom Playwright locator resolved to a 1px shell before sticky-positioned content settled. Not blocking — the fullpage screenshot conveys header structure. Phase 10 reads `homepage-fullpage.png` directly for header layout.
+- **PDP CTA element-zoom captured a 710-byte 1px shell.** The `[class*="product-detail" i], [class*="basket" i]` selector matched a near-zero container on the captured PDP. Not blocking — `pdp-fullpage.png` has the CTA cluster.
+- **Mega-menu hover state on homepage is unverified.** Recon hovered `a[href*="elektronik"]` then captured fullpage; the dropdown state in the screenshot needs human verification. If Phase 10 needs the precise mega-menu DOM, escalate to a Locator-based hover with explicit `expect(locator).toBeVisible()` await before the screenshot.
+
+### New questions surfaced by recon
+
+- **Does n11 require login before showing the address-step form?** The cart's "Hemen Giriş Yap" CTA navigates to login on empty cart, suggesting yes. Phase 10's FE-09 multi-step checkout flow should gate the address-step on authentication and surface a "Hemen Giriş Yap" CTA in the cart sidebar.
+- **What does n11 display when a category has zero products?** Not observed (every captured category page has products). Phase 4 (PROD-04) ships an empty-state copy following n11 voice — recommend "Bu kategoride ürün bulunamadı" plus a "Diğer kategorilere göz at" CTA.
+- **PDP "Mağaza Sıralaması Nasıl Yapılıyor?" (§2 phrase 547) link** — n11 surfaces a multi-merchant ranking explanation. Out of scope for v1 (single-merchant deliverable per REQUIREMENTS Out-of-Scope), but Phase 10's PDP layout should reserve a help-link slot for future multi-merchant signaling.
+
+## Decision Matrix — Frontend Toolchain (Vite SPA vs Next.js 15)
+
+> Referenced by `.planning/PROJECT.md` Key Decisions row for FE-01. Scoring is 1–5 (5 = best). Weights are bootcamp-grading-lens-tuned: code-quality ×3, timeline ×2, recon-evidence ×1, JWT compat ×2, SSE compat ×2, pitfall avoidance ×2, brief literal ×1.
+
+| Criterion | Weight | Vite + React 19 SPA | Next.js 15 (App Router) |
+|-----------|--------|---------------------|-------------------------|
+| Code-quality signal (clean layering, hooks-first) | ×3 | 5 | 4 |
+| 6-day timeline fit | ×2 | 5 | 3 |
+| n11-recon-evidence support (does recon show SSR is essential?) | ×1 | 5 | 2 |
+| JWT-at-gateway compatibility | ×2 | 5 | 3 |
+| AI chat panel SSE consumption | ×2 | 5 | 3 |
+| Avoids Pitfall #16/#19/#23 | ×2 | 5 | 4 |
+| Bootcamp brief literal: "React.js storefront" | ×1 | 5 | 5 |
+
+**Weighted totals:**
+- **Vite + React 19 SPA: 5×3 + 5×2 + 5×1 + 5×2 + 5×2 + 5×2 + 5×1 = 15+10+5+10+10+10+5 = 65**
+- Next.js 15: 4×3 + 3×2 + 2×1 + 3×2 + 3×2 + 4×2 + 5×1 = 12+6+2+6+6+8+5 = 45
+
+**Decision:** Vite + React 19 SPA + TypeScript + Tailwind 4 + Zustand 5 + React Router 7 + TanStack Query 5 + react-hook-form + zod.
+
+**Recon evidence supporting the decision:**
+1. **n11 has no in-storefront chat panel** (see §7 Anti-pattern flags) — Phase 11's floating-bubble UX is greenfield. Vite SPA owns the DOM cleanly without RSC re-render gymnastics.
+2. **n11 PDP is fully client-rendered after initial HTML** (observed in `pdp-fullpage.png` — the listing grid + PDP layout do not require SSR-only data; our deliverable is a graded interview demo, not a public-search-engine-indexed marketplace).
+3. **JWT validated only at the gateway** (locked Phase 1, see CLAUDE.md and PROJECT.md) — SSR-side auth would force token-forwarding through the Node runtime. SPA dispatches `Authorization: Bearer <token>` directly from the browser through the api-gateway → service mesh.
+
+**Carry-forward to Phase 10:** API base URL injected via `VITE_API_BASE_URL` env var (no hardcoded `http://localhost:8080` in source — Pitfall #23 prevention). Frontend toolchain install command will be `npm create vite@latest frontend -- --template react-ts` followed by `npm install tailwindcss@4.x @tailwindcss/vite zustand react-router @tanstack/react-query react-hook-form zod @hookform/resolvers`.
+
+**Carry-forward to Phase 11:** Floating chat bubble = greenfield UX. Reference inspiration in `## 7. Anti-pattern flags`. SSE token streaming consumes via native `EventSource` — no RSC streaming needed.
