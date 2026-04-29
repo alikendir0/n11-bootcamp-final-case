@@ -46,6 +46,11 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   -- Must be created by superuser; only place this happens. (T-01-03)
   CREATE EXTENSION IF NOT EXISTS vector;
 
+  -- ───────────────────── pg_trgm ─────────────────────────────────────────
+  -- Required by product-service V2 migration for GIN trigram index on
+  -- lower(name_tr) (PROD-04). Service users lack CREATE-EXTENSION privilege.
+  CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
   -- ───────────────────── identity ────────────────────────────────────────
   CREATE SCHEMA IF NOT EXISTS identity;
   CREATE USER identity_user WITH PASSWORD '${IDENTITY_DB_PASSWORD}';
