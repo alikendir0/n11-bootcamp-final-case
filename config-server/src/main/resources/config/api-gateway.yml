@@ -54,6 +54,24 @@ spring:
                 - Path=/api/v1/identity/**
               filters:
                 - StripPrefix=3
+            - id: product-service
+              uri: lb://PRODUCT-SERVICE
+              predicates:
+                - Path=/api/v1/products/**
+              filters:
+                - StripPrefix=3
+            - id: category-service
+              uri: lb://PRODUCT-SERVICE
+              predicates:
+                - Path=/api/v1/categories/**
+              filters:
+                - StripPrefix=3
+            - id: inventory-service
+              uri: lb://INVENTORY-SERVICE
+              predicates:
+                - Path=/api/v1/inventory/**
+              filters:
+                - StripPrefix=3
 
           # ─────────────────────────────────────────────────────────────────
           # Phase 8 SSE forward-reference (DO NOT enable in Phase 1 -- no
@@ -113,7 +131,8 @@ springdoc:
       # Phase 3: identity-service Springdoc surface (QUAL-01 aggregator half).
       - name: identity-service
         url: /api/v1/identity/v3/api-docs
-    # Phase 4+ append-shape:
-    # urls:
-    #   - name: product-service
-    #     url: /api/v1/product/v3/api-docs
+      # Phase 4: product-service and inventory-service Springdoc surfaces (PROD-07).
+      - name: product-service
+        url: /api/v1/products/v3/api-docs
+      - name: inventory-service
+        url: /api/v1/inventory/v3/api-docs
