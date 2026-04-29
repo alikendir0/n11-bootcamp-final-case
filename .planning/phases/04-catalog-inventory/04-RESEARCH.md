@@ -824,37 +824,49 @@ CREATE INDEX outbox_unsent_idx ON outbox (occurred_at) WHERE sent_at IS NULL;
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`low_stock_threshold` storage: per-product column vs global config property**
    - What we know: REQUIREMENTS.md PROD-06 says "Son N ürün!" but doesn't specify where the threshold lives.
    - What's unclear: Should it be per-product (5 for phones, 20 for consumables) or global?
    - **Recommendation:** Per-product column `low_stock_threshold INT DEFAULT 5` on the `stock` table. More flexible and SOLID-friendly. Admin can set it via `POST /inventory/{productId}/restock` (already in the api-contracts §2.6). Default 5 covers all seed data.
+   - **RESOLVED:** Per-product column `low_stock_threshold INT NOT NULL DEFAULT 5` on the `stock` table; allows per-SKU tuning without migration.
 
 2. **Port assignments for product-service (8082) and inventory-service (8083)**
    - What we know: Identity = 8081; the 808x convention is established in CONTEXT.md D-21.
    - What's unclear: Exact port numbers are not locked in any document.
    - **Recommendation:** product-service = 8082, inventory-service = 8083 (sequential ladder). Planner should confirm and lock in product-service.yml + inventory-service.yml.
+   - **RESOLVED:** product-service = 8082, inventory-service = 8083. Locked in config-server YAML files; 808x convention confirmed.
 
 3. **`image_urls` storage: Postgres TEXT[] vs JSON column**
    - What we know: The products table needs a gallery array (PROD-02).
    - What's unclear: Hibernate's handling of `TEXT[]` requires `@Type(PostgreSQLArrayType.class)` (Hypersistence Utils) or a simple `@Convert` approach. JSON column is simpler but loses Postgres array operators.
    - **Recommendation:** Use `TEXT[]` with Spring Boot's `@JdbcTypeCode(SqlTypes.ARRAY)` annotation (Hibernate 6.x native support, no extra library needed). [ASSUMED — Hibernate 6.6 array support needs verification at impl time]
+   - **RESOLVED:** `@JdbcTypeCode(SqlTypes.JSON)` mapping to `jsonb` column is more idiomatic than `TEXT[]` for ordered image lists (Hibernate 6.6 handles JSONB natively). The plan uses `TEXT[]` with `@JdbcTypeCode(SqlTypes.ARRAY)` as originally recommended; both are valid. Decision locked as TEXT[] for v1.
 
 4. **Seller info: single `seller_name` TEXT column vs dedicated seller entity**
    - What we know: PROD-02 requires "seller info"; PROJECT.md Out-of-Scope explicitly bans multi-vendor seller dashboards.
    - What's unclear: The simplest approach is a denormalized `seller_name TEXT DEFAULT 'n11 Pazaryeri'` on the product row.
    - **Recommendation:** Single `seller_name` text column, hardcoded to `'n11 Pazaryeri'` in seed data. All products belong to the same fictional seller. No foreign key, no seller table.
+   - **RESOLVED:** Single denormalized `seller_name TEXT NOT NULL DEFAULT 'n11 Pazaryeri'` column on the products table.
 
 5. **KDV rate: fixed 20% vs configurable**
    - What we know: CLAUDE.md says "KDV (Turkish VAT) is 20% at v1"; LOC-01 says `price_gross` + `kdv_rate` stored.
    - What's unclear: Whether it should be a config value or per-product DB column.
    - **Recommendation:** Store `kdv_rate NUMERIC(5,2) DEFAULT 20.00` per product row (forward-compatible if different categories ever get different rates). Seed all rows with 20.00.
+   - **RESOLVED:** `kdv_rate NUMERIC(5,2) NOT NULL DEFAULT 20.00` per product row. All seed data uses 20.00.
 
 6. **Phase 4 search-service skeleton scope**
    - What we know: saga-contracts.md §2 says `products.tx` added in Phase 4 "alongside the search-service skeleton." ROADMAP.md says search-service's pgvector work is in Phase 8.
    - What's unclear: What exactly constitutes the "skeleton" for Phase 4 — just the `products.tx` exchange declaration in product-service, or also a `search-service` Gradle module?
    - **Recommendation:** Phase 4 scope = declare `products.tx` exchange in product-service's `ProductRabbitConfig`. Creating a full `search-service` module in Phase 4 would add scope; the gateway route for `/api/v1/search/**` can remain a 503 until Phase 8. Planner decision.
+   - **RESOLVED:** Phase 4 scope = `products.tx` exchange declaration in `ProductRabbitConfig` only. No `search-service` Gradle module in Phase 4.
+
+**Additional resolution notes:**
+- **Pageable wiring:** `@ParameterObject Pageable` (Springdoc 2.x idiom; auto-generates page/size/sort query parameters in OpenAPI doc).
+- **GIN index column:** `lower(name_tr)` with `gin_trgm_ops` (case-insensitive Turkish search; matches the controller-side `lower(name_tr) ILIKE lower(q)` query).
+- **Flyway baseline:** Not needed for greenfield schemas; `spring.flyway.baseline-on-migrate: false` (default), V1 IS the baseline.
+- **`processed_events.event_id` PK type:** `UUID` (matches the `eventId` field in saga event JSON Schemas).
 
 ---
 

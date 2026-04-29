@@ -2,8 +2,8 @@
 phase: 4
 slug: catalog-inventory
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-29
 ---
 
@@ -38,14 +38,14 @@ created: 2026-04-29
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 4-01-01 | 01 | 1 | PROD-01, PROD-03, PROD-09 | — | N/A | unit | `./gradlew :product-service:test --tests *FlywayMigrationsTest` | ❌ W0 | ⬜ pending |
-| 4-01-02 | 01 | 1 | PROD-01, PROD-02, PROD-05 | — | N/A | unit | `./gradlew :product-service:test --tests *ProductRepositoryTest` | ❌ W0 | ⬜ pending |
-| 4-01-03 | 01 | 1 | PROD-04 | — | N/A | integration | `./gradlew :product-service:test --tests *ProductSearchIntegrationTest` | ❌ W0 | ⬜ pending |
-| 4-01-04 | 01 | 2 | PROD-01, PROD-02, PROD-05, PROD-07 | — | ROLE_ADMIN required for writes | integration | `./gradlew :product-service:test --tests *ProductControllerIntegrationTest` | ❌ W0 | ⬜ pending |
-| 4-02-01 | 02 | 1 | PROD-08 | — | N/A | unit | `./gradlew :inventory-service:test --tests *StockEntityVersionTest` | ❌ W0 | ⬜ pending |
-| 4-02-02 | 02 | 1 | PROD-06, PROD-08 | — | N/A | unit | `./gradlew :inventory-service:test --tests *StockStateComputationTest` | ❌ W0 | ⬜ pending |
-| 4-02-03 | 02 | 2 | PROD-08 | — | Idempotent saga consumer | integration | `./gradlew :inventory-service:test --tests *OrderCreatedConsumerIntegrationTest` | ❌ W0 | ⬜ pending |
-| 4-02-04 | 02 | 2 | PROD-06, PROD-07, PROD-08 | — | N/A | integration | `./gradlew :inventory-service:test --tests *InventoryControllerIntegrationTest` | ❌ W0 | ⬜ pending |
+| 4-01-01 | 01 | 1 | PROD-01, PROD-03, PROD-09 | — | N/A | unit | `./gradlew :product-service:test --tests *FlywayMigrationsTest` | ✅ Planned (04-01 Task 2) | ⬜ pending |
+| 4-01-02 | 01 | 1 | PROD-01, PROD-02, PROD-05 | — | N/A | unit | `./gradlew :product-service:test --tests *ProductRepositoryTest` | ✅ Planned (04-01 Task 5) | ⬜ pending |
+| 4-01-03 | 01 | 1 | PROD-04 | — | N/A | integration | `./gradlew :product-service:test --tests *ProductSearchIntegrationTest` | ✅ Planned (04-01 Task 5) | ⬜ pending |
+| 4-01-04 | 01 | 2 | PROD-01, PROD-02, PROD-05, PROD-07 | — | ROLE_ADMIN required for writes | integration | `./gradlew :product-service:test --tests *ProductControllerIntegrationTest` | ✅ Planned (04-01 Task 5) | ⬜ pending |
+| 4-02-01 | 02 | 1 | PROD-08 | — | N/A | unit | `./gradlew :inventory-service:test --tests *StockEntityVersionTest` | ✅ Planned (04-02 Task 2) | ⬜ pending |
+| 4-02-02 | 02 | 1 | PROD-06, PROD-08 | — | N/A | unit | `./gradlew :inventory-service:test --tests *StockStateComputationTest` | ✅ Planned (04-02 Task 2) | ⬜ pending |
+| 4-02-03 | 02 | 2 | PROD-08 | — | Idempotent saga consumer | integration | `./gradlew :inventory-service:test --tests *OrderCreatedConsumerIntegrationTest` | ✅ Planned (04-02 Task 4) | ⬜ pending |
+| 4-02-04 | 02 | 2 | PROD-06, PROD-07, PROD-08 | — | N/A | integration | `./gradlew :inventory-service:test --tests *InventoryControllerIntegrationTest` | ✅ Planned (04-02 Task 2) | ⬜ pending |
 | 4-03-01 | 03 | 3 | PROD-07 | — | N/A | manual | `curl -fsS http://localhost:8080/swagger-ui.html \| grep -E 'product-service\|inventory-service'` | ❌ W0 | ⬜ pending |
 | 4-03-02 | 03 | 3 | PROD-09 | — | N/A | unit | `./gradlew :product-service:test --tests *SeedDataAssertionTest` | ❌ W0 | ⬜ pending |
 
@@ -57,15 +57,15 @@ created: 2026-04-29
 
 ## Wave 0 Requirements
 
-- [ ] `product-service/src/test/java/.../FlywayMigrationsTest.java` — stub asserting V1__init.sql + V2__categories.sql + V3__seed_products.sql apply against Testcontainers Postgres without error
-- [ ] `product-service/src/test/java/.../ProductRepositoryTest.java` — `@DataJpaTest` stub for pagination + sort
-- [ ] `product-service/src/test/java/.../ProductSearchIntegrationTest.java` — `@SpringBootTest` stub asserting `pg_trgm` GIN index is used (EXPLAIN ANALYZE check) and ILIKE matches Turkish text
-- [ ] `product-service/src/test/java/.../ProductControllerIntegrationTest.java` — REST integration stub with `X-User-Roles=ROLE_ADMIN` header for write paths and unauthenticated GET for reads
-- [ ] `product-service/src/test/java/.../SeedDataAssertionTest.java` — boots app, asserts `SELECT COUNT(*) FROM products >= 50` and 8 distinct top-level category rows
-- [ ] `inventory-service/src/test/java/.../StockEntityVersionTest.java` — `@DataJpaTest` for `@Version` optimistic-lock contention
-- [ ] `inventory-service/src/test/java/.../StockStateComputationTest.java` — pure unit test of "Stokta" / "Tükendi" / "Son N ürün!" mapping
-- [ ] `inventory-service/src/test/java/.../OrderCreatedConsumerIntegrationTest.java` — `@SpringBootTest` with Testcontainers Postgres + RabbitMQ; publishes `order.created` twice, asserts single `processed_events` row + single reservation
-- [ ] `inventory-service/src/test/java/.../InventoryControllerIntegrationTest.java` — REST integration for `GET /inventory/{productId}` returning the StockStateDto
+- [x] `product-service/src/test/java/.../FlywayMigrationsTest.java` — planned in 04-01 Task 2 (B-03 fix)
+- [x] `product-service/src/test/java/.../ProductRepositoryTest.java` — planned in 04-01 Task 5
+- [x] `product-service/src/test/java/.../ProductSearchIntegrationTest.java` — planned in 04-01 Task 5
+- [x] `product-service/src/test/java/.../ProductControllerIntegrationTest.java` — planned in 04-01 Task 5
+- [x] `product-service/src/test/java/.../SeedDataAssertionTest.java` — planned in 04-01 Task 5
+- [x] `inventory-service/src/test/java/.../StockEntityVersionTest.java` — planned in 04-02 Task 2
+- [x] `inventory-service/src/test/java/.../StockStateComputationTest.java` — planned in 04-02 Task 2
+- [x] `inventory-service/src/test/java/.../OrderCreatedConsumerIntegrationTest.java` — planned in 04-02 Task 4
+- [x] `inventory-service/src/test/java/.../InventoryControllerIntegrationTest.java` — planned in 04-02 Task 2
 
 ---
 
@@ -87,6 +87,6 @@ created: 2026-04-29
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 60s per-module / 120s full suite
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter (W-02 fix — all Wave 0 test files now planned)
 
 **Approval:** pending
