@@ -133,7 +133,17 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can view a PDP returning title, gallery, KDV-inclusive price, stock state ("Stokta" / "Tükendi" / "Son N ürün!"), and seller info; PDP is reachable through the gateway.
   4. inventory-service exposes `GET /inventory/{productId}` for stock reads and consumes `order.created` events to attempt a reservation against a row-versioned `stock` table — but **does not** publish `stock.reserved` to live consumers yet (Phase 5 wires the saga downstream).
   5. Both services expose Springdoc Swagger UI at `/swagger-ui.html`, and the gateway aggregator surfaces them at the root.
-**Plans**: TBD
+**Plans**: 3 plans (3 waves)
+
+  **Wave 1** -- product-service (depends on Phase 3 docker network only)
+  - [ ] 04-01-PLAN.md -- product-service module scaffold + Category/Product JPA + ProductController + CategoryController + ILIKE GIN search + V2/V3 Flyway + config-server product-service.yml + docker-compose entry + tests (PROD-01, PROD-02, PROD-03, PROD-04, PROD-05, PROD-09)
+
+  **Wave 2** -- inventory-service (depends on 04-01 exchange declaration)
+  - [ ] 04-02-PLAN.md -- inventory-service module scaffold + Stock @Version JPA + StockController (Turkish labels) + OrderCreatedConsumer (idempotent CLAUDE.md Rule #3) + OutboxPoller + Testcontainers idempotency test (PROD-06, PROD-07, PROD-08)
+
+  **Wave 3** -- gateway integration + smoke (depends on 04-01 + 04-02)
+  - [ ] 04-03-PLAN.md -- api-gateway.yml product/categories/inventory routes + Springdoc aggregator entries + docker-compose depends_on chain + smoke runbook (PROD-07, PROD-09)
+
 **Risks**: Pitfall #11 (cross-service DB joins — distinct DB users + role-deny enforce), Pitfall #24 (pagination off-by-one — Spring Data 0-indexed convention documented), Pitfall #13 (schema migration coordination on a shared Postgres host)
 **Research need**: LOW — standard CRUD + pagination + ILIKE GIN.
 
