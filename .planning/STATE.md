@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 3 context gathered — 22 decisions locked across JWT lifetime, RS256 keypair, roles+admin seeding, address book, user.registered saga seam, login response shape; ready for /gsd-plan-phase 3
-last_updated: "2026-04-29T19:48:00.000Z"
-last_activity: 2026-04-29 -- Phase 04 Plan 02 completed (inventory-service saga + idempotency)
+stopped_at: Phase 04 Plan 03 complete — api-gateway wiring + live smoke test verification, 6 bugs surfaced + 4 fixes shipped (StripPrefix=2, pg_trgm, AMQP ack mode, consumer hardening); ready for phase-04 verification
+last_updated: "2026-04-29T22:45:00.000Z"
+last_activity: 2026-04-29 -- Phase 04 Plan 03 completed (api-gateway wiring + live smoke test verification, 6 bugs surfaced + 4 fixes shipped)
 progress:
   total_phases: 11
   completed_phases: 3
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 
 ## Current Position
 
-Phase: 04 (catalog-inventory) — EXECUTING
-Plan: 3 of 3 (Plans 01 + 02 complete)
-Next: Plan 04-03 — cart-service (or phase 05 order-saga)
-Status: Executing Phase 04
-Last activity: 2026-04-29 -- Phase 04 Plan 02 completed (inventory-service saga + idempotency)
+Phase: 04 (catalog-inventory) — COMPLETE (3/3 plans done, all 5 success criteria verified)
+Plan: 3 of 3 (Plans 01 + 02 + 03 complete)
+Next: Phase 05 (cart-service + order-service + saga skeleton)
+Status: Phase 04 complete, ready for Phase 05
+Last activity: 2026-04-29 -- Phase 04 Plan 03 completed (api-gateway wiring + live smoke test verification, 6 bugs surfaced + 4 fixes shipped)
 
 Progress: [████░░░░░░] 27% (3 of 11 phases complete, phase 04 in progress)
 
@@ -115,7 +115,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-29T21:27:49Z
-Stopped at: Phase 04 Plan 02 complete — inventory-service with @Version Stock entity, Turkish stock-state DTOs, idempotent OrderCreatedConsumer (InventoryOrderService @Transactional), transactional outbox, CLAUDE.md Rule #3 Testcontainers proof
-Resume file: .planning/phases/04-catalog-inventory/04-02-SUMMARY.md
-Next: Plan 04-03 (cart-service or next phase — check ROADMAP.md)
+Last session: 2026-04-29T22:45:00Z
+Stopped at: Phase 04 Plan 03 complete — api-gateway wiring + live smoke test verified (all 8 sign-off items), 6 bugs surfaced + 4 fixed (StripPrefix=2, pg_trgm, AMQP ack mode, consumer hardening), backlog 999.1 + 999.2 filed
+Resume file: .planning/phases/04-catalog-inventory/04-03-SUMMARY.md
+Next: Phase 05 (cart-service + order-service + saga skeleton) — Phase 04 fully complete

@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundations + Day-1 Contracts** - Multi-module skeleton, infra services, saga + REST contracts locked, deploy target locked to local docker-compose (no AWS) — completed 2026-04-28 (8/8 plans, 4 waves; SC-1 stack healthy in 25s under 60s budget)
 - [ ] **Phase 2: Frontend Recon + Toolchain Lock** - Playwright recon of n11.com, frontend toolchain decision recorded
 - [x] **Phase 3: Identity + Gateway Auth** - identity-service issues JWT; gateway validates and injects user headers — completed 2026-04-29 (6/6 plans, 4 waves; 5/5 must-haves verified by gsd-verifier)
-- [ ] **Phase 4: Catalog + Inventory** - product-service, inventory-service, Turkish seed data, basic ILIKE search
+- [x] **Phase 4: Catalog + Inventory** - product-service, inventory-service, Turkish seed data, basic ILIKE search — completed 2026-04-29 (3/3 plans, 3 waves; all 5 success criteria verified by live smoke test)
 - [ ] **Phase 5: Cart & Order Skeleton** - cart-service, order-service, RabbitMQ saga skeleton (no Iyzico yet), idempotency inbox
 - [ ] **Phase 6: Payment (Iyzico)** - Iyzico Checkout Form, public webhook reachability, payment-timeout job, payment-fail compensation
 - [ ] **Phase 7: Notification (Saga Closure)** - notification-service mock, saga happy-path closure, end-to-end saga integration test
@@ -142,7 +142,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 04-02-PLAN.md -- inventory-service module scaffold + Stock @Version JPA + StockController (Turkish labels) + OrderCreatedConsumer (idempotent CLAUDE.md Rule #3) + OutboxPoller + Testcontainers idempotency test (PROD-06, PROD-07, PROD-08)
 
   **Wave 3** -- gateway integration + smoke (depends on 04-01 + 04-02)
-  - [ ] 04-03-PLAN.md -- api-gateway.yml product/categories/inventory routes + Springdoc aggregator entries + docker-compose depends_on chain + smoke runbook (PROD-07, PROD-09)
+  - [x] 04-03-PLAN.md -- api-gateway.yml product/categories/inventory routes + Springdoc aggregator entries + docker-compose depends_on chain + smoke runbook (PROD-07, PROD-09)
 
 **Risks**: Pitfall #11 (cross-service DB joins — distinct DB users + role-deny enforce), Pitfall #24 (pagination off-by-one — Spring Data 0-indexed convention documented), Pitfall #13 (schema migration coordination on a shared Postgres host)
 **Research need**: LOW — standard CRUD + pagination + ILIKE GIN.
