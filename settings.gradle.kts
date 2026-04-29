@@ -8,6 +8,8 @@ include(
     "common-logging",
     "common-events",
     "identity-service",
+    "product-service",
+    "inventory-service",
     "service-template",
     "infra-tests"
 )
