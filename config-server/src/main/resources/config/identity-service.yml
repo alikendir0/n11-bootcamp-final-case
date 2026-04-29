@@ -36,6 +36,9 @@ spring:
     password: ${spring.datasource.password}
     placeholders:
       schema: identity
+      # flyway.schema used in V1 migration comment — must be defined to avoid Flyway
+      # placeholder substitution error (V1 SQL comment references ${flyway.schema}).
+      flyway.schema: identity
       adminSeedEmail: ${ADMIN_SEED_EMAIL}
       adminSeedPasswordHash: ${ADMIN_SEED_PASSWORD_HASH}
 

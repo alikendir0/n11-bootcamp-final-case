@@ -1,0 +1,84 @@
+# Test profile — disables Eureka/config-server lookup and lets Testcontainers
+# supply datasource + rabbitmq URLs at runtime via DynamicPropertySource.
+# @SpringBootTest + @ActiveProfiles("test") uses this file.
+# This profile overrides the base application.yml (test) that disables Flyway —
+# here we re-enable it so the full Flyway migration chain runs against Testcontainers Postgres.
+spring:
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+  config:
+    import: ""    # disable spring.config.import to config-server
+  jpa:
+    hibernate:
+      # Use 'none' not 'validate' — Flyway already handles schema creation.
+      # Hibernate's validate fails on CHAR(5) columns because Postgres reports them
+      # as bpchar (JDBC Types#CHAR) while Hibernate expects Types#VARCHAR (Rule 1 fix).
+      ddl-auto: none
+    properties:
+      hibernate:
+        default_schema: identity
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: identity
+    default-schema: identity
+    create-schemas: true     # Testcontainers Postgres needs the schema created
+    placeholders:
+      schema: identity
+      # flyway.schema is used in V1 migration comment; must be provided to avoid Flyway
+      # placeholder substitution error (the key in ${flyway.schema} is "flyway.schema").
+      flyway.schema: identity
+      adminSeedEmail: test-admin@n11-demo.local
+      adminSeedPasswordHash: $2a$10$abcdefghijklmnopqrstuuvA1234567890abcdefghijklmno
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false   # don't start consumers in tests; we drive the poller manually
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+# Test JWT keypair (NOT a real production key — generated once for unit/integration tests).
+# This key is TEST-ONLY and is never used in production environments.
+# The production key is supplied via the JWT_PRIVATE_KEY env var (identity-service.yml in config-server).
+# gitleaks allowlist: src/test/resources/**/application-test.yml is excluded from secret scanning.
+jwt:
+  # Test-only RSA-2048 PKCS#8 private key — generated with openssl genrsa | openssl pkcs8 -topk8 -nocrypt.
+  # NEVER used in production. Production key is supplied via JWT_PRIVATE_KEY env var.
+  # gitleaks allowlist: src/test/resources/**/application-test.yml is excluded from secret scanning.
+  private-key: |-
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDEYgrt5YGatu7l
+    zmURJj8S53XccyUlqZQODQJ9lZa3nfcMdiu4ZkO1D5MpHby/kZy5FfTzg3YTrc7s
+    MCT0aNF6HLeltiUGzdwHckijw7AlduNsOnxooe10lGN5j3g8mPlatpUBwYEcBl4k
+    hYMbh9taHIZMYfNmhvYkOh7R/e/aSre5u4Q1ly8kftHv2mmxiU3shf37waCD+IhD
+    lbYKxzJKYbX/JZNdlxBbC8ZnpIyJdK09Bmji1KXQiTIiosGL5rfUoOfsW4BUIKUp
+    X0B4eFJlvlNmLns0PKPllJKi1724IMlciZ+oKCn679wZPwTBNtVqR2PicEuYXFOu
+    bLggCAhBAgMBAAECggEAAJK/fZ57Lt4hO2Pk8QeS2cJgM/9ucjoyl70bYg3coN0u
+    rYdVk4lRrq0eQyZcxZUuVAhhRl0YLD2IVzGN+6kOREd7x7/zQrfsg2VzgQer5qgY
+    SNmw2qzvIJuwRwupEH0En7dDUkjkA7A6RR84paagK5aquhbzgW8Cax+nG5QDFIWJ
+    ZpvlpWQfgkfa9WuI3BjWd70jDhYtH8nayuBH6LoiulYoT1zQbEb7J/yB6piBIRi1
+    +IYlPRatzSnt6BLWKivtCn+Wn/5MyLebYoPhYCaODDYTRiMt5NFMMV5shxPEPO1H
+    wRmpGRL2xuVo0/JgSzKHZwDvTRtNbye8lm5PoqDliwKBgQDujxkYBY0AbVfEw39C
+    iztvT4pDMQXofhXFPUuRGYcuarN/KryVjLmI9S0tSrlvj8pd9DzBNzMZTfgD7g+N
+    FgAPrq0ln1WMg3b+Csu4JEnd7J6eUhjXfOnOx2rbxFn0y0/ewMeS6UzYVV2FIBuW
+    1LKRZ1ZztID794JAEIG1YkVdrwKBgQDSvZKxHxX1b1ajnwzCvcsKIu6fmD2lEUn2
+    o25t/4JRIDO0mErEawWhZx9dKCGtxMCRWGxMOZeGkJPDR0CWAVruPO4bc0NF0xVg
+    TGPFT1K5CPNuq+Z+HdeRt3/mX8U5nH+2T3XGLOih/i3xD1jnVc273ylFO/sqndAd
+    1KcTJfblDwKBgH8uJOesleZjZMZOnzrftZj7I6/8o7S1+29C5VV+8ZWqZvVl2FI2
+    SvecFjCuRLwYQX/jZLxxbDmSWqXltb62uuOhcUe8cURPFhILuV37YrIAovOuuvWu
+    74tAv1RYksix12vfBMbqwAAZSplda7f2vxhLqkhXM+igpHz5D92efXKbAoGBAJ5Z
+    S8xDK2DMVDGF5TS/H71yGhNZdZh+sTDeBLAqeWUz6SYd+LA2Knjo36xD52qGmJud
+    8WIlNDIsmJr3AxSz1/uDVPbTWQ0yWrGNNLqhq+rVSvUxvXOuQLiBRV15QNzVNzFp
+    63kJbZOrRiIIAilxU7GDMaOQOl3/Ts3bZ97/e9EJAoGAJi5gvOdzXhFpcRqyz+rL
+    tgLnyJGGM/KggB7NSFXAKdhtUjED8TdhFTEX5wqZb/0u6sQSwjfAqFg1bTRLD3ub
+    d3Yq4pZ+utYt8QaQF5PB/YdsejkuITQwUDi2uA2cyIpqF/jWDQLY7uMUvRzUGh8a
+    +6bgOcuy9lp1IOJCGUb1eNk=
+    -----END PRIVATE KEY-----
+  key-id: n11-jwt-test

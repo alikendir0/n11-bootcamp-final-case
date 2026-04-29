@@ -15,7 +15,7 @@ public interface OutboxRepository extends JpaRepository<OutboxEvent, UUID> {
      * nativeQuery=true (Spring Data @Query won't pass-through the lock clause via JPQL).
      */
     @Query(
-            value = "SELECT * FROM outbox WHERE sent_at IS NULL ORDER BY occurred_at LIMIT :batchSize FOR UPDATE SKIP LOCKED",
+            value = "SELECT * FROM identity.outbox WHERE sent_at IS NULL ORDER BY occurred_at LIMIT :batchSize FOR UPDATE SKIP LOCKED",
             nativeQuery = true
     )
     List<OutboxEvent> findUnsentBatch(@Param("batchSize") int batchSize);

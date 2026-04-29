@@ -53,6 +53,11 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:rabbitmq")
     testImplementation("org.testcontainers:junit-jupiter")
+
+    // networknt JSON-Schema validator for OutboxIntegrationTest drift gate (Plan 03-05).
+    // networknt 3.0.2 is the version locked in libs.versions.toml; common-events carries
+    // it only in testImplementation so we must re-declare here for identity-service tests.
+    testImplementation(libs.networknt.json.schema)
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
