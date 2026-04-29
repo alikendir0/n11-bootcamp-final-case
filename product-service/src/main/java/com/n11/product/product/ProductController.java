@@ -41,7 +41,7 @@ public class ProductController {
                              "Sort examples: sort=priceGross,asc | sort=createdAt,desc | sort=nameTr,asc")
     @GetMapping
     public Page<ProductSummaryDto> list(
-            @ParameterObject @PageableDefault(size = 20, sort = "createdAt",
+            @ParameterObject @PageableDefault(size = 20, sort = "created_at",
                     direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) UUID categoryId) {

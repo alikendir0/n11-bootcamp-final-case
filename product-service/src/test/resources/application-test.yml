@@ -9,6 +9,11 @@ spring:
         enabled: false
   config:
     import: ""
+  datasource:
+    hikari:
+      # Set search_path so unqualified native queries (e.g. SELECT * FROM products)
+      # resolve to the product schema. In production this is set by init.sh for product_user.
+      connection-init-sql: "SET search_path = product"
   jpa:
     hibernate:
       ddl-auto: none
