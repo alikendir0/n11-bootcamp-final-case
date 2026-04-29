@@ -99,7 +99,27 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can save and list multiple Türkiye delivery addresses (Mahalle / İlçe / İl) — visible via `GET /addresses`.
   4. identity-service exposes `/.well-known/jwks.json`; the gateway fetches it at startup and refreshes hourly; rotating the keypair causes new tokens to validate without a gateway restart.
   5. identity-service has at least one passing smoke unit test (password hashing) — establishing the per-service test pattern that QUAL-02 mandates everywhere.
-**Plans**: TBD
+**Plans**: 6 plans (3 waves)
+
+  **Wave 0** — module scaffold + schema + saga lock (parallel, no deps)
+  - [ ] 03-01-PLAN.md — identity-service Gradle module clone from service-template/skeleton/ + docker-compose entry + .env.example matrix + README runbook (`AUTH-01, AUTH-05, AUTH-07, QUAL-02`)
+  - [ ] 03-02-PLAN.md — Flyway V2/V3/V4 migrations (users + addresses + admin seed + outbox) + config-server identity-service.yml + user-registered.schema.json + classpath mirror + saga-contracts.md catalog edits (`AUTH-01, AUTH-05, AUTH-08`)
+
+  **Wave 1** — identity-service business code (parallel after Wave 0)
+  - [ ] 03-03-PLAN.md — JwtConfig (RSA keypair) + JwtIssuerService + JwksController + IdentitySecurityConfig + PasswordEncoderTest (`AUTH-02, AUTH-05, AUTH-07, QUAL-02`)
+  - [ ] 03-04-PLAN.md — User/Role/Address JPA entities + repositories + UserService + AuthController + AddressController + Turkish-validation DTOs (`AUTH-01, AUTH-02, AUTH-03, AUTH-05, AUTH-07, AUTH-08`)
+  - [ ] 03-05-PLAN.md — Outbox pattern: OutboxEvent entity + OutboxRepository (FOR UPDATE SKIP LOCKED) + OutboxBackedUserRegistrationOutboxPublisher + OutboxPoller + IdentityRabbitConfig (identity.tx) + Testcontainers OutboxIntegrationTest with schema-drift gate (`AUTH-01, QUAL-02`)
+
+  **Wave 2** — gateway flip + e2e smoke (depends on Wave 1)
+  - [ ] 03-06-PLAN.md — api-gateway/build.gradle.kts oauth2-resource-server starter + SecurityConfig REPLACE (oauth2ResourceServer + JwtTimestampValidator(30s) + roles-claim authority converter) + GatewayHeaderInjectionFilter REPLACE (Authorization-strip + X-User-Id injection) + config-server api-gateway.yml jwk-set-uri block + Springdoc aggregator entry + docker-compose api-gateway depends_on identity-service + e2e smoke runbook (`AUTH-02, AUTH-03, AUTH-04, AUTH-06`)
+
+  **Cross-cutting truths** (recurring across ≥2 plans):
+  - RSA keypair from `JWT_PRIVATE_KEY` env (PEM PKCS#8); public key derived at boot; never logged (Plan 03-01 .env.example, 03-03 JwtConfig)
+  - Authorization header STRIPPED at gateway BEFORE forwarding (Plan 03-04 X-User-Id read pattern, 03-06 GatewayHeaderInjectionFilter implementation)
+  - Schema-per-service: identity-service uses `identity_user` (Plan 03-01 docker-compose, 03-02 config-server YAML, 03-04 entities)
+  - 30s clock skew via `JwtTimestampValidator(Duration.ofSeconds(30))` (Plan 03-06 SecurityConfig)
+  - Transactional outbox: user row + outbox row in single `@Transactional` boundary (Plan 03-04 UserService.register seam, 03-05 real publisher)
+
 **Risks**: Pitfall #6 (JWT secret leaked — must live in config-server / env only), Pitfall #18 (clock skew on JWT validation), Pitfall #14 (forwarding JWT downstream — strip at gateway)
 **Research need**: LOW — JWT + Spring Security Resource Server is a well-documented pattern.
 
@@ -227,7 +247,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 |-------|----------------|--------|-----------|
 | 1. Foundations + Day-1 Contracts | 6/8 | In progress | - |
 | 2. Frontend Recon + Toolchain Lock | 0/TBD | Not started | - |
-| 3. Identity + Gateway Auth | 0/TBD | Not started | - |
+| 3. Identity + Gateway Auth | 0/6 | Not started | - |
 | 4. Catalog + Inventory | 0/TBD | Not started | - |
 | 5. Cart & Order Skeleton | 0/TBD | Not started | - |
 | 6. Payment (Iyzico) | 0/TBD | Not started | - |
