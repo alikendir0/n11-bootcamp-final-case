@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundations + Day-1 Contracts** - Multi-module skeleton, infra services, saga + REST contracts locked, deploy target locked to local docker-compose (no AWS) — completed 2026-04-28 (8/8 plans, 4 waves; SC-1 stack healthy in 25s under 60s budget)
 - [ ] **Phase 2: Frontend Recon + Toolchain Lock** - Playwright recon of n11.com, frontend toolchain decision recorded
-- [ ] **Phase 3: Identity + Gateway Auth** - identity-service issues JWT; gateway validates and injects user headers
+- [x] **Phase 3: Identity + Gateway Auth** - identity-service issues JWT; gateway validates and injects user headers — completed 2026-04-29 (6/6 plans, 4 waves; 5/5 must-haves verified by gsd-verifier)
 - [ ] **Phase 4: Catalog + Inventory** - product-service, inventory-service, Turkish seed data, basic ILIKE search
 - [ ] **Phase 5: Cart & Order Skeleton** - cart-service, order-service, RabbitMQ saga skeleton (no Iyzico yet), idempotency inbox
 - [ ] **Phase 6: Payment (Iyzico)** - Iyzico Checkout Form, public webhook reachability, payment-timeout job, payment-fail compensation

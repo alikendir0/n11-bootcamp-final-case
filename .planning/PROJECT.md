@@ -14,7 +14,8 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] JWT-based authentication and authorization (validated at API gateway) — *Validated in Phase 3: identity-service issues RS256 JWT (24h, BCrypt(10)), api-gateway validates via Nimbus + JWKS, strips `Authorization` and injects `X-User-Id`/`X-User-Email`/`X-User-Roles`. AUTH-01/02/05/06/07/08, QUAL-02 covered. AUTH-03 + AUTH-04 deferred to Phase 10 (frontend storage/logout).*
+- [x] Logging mechanism for error tracking — *Validated in Phase 3: per-service logback-spring.xml with Logstash JSON encoder; identity-service smoke tests prove the pattern. Already wired in Phase 1 for skeleton; Phase 3 confirmed it across new services.*
 
 ### Active
 
@@ -26,7 +27,7 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 - [ ] Cart operations: add, remove, update
 - [ ] Order management: order creation and order flow
 - [ ] Iyzico payment integration (sandbox)
-- [ ] JWT-based authentication and authorization (validated at API gateway)
+- [x] JWT-based authentication and authorization (validated at API gateway) — *moved to Validated by Phase 3*
 - [ ] Unit and integration tests (smoke unit + 1–2 integration per service on critical path)
 - [ ] Swagger / OpenAPI documentation per service (Springdoc)
 - [ ] Logging mechanism for error tracking
@@ -155,6 +156,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-29 — Phase 2 complete: frontend toolchain locked (Vite 8 + React 19 SPA + Tailwind 4 + Zustand 5 + React Router 7 + TanStack Query 5 + react-hook-form + zod). Recon report `.planning/intel/n11-recon.md` is the Phase 10/11 hand-off contract (8 sections, 644 phrases, 25 color tokens, Decision Matrix subsection). FE-01 satisfied. Open Question "Frontend toolchain" moved to Resolved.*
+*Last updated: 2026-04-29 — Phase 3 complete: identity-service issues RS256 JWT (24h, BCrypt(10)) with /.well-known/jwks.json; api-gateway validates via Nimbus + JWKS (1h refresh) and injects X-User-Id/X-User-Email/X-User-Roles after stripping Authorization. Transactional outbox drains user.registered events to RabbitMQ identity.tx exchange. AUTH-01/02/05/06/07/08 + QUAL-02 covered. AUTH-03 + AUTH-04 are Phase 10 frontend deferrals (persisted to 03-HUMAN-UAT.md). 5/5 must-haves verified by gsd-verifier; 6/6 plans across 4 waves.*
+
+*Earlier — 2026-04-29: Phase 2 complete: frontend toolchain locked (Vite 8 + React 19 SPA + Tailwind 4 + Zustand 5 + React Router 7 + TanStack Query 5 + react-hook-form + zod). Recon report `.planning/intel/n11-recon.md` is the Phase 10/11 hand-off contract (8 sections, 644 phrases, 25 color tokens, Decision Matrix subsection). FE-01 satisfied. Open Question "Frontend toolchain" moved to Resolved.*
 
 *Earlier — 2026-04-28: deploy target changed from AWS Elastic Beanstalk + RDS to local docker-compose on the candidate's machine (with Cloudflare Tunnel / ngrok for demo URL). All cascading sections (DevOps brief, Out-of-Scope, Tech-stack, Security, Budget, Key Decisions, Open Questions) updated to match.*
