@@ -1,0 +1,9 @@
+# Disables config-server fail-fast import for ALL tests (including @DataJpaTest / @JdbcTest
+# slice tests). Loaded at bootstrap time before profile-specific files, so @ActiveProfiles("test")
+# alone is not enough — this file must explicitly neutralize the configserver: import.
+# Mirrors the identical pattern in identity-service and product-service.
+spring:
+  config:
+    import: "optional:configserver:"
+  flyway:
+    enabled: false
