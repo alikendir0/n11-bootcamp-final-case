@@ -258,7 +258,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 1. Foundations + Day-1 Contracts | 6/8 | In progress | - |
 | 2. Frontend Recon + Toolchain Lock | 0/TBD | Not started | - |
 | 3. Identity + Gateway Auth | 0/6 | Not started | - |
-| 4. Catalog + Inventory | 0/TBD | Not started | - |
+| 4. Catalog + Inventory | 3/3 | Complete | 2026-04-29 |
 | 5. Cart & Order Skeleton | 0/TBD | Not started | - |
 | 6. Payment (Iyzico) | 0/TBD | Not started | - |
 | 7. Notification (Saga Closure) | 0/TBD | Not started | - |
