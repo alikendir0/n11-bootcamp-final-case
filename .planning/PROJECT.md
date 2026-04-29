@@ -155,4 +155,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-28 — deploy target changed from AWS Elastic Beanstalk + RDS to local docker-compose on the candidate's machine (with Cloudflare Tunnel / ngrok for demo URL). All cascading sections (DevOps brief, Out-of-Scope, Tech-stack, Security, Budget, Key Decisions, Open Questions) updated to match.*
+*Last updated: 2026-04-29 — Phase 2 complete: frontend toolchain locked (Vite 8 + React 19 SPA + Tailwind 4 + Zustand 5 + React Router 7 + TanStack Query 5 + react-hook-form + zod). Recon report `.planning/intel/n11-recon.md` is the Phase 10/11 hand-off contract (8 sections, 644 phrases, 25 color tokens, Decision Matrix subsection). FE-01 satisfied. Open Question "Frontend toolchain" moved to Resolved.*
+
+*Earlier — 2026-04-28: deploy target changed from AWS Elastic Beanstalk + RDS to local docker-compose on the candidate's machine (with Cloudflare Tunnel / ngrok for demo URL). All cascading sections (DevOps brief, Out-of-Scope, Tech-stack, Security, Budget, Key Decisions, Open Questions) updated to match.*
