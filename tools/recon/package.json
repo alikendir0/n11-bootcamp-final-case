@@ -1,0 +1,21 @@
+{
+  "name": "n11-recon",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Phase-2 throwaway recon project against n11.com. Not part of the Gradle build.",
+  "scripts": {
+    "capture": "playwright test",
+    "assemble": "tsx assemble-recon.ts",
+    "check": "tsx check-recon.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.59.1",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

@@ -26,3 +26,10 @@ Thumbs.db
 **/.attach_pid*
 hs_err_pid*.log
 **/bin/
+
+# Playwright recon (tools/recon/)
+tools/recon/node_modules/
+tools/recon/test-results/
+tools/recon/playwright-report/
+tools/recon/output/
+tools/recon/.playwright/

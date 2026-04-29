@@ -1,0 +1,12 @@
+# Node / npm
+node_modules/
+
+# Playwright outputs
+test-results/
+playwright-report/
+output/
+.playwright/
+
+# IDE
+.idea/
+.vscode/
