@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 04 Plan 03 complete — api-gateway wiring + live smoke test verification, 6 bugs surfaced + 4 fixes shipped (StripPrefix=2, pg_trgm, AMQP ack mode, consumer hardening); ready for phase-04 verification
-last_updated: "2026-04-29T22:45:00.000Z"
+status: completed
+stopped_at: Phase 5 context gathered (auto mode) — 11 gray areas auto-resolved, common-outbox refactor + 999.2 ArchUnit gate locked
+last_updated: "2026-04-29T23:17:49.954Z"
 last_activity: 2026-04-29 -- Phase 04 Plan 03 completed (api-gateway wiring + live smoke test verification, 6 bugs surfaced + 4 fixes shipped)
 progress:
-  total_phases: 11
+  total_phases: 13
   completed_phases: 4
   total_plans: 20
   completed_plans: 20
@@ -115,7 +115,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-29T22:45:00Z
-Stopped at: Phase 04 Plan 03 complete — api-gateway wiring + live smoke test verified (all 8 sign-off items), 6 bugs surfaced + 4 fixed (StripPrefix=2, pg_trgm, AMQP ack mode, consumer hardening), backlog 999.1 + 999.2 filed
-Resume file: .planning/phases/04-catalog-inventory/04-03-SUMMARY.md
+Last session: 2026-04-29T23:17:49.948Z
+Stopped at: Phase 5 context gathered (auto mode) — 11 gray areas auto-resolved, common-outbox refactor + 999.2 ArchUnit gate locked
+Resume file: .planning/phases/05-cart-order-skeleton/05-CONTEXT.md
 Next: Phase 05 (cart-service + order-service + saga skeleton) — Phase 04 fully complete
