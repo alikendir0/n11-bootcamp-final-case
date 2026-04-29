@@ -55,6 +55,11 @@ dependencies {
     // Reactive Spring Security -- Phase 1 ships permitAll(); Phase 3 swaps in JWT chain.
     implementation("org.springframework.boot:spring-boot-starter-security")
 
+    // Phase 3: NimbusReactiveJwtDecoder + JwtTimestampValidator + JwtAuthenticationToken
+    // for the gateway's JWT validation chain. Brings spring-security-oauth2-jose
+    // (verifies RS256 against the JWKS fetched from identity-service).
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
     // Springdoc -- gateway aggregator surface only. MUST be the WEBFLUX variant
     // (the -webmvc-ui variant would silently pull Tomcat back in via its transitive
     // spring-boot-starter-web; see exclusion block above for defense in depth.)
@@ -87,6 +92,9 @@ dependencies {
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // Spring Security Test: mockJwt() + SecurityMockServerConfigurers for reactive WebFlux tests.
+    // NOT transitively pulled by spring-boot-starter-test — must be explicit.
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.projectreactor:reactor-test")
     // Plan 01-04 fix: pin junit-platform-launcher to the BOM version so the test JVM
     // can boot ("OutputDirectoryProvider not available" on Gradle 8.10 + Boot 3.5.14).

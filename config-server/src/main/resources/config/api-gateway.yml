@@ -40,6 +40,22 @@ spring:
             response-timeout: 60s
 
           # ─────────────────────────────────────────────────────────────────
+          # Phase 3: explicit identity-service route (api-contracts.md §routing table).
+          # Discovery-locator routes under /identity-service/** — but security
+          # allowlist and all external contracts use /api/v1/identity/**. Add the
+          # canonical explicit route now so smoke tests and Phase 4+ can use the
+          # contracted path. StripPrefix=3 strips /api/v1/identity → forwards bare
+          # path to identity-service (/auth/register, /.well-known/jwks.json, etc.).
+          # ─────────────────────────────────────────────────────────────────
+          routes:
+            - id: identity-service
+              uri: lb://IDENTITY-SERVICE
+              predicates:
+                - Path=/api/v1/identity/**
+              filters:
+                - StripPrefix=3
+
+          # ─────────────────────────────────────────────────────────────────
           # Phase 8 SSE forward-reference (DO NOT enable in Phase 1 -- no
           # ai-service exists yet). Documented here so Phase 8's planner has a
           # known-good shape to copy-paste. See RESEARCH §4.10 lines 871-893
@@ -57,6 +73,18 @@ spring:
           #       - PreserveHostHeader=true
           # NOTE for Phase 8: NO ModifyResponseBody filter, NO RetryFilter on SSE
           # routes -- both buffer the response and break token-by-token streaming.
+  # ── Phase 3 (D-20 / D-03 / Risk 2) ──────────────────────────────────────
+  # NimbusReactiveJwtDecoder fetches public keys from this URI on the first
+  # protected request. Use the docker-compose hostname, NOT lb://identity-service
+  # — the reactive decoder's internal WebClient does not understand the lb://
+  # service-discovery URI scheme (Spring Security issues #7474, #10686).
+  # The 5-min Nimbus DefaultJWKSetCache TTL handles routine validation; key
+  # rotation is manual (D-03 — bump JWT_KEY_ID + restart identity-service).
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://identity-service:8081/.well-known/jwks.json
 
 management:
   endpoints:
@@ -79,16 +107,13 @@ springdoc:
     path: /swagger-ui.html
     config-url: /v3/api-docs/swagger-config
     use-root-path: true
-    # T-01-10 mitigation + D-14: empty list. Phase 4+ phases append entries below
-    # as services come online. Until then, the aggregator surfaces NOTHING -- no
-    # internal routes leak via Springdoc.
-    urls: []
-    # Phase 4+ append-shape (DO NOT add in Phase 1):
+    # T-01-10 mitigation: Phase 3 activates identity-service surface only.
+    # Phase 4+ append additional services here as they come online.
+    urls:
+      # Phase 3: identity-service Springdoc surface (QUAL-01 aggregator half).
+      - name: identity-service
+        url: /api/v1/identity/v3/api-docs
+    # Phase 4+ append-shape:
     # urls:
-    #   - name: identity-service
-    #     url: /api/v1/identity/v3/api-docs
     #   - name: product-service
     #     url: /api/v1/product/v3/api-docs
-
-# Phase 3 will add an `oauth2.resource-server.jwt.issuer-uri` block here once
-# identity-service publishes a JWKS endpoint. NOT in Phase 1.

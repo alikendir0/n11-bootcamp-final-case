@@ -4,56 +4,100 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 /**
- * Header-injection filter -- STUB for Phase 1, fully implemented in Phase 3.
- *
- * <p><b>Phase 1 (D-14, this plan):</b> the {@code permitAll()} chain
- * ({@link SecurityConfig}) is in effect, so we cannot trust ANY inbound
- * {@code X-User-Id} / {@code X-User-Roles} header from a public client. This filter
- * STRIPS those headers from every inbound request before forwarding. Threat ID:
- * T-01-09 (gateway header injection / skip-auth impersonation). Combined with the
- * Authorization-strip rule from D-09 (the gateway will strip {@code Authorization}
- * BEFORE forwarding starting in Phase 3 once it injects the trusted claims itself),
- * this prevents a public client from forging identity in either direction.
- *
- * <p><b>Phase 3 (TODO):</b> after the JWT chain is wired, this filter must:
+ * Reactive {@link GlobalFilter} (D-19). Phase 3 implementation:
  * <ol>
- *   <li>Continue stripping inbound {@code X-User-Id} / {@code X-User-Roles}
- *       (defense in depth -- never trust the wire),</li>
- *   <li>Read the validated JWT principal from the reactive {@code SecurityContext},</li>
- *   <li>Inject trusted {@code X-User-Id} (from {@code sub} claim) and
- *       {@code X-User-Roles} (from {@code roles} claim) BEFORE forwarding,</li>
- *   <li>Strip the inbound {@code Authorization} header so downstream services
- *       don't see the raw JWT (see ARCHITECTURE.md §10 anti-pattern 4 +
- *       D-09 Authorization-strip rule).</li>
+ *   <li>Strips inbound spoofed {@code X-User-Id} / {@code X-User-Roles}
+ *       (defense in depth — never trust the wire).</li>
+ *   <li>Reads the validated {@link JwtAuthenticationToken} from the
+ *       reactive {@link SecurityContext} (populated by {@link SecurityConfig}'s
+ *       {@code oauth2ResourceServer().jwt()} chain).</li>
+ *   <li>Injects {@code X-User-Id} (from {@code sub} claim) and
+ *       {@code X-User-Roles} (comma-joined from {@code roles} claim).</li>
+ *   <li>Strips the inbound {@code Authorization} header so downstream services
+ *       never see the raw JWT (api-contracts.md §4 anti-pattern: trust the mesh).</li>
  * </ol>
- * Phase 3's planner: REPLACE this stub wholesale; do NOT patch.
+ *
+ * <p>Order: {@code Ordered.HIGHEST_PRECEDENCE + 10} (unchanged from Phase 1
+ * stub) — runs AFTER {@link GatewayCorrelationIdFilter} (HIGHEST_PRECEDENCE+5)
+ * but BEFORE Spring Cloud Gateway's forwarding filter.
+ *
+ * <p>Public allowlist paths (login/register/JWKS/products/search/chat/iyzico-callback)
+ * skip the JWT path because the SecurityWebFilterChain matches them with permitAll().
+ * For those paths the {@code switchIfEmpty} branch fires: still strip spoofed
+ * X-User-* headers AND strip Authorization unconditionally (api-contracts.md §4
+ * — the Authorization header is the gateway's input contract; downstream services
+ * never see it, regardless of whether the inbound path was public or authenticated).
+ *
+ * <p>Implementation note: the reactive chain returns {@code Mono<ServerHttpRequest>}
+ * (not {@code Mono<Void>}) before the terminal {@code chain.filter()} call. This is
+ * intentional — {@code switchIfEmpty} on a {@code Mono<Void>} would ALWAYS fire
+ * because {@code chain.filter()} completes without emitting a value (it is
+ * {@code Mono<Void>}). By operating on {@code Mono<ServerHttpRequest>} first and
+ * calling {@code chain.filter()} exactly once in the terminal {@code flatMap},
+ * the authenticated path and public path are mutually exclusive.
  */
 @Component
 public class GatewayHeaderInjectionFilter implements GlobalFilter, Ordered {
 
     private static final String HEADER_USER_ID    = "X-User-Id";
     private static final String HEADER_USER_ROLES = "X-User-Roles";
+    private static final String HEADER_AUTH       = "Authorization";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        ServerHttpRequest stripped = exchange.getRequest().mutate()
-            .headers(h -> {
-                h.remove(HEADER_USER_ID);
-                h.remove(HEADER_USER_ROLES);
-            })
-            .build();
-        return chain.filter(exchange.mutate().request(stripped).build());
+        // Build the (potentially mutated) downstream request first, THEN call chain.filter once.
+        // This avoids the switchIfEmpty-on-Mono<Void> trap: chain.filter() returns Mono<Void>
+        // which completes without emitting a value — switchIfEmpty would always fire.
+        return ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication)
+                .filter(auth -> auth instanceof JwtAuthenticationToken)
+                .cast(JwtAuthenticationToken.class)
+                .map(jwtAuth -> {
+                    // Authenticated path: inject X-User-Id + X-User-Roles, strip Authorization
+                    Jwt jwt = jwtAuth.getToken();
+                    String userId = jwt.getSubject();
+                    List<String> roles = jwt.getClaimAsStringList("roles");
+                    String rolesHeader = (roles != null) ? String.join(",", roles) : "";
+                    return exchange.getRequest().mutate()
+                            .headers(h -> {
+                                h.remove(HEADER_USER_ID);     // strip inbound spoofed
+                                h.remove(HEADER_USER_ROLES);
+                                h.remove(HEADER_AUTH);        // strip raw JWT (api-contracts.md §4)
+                                h.set(HEADER_USER_ID, userId);
+                                h.set(HEADER_USER_ROLES, rolesHeader);
+                            })
+                            .build();
+                })
+                .switchIfEmpty(Mono.fromCallable(() ->
+                    // Public path: strip spoofed user headers AND strip Authorization
+                    // unconditionally (api-contracts.md §4: the Authorization header is
+                    // the gateway's input boundary; downstream services never see it).
+                    exchange.getRequest().mutate()
+                            .headers(h -> {
+                                h.remove(HEADER_USER_ID);
+                                h.remove(HEADER_USER_ROLES);
+                                h.remove(HEADER_AUTH);
+                            })
+                            .build()
+                ))
+                .flatMap(mutatedRequest ->
+                    chain.filter(exchange.mutate().request(mutatedRequest).build())
+                );
     }
 
     @Override
     public int getOrder() {
-        // Run AFTER GatewayCorrelationIdFilter so logs of stripped attempts retain
-        // the correlation-ID, but BEFORE any downstream forwarding filter.
         return Ordered.HIGHEST_PRECEDENCE + 10;
     }
 }
