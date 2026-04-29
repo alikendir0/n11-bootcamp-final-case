@@ -49,7 +49,7 @@ decisions:
   - "Cross-plan contract is pinned by tightening the lint regex, not by leaving a soft pre-existing match — Plan 02-03 must lock the row, not just edit the rationale."
 metrics:
   duration: "~5 min capture wall-clock (2.1 min Playwright run + assemble + check)"
-  tasks: 2  # Task 3 is the human-verify checkpoint, awaiting orchestrator
+  tasks: 3  # all tasks complete — Task 3 human-verify approved 2026-04-29
   completed: "2026-04-29"
 ---
 
@@ -202,8 +202,12 @@ Verified at SUMMARY-write time:
 - `git log --oneline | grep 6f511e1` → FOUND (Task 1 commit: feat(02-02): add 7 page-capture specs ...)
 - `git log --oneline | grep 43b95e9` → FOUND (Task 2 commit: feat(02-02): run n11.com captures and assemble recon report)
 
-## Task 3: AWAITING HUMAN VERIFICATION
+## Task 3: HUMAN VERIFICATION — APPROVED
 
-Task 3 is a `checkpoint:human-verify` blocking gate. Per the orchestrator routing, control returns to the orchestrator with a CHECKPOINT REACHED message. The human must perform three checks (screenshot authenticity, Turkish copy verbatim, §7 chat-panel callout) before this plan can be marked done.
+Task 3 is a `checkpoint:human-verify` blocking gate. The orchestrator presented the three-check spot-check (screenshot authenticity, Turkish copy verbatim, §7 chat-panel callout) and the human responded `approved` on 2026-04-29.
 
-Resume signal expected from human: `approved` or `reject: <reason>`.
+- All 7 fullpage PNGs confirmed authentic n11 pages (no Cloudflare/captcha walls)
+- §2 Turkish copy catalog passes verbatim spot-check
+- §7 anti-pattern callout present with the no-floating-chat-panel line that gates Phase 11
+
+Plan 02-02 is complete; Plan 02-03 (Wave 2) is unblocked.
