@@ -9,3 +9,20 @@ useDefault = true
 [[allowlists]]
 description = "Spring Boot ${...} placeholder syntax in committed config"
 regexes = ['''(?i)(secret|password|key)[:=]\s*\$\{[A-Z_]+(:[a-z0-9-]+)?\}''']
+
+# Synthetic 2048-bit RSA test keypair lives in test resources only — never used
+# in production (production keys come from JWT_PRIVATE_KEY env var via Spring
+# Cloud Config). Path-scoped: only application-test.yml under src/test/resources.
+[[allowlists]]
+description = "Synthetic RSA test keypair in test resources"
+paths = ['''.*src/test/resources/.*application-test\.ya?ml''']
+
+# Planning docs (PLAN.md, SUMMARY.md, etc.) may quote synthetic test keys
+# verbatim as part of the plan-of-record. Scoped: only allows the private-key
+# rule to be skipped on .planning/**/*.md, so Iyzico/Gemini/Slack credential
+# rules still fire in planning docs if they ever appear.
+[[allowlists]]
+description = "Synthetic RSA test keypair quoted in planning docs"
+paths = ['''\.planning/.*\.md''']
+regexTarget = "match"
+regexes = ['''-----BEGIN (RSA )?PRIVATE KEY-----''']
