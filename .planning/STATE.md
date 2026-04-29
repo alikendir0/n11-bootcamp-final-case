@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Phase 2 closed
-stopped_at: "Plan 02-03 complete; Phase 2 closed. .planning/intel/n11-recon.md is the Phase 10/11 hand-off contract — 8 sections + Decision Matrix subsection. PROJECT.md Key Decisions has the toolchain row (Vite 8 + React 19 SPA, locked 2026-04-29). Open Questions: "Frontend toolchain" moved to Resolved; "Public tunnel choice" and "MCP server tunnel exposure" remain open (Phase 6/9)."
-last_updated: "2026-04-29T07:50:46.848Z"
+stopped_at: Phase 3 context gathered — 22 decisions locked across JWT lifetime, RS256 keypair, roles+admin seeding, address book, user.registered saga seam, login response shape; ready for /gsd-plan-phase 3
+last_updated: "2026-04-29T08:06:37.398Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 11
@@ -105,7 +105,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-29 (execute-phase 2, plan 02-03)
-Stopped at: Plan 02-03 complete; Phase 2 closed. .planning/intel/n11-recon.md is the Phase 10/11 hand-off contract — 8 sections + Decision Matrix subsection. PROJECT.md Key Decisions has the toolchain row (Vite 8 + React 19 SPA, locked 2026-04-29). Open Questions: "Frontend toolchain" moved to Resolved; "Public tunnel choice" and "MCP server tunnel exposure" remain open (Phase 6/9).
-Resume file: (next dispatch) /gsd-verify-work for Phase 2 -- if green, /gsd-plan-phase 3 to start Phase 3 (Identity + Gateway Auth).
+Last session: 2026-04-29T08:06:37.389Z
+Stopped at: Phase 3 context gathered — 22 decisions locked across JWT lifetime, RS256 keypair, roles+admin seeding, address book, user.registered saga seam, login response shape; ready for /gsd-plan-phase 3
+Resume file: .planning/phases/03-identity-gateway-auth/03-CONTEXT.md
 Next: /gsd-verify-work for Phase 2
