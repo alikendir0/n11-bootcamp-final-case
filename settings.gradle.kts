@@ -7,6 +7,7 @@ include(
     "common-error",
     "common-logging",
     "common-events",
+    "identity-service",
     "service-template",
     "infra-tests"
 )
