@@ -51,8 +51,23 @@ public class RabbitRetryConfig {
     }
 
     /**
-     * Listener container factory wired with manual ack + the retry interceptor
-     * advice chain. Phase 5+ consumers reference this bean by name.
+     * Listener container factory wired with AUTO ack + the retry interceptor advice chain.
+     *
+     * <p>Ack-mode reasoning: {@link AcknowledgeMode#AUTO} is correct here because
+     * {@link RejectAndDontRequeueRecoverer} does <em>not</em> call {@code channel.basicNack}
+     * directly — it throws {@code ListenerExecutionFailedException(AmqpRejectAndDontRequeueException)},
+     * which the container's {@code ConditionalRejectingErrorHandler} maps to a no-requeue nack.
+     * AUTO mode means:
+     * <ul>
+     *   <li>Listener returns normally → message auto-acked.</li>
+     *   <li>Listener throws (interceptor exhausted, recoverer throws) → container nacks with
+     *       requeue=false because {@code AmqpRejectAndDontRequeueException} is "fatal".</li>
+     * </ul>
+     * Using {@code MANUAL} mode without {@code channel.basicAck()} in the listener leaves
+     * every successfully-processed message perpetually unacked, causing infinite redelivery
+     * on the next consumer cycle or connection reset.
+     *
+     * <p>Phase 5+ consumers reference this bean by name.
      */
     @Bean
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
@@ -60,7 +75,7 @@ public class RabbitRetryConfig {
             StatefulRetryOperationsInterceptor sagaRetryInterceptor) {
         SimpleRabbitListenerContainerFactory f = new SimpleRabbitListenerContainerFactory();
         f.setConnectionFactory(cf);
-        f.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+        f.setAcknowledgeMode(AcknowledgeMode.AUTO);
         f.setAdviceChain(sagaRetryInterceptor);
         return f;
     }
