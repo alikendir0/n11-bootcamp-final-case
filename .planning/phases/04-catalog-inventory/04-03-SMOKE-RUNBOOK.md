@@ -159,7 +159,12 @@ Login: `RABBITMQ_DEFAULT_USER` / `RABBITMQ_DEFAULT_PASS` from `.env`.
 
 1. Click **Exchanges** → `orders.tx` → **Publish message**
 2. Routing key: `order.created`
-3. Properties: `content_type=application/json`
+3. Properties: `content_type=application/json,message_id=00000000-0000-0000-0000-000000000001`
+
+   **CRITICAL**: `message_id` is required by the `StatefulRetryInterceptor` key generator in
+   `RabbitRetryConfig`. Without it the consumer throws `AmqpException` before processing starts
+   and `processed_events` stays at 0. The value must match the envelope `eventId`.
+
 4. Payload (replace `<PRODUCT_ID>`):
 ```json
 {
@@ -174,8 +179,8 @@ Login: `RABBITMQ_DEFAULT_USER` / `RABBITMQ_DEFAULT_PASS` from `.env`.
     "orderId": "00000000-0000-0000-0000-000000000003",
     "userId": "00000000-0000-0000-0000-000000000004",
     "currency": "TRY",
-    "totalAmount": "100.00",
-    "items": [{"productId": "<PRODUCT_ID>", "qty": 1, "unitPrice": "100.00", "nameSnapshot": "Smoke Test"}]
+    "totalAmount": 100.00,
+    "items": [{"productId": "<PRODUCT_ID>", "qty": 1, "unitPrice": 100.00, "nameSnapshot": "Smoke Test"}]
   }
 }
 ```
@@ -190,8 +195,12 @@ RABBIT_PASS=$(grep RABBITMQ_DEFAULT_PASS .env | cut -d= -f2)
 docker exec n11-rabbitmq rabbitmqadmin \
   --username="$RABBIT_USER" --password="$RABBIT_PASS" \
   publish exchange=orders.tx routing_key=order.created \
-  payload='{"eventId":"00000000-0000-0000-0000-000000000001","eventType":"order.created","eventVersion":1,"occurredAt":"2026-04-29T12:00:00Z","correlationId":"00000000-0000-0000-0000-000000000002","causationId":"00000000-0000-0000-0000-000000000001","producer":"smoke-test","payload":{"orderId":"00000000-0000-0000-0000-000000000003","userId":"00000000-0000-0000-0000-000000000004","currency":"TRY","totalAmount":"100.00","items":[{"productId":"<PRODUCT_ID>","qty":1,"unitPrice":"100.00","nameSnapshot":"Smoke Test"}]}}'
+  properties=message_id=00000000-0000-0000-0000-000000000001,content_type=application/json \
+  payload='{"eventId":"00000000-0000-0000-0000-000000000001","eventType":"order.created","eventVersion":1,"occurredAt":"2026-04-29T12:00:00Z","correlationId":"00000000-0000-0000-0000-000000000002","causationId":"00000000-0000-0000-0000-000000000001","producer":"smoke-test","payload":{"orderId":"00000000-0000-0000-0000-000000000003","userId":"00000000-0000-0000-0000-000000000004","currency":"TRY","totalAmount":100.00,"items":[{"productId":"<PRODUCT_ID>","qty":1,"unitPrice":100.00,"nameSnapshot":"Smoke Test"}]}}'
 ```
+
+Note: `properties=message_id=<eventId>` is mandatory — the `StatefulRetryInterceptor` key generator
+rejects messages with a missing or blank AMQP `message_id` property.
 
 ### Verify the reservation was written (wait 10 seconds first):
 
@@ -215,11 +224,12 @@ Expected: Row with `event_type = 'stock.reserved'` (or `stock.reserve_failed` if
 
 ## Step 8 — Idempotency re-delivery check
 
-Publish the SAME event again (same `eventId`: `00000000-0000-0000-0000-000000000001`):
+Publish the SAME event again (same `eventId` AND same AMQP `message_id`:
+`00000000-0000-0000-0000-000000000001`):
 
 ```bash
-# Re-run the same rabbitmqadmin command from Step 7 Option B
-# Or re-publish via management UI with the identical payload
+# Re-run the EXACT same rabbitmqadmin command from Step 7 Option B (message_id must match eventId)
+# Or re-publish via management UI with identical payload AND identical Properties (message_id included)
 ```
 
 Wait 10 seconds, then verify idempotency (CLAUDE.md Rule #3):
