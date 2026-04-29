@@ -152,10 +152,18 @@ if [ "$MODE" = "full" ]; then
 
   assert_grep 'Frontend toolchain' ".planning/PROJECT.md" "PROJECT.md mentions Frontend toolchain decision"
 
-  if grep -A 200 '^## Key Decisions$' .planning/PROJECT.md 2>/dev/null | grep -qE 'Vite|Next\.js'; then
-    check_ok "PROJECT.md Key Decisions mentions Vite or Next.js"
+  # Cross-plan contract (Issue-4 pin): the Key Decisions row for the frontend
+  # toolchain must be LOCKED — i.e., the row contains both the exact winner
+  # label "Vite 8 + React 19 SPA" and a "Locked YYYY-MM-DD" stamp on the SAME
+  # line of the table (the lock stamp lives in the Outcome column). Plan 02-03
+  # Task 2 lands this row; the lenient `Vite|Next.js` regex would pass on the
+  # pre-existing "Frontend toolchain deferred" rationale row, hiding the gap.
+  if grep -A 200 '^## Key Decisions$' .planning/PROJECT.md 2>/dev/null \
+       | grep -E 'Vite 8 \+ React 19 SPA' \
+       | grep -qE 'Locked [0-9]{4}-[0-9]{2}-[0-9]{2}'; then
+    check_ok "PROJECT.md Key Decisions has locked Vite 8 + React 19 SPA row"
   else
-    check_fail "PROJECT.md Key Decisions has no Vite/Next.js entry"
+    check_fail "PROJECT.md Key Decisions has no locked 'Vite 8 + React 19 SPA' row (Plan 02-03 closes this)"
   fi
 fi
 

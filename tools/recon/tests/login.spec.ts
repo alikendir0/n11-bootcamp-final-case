@@ -10,7 +10,11 @@ import { harvestCopy } from '../lib/harvest-copy';
 import { harvestColors } from '../lib/harvest-colors';
 
 const SLUG = 'login';
-const URL = 'https://www.n11.com/giris';
+// Recon discovery 2026-04-29: n11's actual login path is /giris-yap (the
+// account.spec.ts redirect from /hesabim landed at https://www.n11.com/giris-yap?redirectUrl=...).
+// /giris alone returns 404. PROJECT.md Open Questions list will be updated in
+// Plan 02-03 §8 enrichment to reflect the canonical URL.
+const URL = 'https://www.n11.com/giris-yap';
 const ELEMENT_ZOOM_SELECTOR = 'form';
 
 const SCREENSHOT_DIR = path.resolve(__dirname, '../../../.planning/intel/screenshots');

@@ -1,0 +1,41 @@
+OK: recon package.json scaffolded (tools/recon/package.json exists)
+OK: Playwright pinned to 1.59.x exact
+OK: recon tsconfig.json scaffolded (tools/recon/tsconfig.json exists)
+OK: tsconfig.json has noEmit:true (canonical type-check gate)
+OK: Playwright config scaffolded (tools/recon/playwright.config.ts exists)
+OK: anti-bot posture: headless false
+OK: anti-bot posture: AutomationControlled flag
+OK: rate-limit: workers 1
+OK: banner-dismiss helper (tools/recon/lib/dismiss-banners.ts exists)
+OK: copy-harvest helper (tools/recon/lib/harvest-copy.ts exists)
+OK: color-harvest helper (tools/recon/lib/harvest-colors.ts exists)
+OK: Markdown assembler (tools/recon/assemble-recon.ts exists)
+OK: report sanity checker (tools/recon/check-recon.ts exists)
+OK: recon README (tools/recon/README.md exists)
+OK: recon-local .gitignore (tools/recon/.gitignore exists)
+OK: root .gitignore has recon ignore block
+OK: intel screenshots dir reserved (.planning/intel/screenshots/.gitkeep exists)
+OK: S-6: tools/recon not registered as Gradle subproject
+OK: S-6: no Gradle build file under tools/recon/
+OK: screenshot >=50KB: homepage (3160703 bytes)
+OK: screenshot >=50KB: category-elektronik (1662064 bytes)
+OK: screenshot >=50KB: pdp (804593 bytes)
+OK: screenshot >=50KB: cart (235334 bytes)
+OK: screenshot >=50KB: checkout-step1 (337220 bytes)
+OK: screenshot >=50KB: account (63735 bytes)
+OK: screenshot >=50KB: login (51639 bytes)
+OK: recon report (.planning/intel/n11-recon.md exists)
+OK: report §1 heading
+OK: report §2 heading
+OK: report §3 heading
+OK: report §4 heading
+OK: report §5 heading
+OK: report §6 heading
+OK: report §7 heading
+OK: report §8 heading
+OK: Turkish copy catalog >=30 rows (644)
+OK: Color token table >=10 rows (25)
+OK: Color Token Table Hex column is hex-only (Pitfall #4)
+OK: PROJECT.md mentions Frontend toolchain decision
+FAIL: PROJECT.md Key Decisions has no locked 'Vite 8 + React 19 SPA' row (Plan 02-03 closes this)
+FAILED: 1 check(s) failed (mode=full)

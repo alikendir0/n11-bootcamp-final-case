@@ -1,0 +1,39 @@
+
+Running 7 tests using 1 worker
+
+  ✓  1 [chromium] › tests/account.spec.ts:26:7 › n11 account recon › capture account (7.5s)
+  ✓  2 [chromium] › tests/cart.spec.ts:26:7 › n11 cart recon › capture cart (8.0s)
+  ✓  3 [chromium] › tests/category.spec.ts:28:7 › n11 category-elektronik recon › capture category-elektronik (36.4s)
+  ✓  4 [chromium] › tests/checkout.spec.ts:25:7 › n11 checkout-step1 recon › capture checkout-step1 (12.7s)
+  ✓  5 [chromium] › tests/homepage.spec.ts:28:7 › n11 homepage recon › capture homepage (34.0s)
+  ✘  6 [chromium] › tests/login.spec.ts:25:7 › n11 login recon › capture login (3.6s)
+  ✓  7 [chromium] › tests/pdp.spec.ts:27:7 › n11 pdp recon › capture pdp (19.7s)
+
+
+  1) [chromium] › tests/login.spec.ts:25:7 › n11 login recon › capture login ───────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m400[39m
+    Received:   [31m404[39m
+
+      25 |   test(`capture ${SLUG}`, async ({ page }) => {
+      26 |     const response = await page.goto(URL, { waitUntil: 'networkidle' });
+    > 27 |     expect(response?.status()).toBeLessThan(400);
+         |                                ^
+      28 |     await page.waitForTimeout(2500);
+      29 |     await dismissBanners(page);
+      30 |     await page.waitForTimeout(500);
+        at /hey/projects/n11-bootcamp-final-case/tools/recon/tests/login.spec.ts:27:32
+
+    Error Context: test-results/login-n11-login-recon-capture-login-chromium/error-context.md
+
+  1 failed
+    [chromium] › tests/login.spec.ts:25:7 › n11 login recon › capture login ────────────────────────
+  6 passed (2.1m)
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/login.spec.ts:29:7 › n11 login recon › capture login (11.6s)
+
+  1 passed (12.8s)

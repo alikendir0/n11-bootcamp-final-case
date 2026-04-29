@@ -8,6 +8,12 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   reporter: 'list',
+  // Per-test timeout bumped to 120s. Combined with slowMo:250, the 2.5s
+  // post-goto wait, and networkidle on a tracker-heavy page like n11.com,
+  // the Playwright default of 30s is consistently too short. Pitfall #7
+  // (gentle rate limit) intentionally trades speed for politeness; the
+  // budget is per-spec, not per-test-runner default.
+  timeout: 120_000,
   use: {
     baseURL: 'https://www.n11.com',
     headless: false,

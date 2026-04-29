@@ -1,0 +1,5 @@
+
+> n11-recon@0.0.0 check
+> tsx check-recon.ts
+
+FAIL: ## Decision Matrix subsection missing — Plan 02-03 Task 1 must append it; Phase 10 reads this for the toolchain audit trail

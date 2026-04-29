@@ -198,7 +198,10 @@ function harvestTokenRows(): TokenRow[] {
         const baseName = tok.role.startsWith('--color-')
           ? tok.role
           : `--color-${tok.role}${c.suffix}`;
-        const tokenName = baseName.replace(/-+/g, '-');
+        // Collapse repeated dashes ONLY in the body, after the `--` prefix.
+        // Without the lookbehind, `--color-...` would collapse to `-color-...`,
+        // breaking the CSS custom-property convention Phase 10 reads.
+        const tokenName = '--' + baseName.replace(/^-+/, '').replace(/-+/g, '-');
         const key = `${tokenName}|${pageSlug}`;
         if (seenTokens.has(key)) continue;
         seenTokens.add(key);
