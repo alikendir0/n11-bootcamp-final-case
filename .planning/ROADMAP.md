@@ -102,16 +102,16 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 6 plans (3 waves)
 
   **Wave 0** — module scaffold + schema + saga lock (parallel, no deps)
-  - [ ] 03-01-PLAN.md — identity-service Gradle module clone from service-template/skeleton/ + docker-compose entry + .env.example matrix + README runbook (`AUTH-01, AUTH-05, AUTH-07, QUAL-02`)
-  - [ ] 03-02-PLAN.md — Flyway V2/V3/V4 migrations (users + addresses + admin seed + outbox) + config-server identity-service.yml + user-registered.schema.json + classpath mirror + saga-contracts.md catalog edits (`AUTH-01, AUTH-05, AUTH-08`)
+  - [x] 03-01-PLAN.md — identity-service Gradle module clone from service-template/skeleton/ + docker-compose entry + .env.example matrix + README runbook (`AUTH-01, AUTH-05, AUTH-07, QUAL-02`)
+  - [x] 03-02-PLAN.md — Flyway V2/V3/V4 migrations (users + addresses + admin seed + outbox) + config-server identity-service.yml + user-registered.schema.json + classpath mirror + saga-contracts.md catalog edits (`AUTH-01, AUTH-05, AUTH-08`)
 
   **Wave 1** — identity-service business code (parallel after Wave 0)
-  - [ ] 03-03-PLAN.md — JwtConfig (RSA keypair) + JwtIssuerService + JwksController + IdentitySecurityConfig + PasswordEncoderTest (`AUTH-02, AUTH-05, AUTH-07, QUAL-02`)
-  - [ ] 03-04-PLAN.md — User/Role/Address JPA entities + repositories + UserService + AuthController + AddressController + Turkish-validation DTOs (`AUTH-01, AUTH-02, AUTH-03, AUTH-05, AUTH-07, AUTH-08`)
-  - [ ] 03-05-PLAN.md — Outbox pattern: OutboxEvent entity + OutboxRepository (FOR UPDATE SKIP LOCKED) + OutboxBackedUserRegistrationOutboxPublisher + OutboxPoller + IdentityRabbitConfig (identity.tx) + Testcontainers OutboxIntegrationTest with schema-drift gate (`AUTH-01, QUAL-02`)
+  - [x] 03-03-PLAN.md — JwtConfig (RSA keypair) + JwtIssuerService + JwksController + IdentitySecurityConfig + PasswordEncoderTest (`AUTH-02, AUTH-05, AUTH-07, QUAL-02`)
+  - [x] 03-04-PLAN.md — User/Role/Address JPA entities + repositories + UserService + AuthController + AddressController + Turkish-validation DTOs (`AUTH-01, AUTH-02, AUTH-03, AUTH-05, AUTH-07, AUTH-08`)
+  - [x] 03-05-PLAN.md — Outbox pattern: OutboxEvent entity + OutboxRepository (FOR UPDATE SKIP LOCKED) + OutboxBackedUserRegistrationOutboxPublisher + OutboxPoller + IdentityRabbitConfig (identity.tx) + Testcontainers OutboxIntegrationTest with schema-drift gate (`AUTH-01, QUAL-02`)
 
   **Wave 2** — gateway flip + e2e smoke (depends on Wave 1)
-  - [ ] 03-06-PLAN.md — api-gateway/build.gradle.kts oauth2-resource-server starter + SecurityConfig REPLACE (oauth2ResourceServer + JwtTimestampValidator(30s) + roles-claim authority converter) + GatewayHeaderInjectionFilter REPLACE (Authorization-strip + X-User-Id injection) + config-server api-gateway.yml jwk-set-uri block + Springdoc aggregator entry + docker-compose api-gateway depends_on identity-service + e2e smoke runbook (`AUTH-02, AUTH-03, AUTH-04, AUTH-06`)
+  - [x] 03-06-PLAN.md — api-gateway/build.gradle.kts oauth2-resource-server starter + SecurityConfig REPLACE (oauth2ResourceServer + JwtTimestampValidator(30s) + roles-claim authority converter) + GatewayHeaderInjectionFilter REPLACE (Authorization-strip + X-User-Id injection) + config-server api-gateway.yml jwk-set-uri block + Springdoc aggregator entry + docker-compose api-gateway depends_on identity-service + e2e smoke runbook (`AUTH-02, AUTH-03, AUTH-04, AUTH-06`)
 
   **Cross-cutting truths** (recurring across ≥2 plans):
   - RSA keypair from `JWT_PRIVATE_KEY` env (PEM PKCS#8); public key derived at boot; never logged (Plan 03-01 .env.example, 03-03 JwtConfig)
