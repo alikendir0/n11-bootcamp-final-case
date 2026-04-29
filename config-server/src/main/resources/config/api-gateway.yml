@@ -54,24 +54,27 @@ spring:
                 - Path=/api/v1/identity/**
               filters:
                 - StripPrefix=3
+            # StripPrefix=2 strips `api/v1`, forwarding `/products/...` to controller @RequestMapping("/products").
+            # (Identity routes use StripPrefix=3 because their predicate has a 4th segment
+            #  — e.g. /api/v1/identity/auth/login → /auth/login matches @RequestMapping("/auth").)
             - id: product-service
               uri: lb://PRODUCT-SERVICE
               predicates:
                 - Path=/api/v1/products/**
               filters:
-                - StripPrefix=3
+                - StripPrefix=2
             - id: category-service
               uri: lb://PRODUCT-SERVICE
               predicates:
                 - Path=/api/v1/categories/**
               filters:
-                - StripPrefix=3
+                - StripPrefix=2
             - id: inventory-service
               uri: lb://INVENTORY-SERVICE
               predicates:
                 - Path=/api/v1/inventory/**
               filters:
-                - StripPrefix=3
+                - StripPrefix=2
 
           # ─────────────────────────────────────────────────────────────────
           # Phase 8 SSE forward-reference (DO NOT enable in Phase 1 -- no
