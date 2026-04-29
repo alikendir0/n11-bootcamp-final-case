@@ -183,6 +183,8 @@ services:
         condition: service_healthy
       config-server:
         condition: service_healthy
+      identity-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 5s
