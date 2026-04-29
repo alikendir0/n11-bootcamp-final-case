@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: identity-service
+  config:
+    import: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
