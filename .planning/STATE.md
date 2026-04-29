@@ -5,13 +5,13 @@ milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered — 22 decisions locked across JWT lifetime, RS256 keypair, roles+admin seeding, address book, user.registered saga seam, login response shape; ready for /gsd-plan-phase 3
 last_updated: "2026-04-29T19:48:00.000Z"
-last_activity: 2026-04-29 -- Phase 04 Plan 01 completed (product-service catalog)
+last_activity: 2026-04-29 -- Phase 04 Plan 02 completed (inventory-service saga + idempotency)
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 20
-  completed_plans: 18
-  percent: 90
+  completed_plans: 19
+  percent: 95
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 04 (catalog-inventory) — EXECUTING
-Plan: 2 of 3 (Plan 01 complete)
-Next: Plan 04-02 — inventory-service (PROD-06, PROD-08, saga consumer)
+Plan: 3 of 3 (Plans 01 + 02 complete)
+Next: Plan 04-03 — cart-service (or phase 05 order-saga)
 Status: Executing Phase 04
-Last activity: 2026-04-29 -- Phase 04 Plan 01 completed
+Last activity: 2026-04-29 -- Phase 04 Plan 02 completed (inventory-service saga + idempotency)
 
-Progress: [███░░░░░░░] 27% (3 of 11 phases complete)
+Progress: [████░░░░░░] 27% (3 of 11 phases complete, phase 04 in progress)
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [███░░░░░░░] 27% (3 of 11 phases complete)
 | 02 (frontend-recon-toolchain-lock) | 3 | ~18 min | ~6 min |
 | 03 (identity-gateway-auth) | 6 | ~84 min | ~14 min |
 | 04 (catalog-inventory) Plan 01 | 1 | ~32 min | ~32 min |
+| 04 (catalog-inventory) Plan 02 | 4 | ~95 min | ~24 min |
 
 **Recent Trend:**
 
@@ -89,6 +90,9 @@ Recent decisions affecting current work:
 - 2026-04-29 (Plan 04-01): src/test/resources/application.yml with optional:configserver: is required for slice tests (@DataJpaTest/@JdbcTest) — Spring Boot 3.x loads this before profile-specific overrides, preventing ConfigClientFailFastException on bootstrap.
 - 2026-04-29 (Plan 04-01): Testcontainers Postgres native queries require hikari.connection-init-sql=SET search_path=<schema> in application-test.yml — no init.sh sets search_path for the test DB user.
 - 2026-04-29 (Plan 04-01): GIN trigram index EXPLAIN ANALYZE tests with small datasets (<1000 rows) must use SET enable_seqscan=off to force index use (planner chooses SeqScan for small tables). This proves index correctness without requiring full production data volume.
+- 2026-04-29 (Plan 04-02): @Transactional on @RabbitListener is unreliable — Spring AMQP invokes listeners via the AMQP container thread, potentially bypassing AOP proxy. Split pattern: @RabbitListener method deserializes/routes; @Transactional @Service method (InventoryOrderService) handles all DB writes atomically. Idempotency check (processed_events.existsById) INSIDE @Transactional before any state change.
+- 2026-04-29 (Plan 04-02): Testcontainers RabbitMQ listener auto-subscription fails with EOFException in redeclareElementsIfNecessary() during AMQP handshake in some test configurations. Integration tests proving business-logic idempotency should use direct consumer invocation (consumer.handleOrderCreated(amqpMsg)) rather than depending on AMQP delivery mechanics.
+- 2026-04-29 (Plan 04-02): rabbitmq:3.13-management preferred over 4.0-management for Testcontainers stability (4.0-management caused Connection reset errors during AMQP handshake).
 - 2026-04-28 (Plan 01-06): Pitfall #2 (gateway reactive vs MVC classpath collision) structurally locked down. configurations.all { exclude(group=org.springframework.boot, module=spring-boot-starter-tomcat); exclude(... starter-web); exclude(org.springdoc, springdoc-openapi-starter-webmvc-ui) } in api-gateway/build.gradle.kts. ./gradlew :api-gateway:dependencies --configuration runtimeClasspath shows zero matches for any of those.
 
 ### Pending Todos
@@ -111,7 +115,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-29T19:48:00.000Z
-Stopped at: Phase 04 Plan 01 complete — product-service catalog with 19 passing tests, 52 Turkish seed products, GIN index ILIKE search, ROLE_ADMIN gate
-Resume file: .planning/phases/04-catalog-inventory/04-01-SUMMARY.md
-Next: Plan 04-02 (inventory-service)
+Last session: 2026-04-29T21:27:49Z
+Stopped at: Phase 04 Plan 02 complete — inventory-service with @Version Stock entity, Turkish stock-state DTOs, idempotent OrderCreatedConsumer (InventoryOrderService @Transactional), transactional outbox, CLAUDE.md Rule #3 Testcontainers proof
+Resume file: .planning/phases/04-catalog-inventory/04-02-SUMMARY.md
+Next: Plan 04-03 (cart-service or next phase — check ROADMAP.md)

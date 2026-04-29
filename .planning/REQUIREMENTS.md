@@ -29,9 +29,9 @@
 - [ ] **PROD-03**: User can browse product categories via top-level navigation (Elektronik, Moda, Ev & Yaşam, Anne & Bebek, Kozmetik, Spor & Outdoor, Süpermarket, Kitap-Müzik-Film-Oyun)
 - [ ] **PROD-04**: User can search products by text (Postgres ILIKE + GIN index for v1; semantic upgrade through chat assistant)
 - [ ] **PROD-05**: User can sort listing by price (ascending / descending) and date (newest first)
-- [ ] **PROD-06**: User can see stock indicator on PDP — "Stokta", "Tükendi", "Son N ürün!" when low
-- [ ] **PROD-07**: product-service exposes REST API documented via Springdoc OpenAPI; Swagger UI reachable at `/swagger-ui.html`
-- [ ] **PROD-08**: inventory-service holds stock per SKU; supports `reserve` and `release` event handlers as saga participant
+- [x] **PROD-06**: User can see stock indicator on PDP — "Stokta", "Tükendi", "Son N ürün!" when low
+- [x] **PROD-07**: product-service exposes REST API documented via Springdoc OpenAPI; Swagger UI reachable at `/swagger-ui.html`
+- [x] **PROD-08**: inventory-service holds stock per SKU; supports `reserve` and `release` event handlers as saga participant
 - [ ] **PROD-09**: Seed data ships with at least 50 products in Turkish (title, description, category, price, stock, image URL)
 
 ### Cart
@@ -226,9 +226,9 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | PROD-03 | Phase 4 | Pending |
 | PROD-04 | Phase 4 | Pending |
 | PROD-05 | Phase 4 | Pending |
-| PROD-06 | Phase 4 | Pending |
-| PROD-07 | Phase 4 | Pending |
-| PROD-08 | Phase 4 | Pending |
+| PROD-06 | Phase 4 | Complete |
+| PROD-07 | Phase 4 | Complete |
+| PROD-08 | Phase 4 | Complete |
 | PROD-09 | Phase 4 | Pending |
 | CART-01 | Phase 5 | Pending |
 | CART-02 | Phase 5 | Pending |

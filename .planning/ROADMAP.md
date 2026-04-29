@@ -136,10 +136,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans (3 waves)
 
   **Wave 1** -- product-service (depends on Phase 3 docker network only)
-  - [ ] 04-01-PLAN.md -- product-service module scaffold + Category/Product JPA + ProductController + CategoryController + ILIKE GIN search + V2/V3 Flyway + config-server product-service.yml + docker-compose entry + tests (PROD-01, PROD-02, PROD-03, PROD-04, PROD-05, PROD-09)
+  - [x] 04-01-PLAN.md -- product-service module scaffold + Category/Product JPA + ProductController + CategoryController + ILIKE GIN search + V2/V3 Flyway + config-server product-service.yml + docker-compose entry + tests (PROD-01, PROD-02, PROD-03, PROD-04, PROD-05, PROD-09)
 
   **Wave 2** -- inventory-service (depends on 04-01 exchange declaration)
-  - [ ] 04-02-PLAN.md -- inventory-service module scaffold + Stock @Version JPA + StockController (Turkish labels) + OrderCreatedConsumer (idempotent CLAUDE.md Rule #3) + OutboxPoller + Testcontainers idempotency test (PROD-06, PROD-07, PROD-08)
+  - [x] 04-02-PLAN.md -- inventory-service module scaffold + Stock @Version JPA + StockController (Turkish labels) + OrderCreatedConsumer (idempotent CLAUDE.md Rule #3) + OutboxPoller + Testcontainers idempotency test (PROD-06, PROD-07, PROD-08)
 
   **Wave 3** -- gateway integration + smoke (depends on 04-01 + 04-02)
   - [ ] 04-03-PLAN.md -- api-gateway.yml product/categories/inventory routes + Springdoc aggregator entries + docker-compose depends_on chain + smoke runbook (PROD-07, PROD-09)
