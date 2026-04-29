@@ -45,10 +45,14 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
+    // H2 in-memory database for @DataJpaTest slice tests (no live Postgres needed)
+    testRuntimeOnly("com.h2database:h2")
+
     // Testcontainers for Plan 03-04/03-05 integration tests
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:rabbitmq")
+    testImplementation("org.testcontainers:junit-jupiter")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

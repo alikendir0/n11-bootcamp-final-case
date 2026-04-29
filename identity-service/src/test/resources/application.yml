@@ -1,0 +1,8 @@
+# Test-only application configuration — overrides the main application.yml.
+# Disables config-server import so @DataJpaTest slice tests run offline.
+# Disables Flyway so @DataJpaTest uses Hibernate DDL auto-generation (create-drop).
+spring:
+  config:
+    import: "optional:configserver:"
+  flyway:
+    enabled: false
