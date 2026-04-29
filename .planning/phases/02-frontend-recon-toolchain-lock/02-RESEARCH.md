@@ -1111,34 +1111,34 @@ ping -c 1 www.n11.com       # confirms internet + n11 resolves
 
 ---
 
-## Open Questions
+## Recon Discovery Targets (RESOLVED — answered by Plan 02-02 capture run)
 
-> Questions that the recon itself will resolve. The planner should NOT pre-answer these in tasks; the Playwright capture is the answer.
+> These are not unresolved planning blockers. They are five n11.com facts that the recon itself is contracted to discover. Each is RESOLVED by a specific task in Plan 02-02; none gates the planner. Listed here so the recon report's §8 (Open Questions) is pre-seeded with the right shape.
 
 1. **Does n11.com return 403 to Playwright with the recommended posture (`headless: false` + real UA + `--disable-blink-features=AutomationControlled`)?**
    - What we know: n11 returned 403 to WebFetch (training-data note in PROJECT.md). Real desktop Chrome with our flags is 95%+ likely to work — n11 is not a high-security target.
    - What's unclear: whether Cloudflare bot management adds an interstitial.
-   - Recommendation: Phase 2 Plan Task 1 includes a 30-second smoke run (`npx playwright test homepage.spec.ts`) as an early-feedback gate. If 403 persists, switch to `launchPersistentContext` per §Code Examples.
+   - **RESOLVED:** Plan 02-02 Task 2 runs the homepage spec first as a smoke gate; if 403 persists, the executor switches to `launchPersistentContext` per §Code Examples and `tools/recon/README.md` documents the fallback.
 
 2. **Does n11 require login to view the cart page?**
    - What we know: most marketplaces show an empty-cart state to anonymous users.
    - What's unclear: n11 may redirect anonymous users to `/giris`. If so, the cart capture is just the login modal.
-   - Recommendation: capture whatever state n11 shows the anonymous user; document it in the recon report. Don't log in.
+   - **RESOLVED:** Plan 02-02 Task 1 cart spec captures whatever state n11 shows the anonymous user; the recon report §3 (Layout Patterns) documents the redirect-or-empty behavior. No login attempted (CLAUDE.md "no secrets, no real cart" rule).
 
 3. **Does n11 expose category sub-navigation in a hover mega-menu, in a sidebar, or only by navigating to category pages?**
    - What we know: most Turkish marketplaces use a mega-menu on hover (Trendyol does).
    - What's unclear: n11's specific UX.
-   - Recommendation: the homepage spec attempts a `page.hover('a[href="/elektronik"]')` then captures the dropdown if visible; if not, the category-page spec captures the left-rail filter list as a substitute.
+   - **RESOLVED:** Plan 02-02 Task 1 homepage spec attempts `page.hover('a[href*="/elektronik"]')` then captures the dropdown if visible; if not, the category-page spec captures the left-rail filter list as a substitute. Either outcome is documented in recon §6 (Layout Patterns).
 
 4. **What's the actual font family used on n11.com?**
    - What we know: typical Turkish marketplaces use "Open Sans" or a custom system stack.
    - What's unclear: n11's specific font.
-   - Recommendation: the homepage spec captures `getComputedStyle(document.body).fontFamily`; the result lands in §Typography Notes.
+   - **RESOLVED:** Plan 02-02 Task 1 homepage spec captures `getComputedStyle(document.body).fontFamily`; the result lands in recon §5 (Typography Notes).
 
 5. **Is the cart-page CTA literally "Siparişi Tamamla" or some variant?**
    - What we know: REQUIREMENTS.md FE-13 says "Siparişi Tamamla" (locked).
    - What's unclear: n11 might use "Sepeti Onayla" or "Hemen Al" — minor variation.
-   - Recommendation: capture verbatim into Turkish Copy Catalog row 9; if it differs, update REQUIREMENTS.md FE-13 in the same Phase 2 task or note as a Phase 10 follow-up.
+   - **RESOLVED:** Plan 02-02 Task 2 captures the cart CTA verbatim into Turkish Copy Catalog row 9. If it differs from FE-13's locked phrasing, the divergence is noted in recon §8 as a Phase 10 follow-up — REQUIREMENTS.md is NOT edited in Phase 2.
 
 ---
 

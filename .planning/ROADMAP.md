@@ -73,7 +73,18 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. A captured Turkish-copy table (>= 30 phrases like "Sepete Ekle", "Hemen Al", "Stokta", "Kargo Bedava", "Önceki/Sonraki") is committed in the recon report and is reused verbatim in Phase 10.
   3. The frontend toolchain decision (Vite vs Next, TS, styling, state) is recorded in PROJECT.md Key Decisions with the rationale tying back to recon findings.
   4. Category taxonomy and a small color/typography token list derived from n11 are extracted into the recon report so Phase 10 doesn't re-research them.
-**Plans**: TBD
+**Plans**: 3 (3 waves)
+
+  **Wave 0** — recon project bootstrap (no deps)
+  - 02-01: tools/recon/ npm project + Playwright 1.59.x + helpers (dismiss-banners, harvest-copy, harvest-colors) + assembler + checker + scripts/check-phase-02-artifacts.sh — `FE-01`
+
+  **Wave 1** *(blocked on 02-01)* — n11.com capture run
+  - 02-02: 7 page-capture specs (homepage, category, pdp, cart, checkout, account, login) + capture run + assemble `.planning/intel/n11-recon.md` (8 sections, ≥30 phrases, ≥10 tokens) — `FE-01`
+    *Has human-verify checkpoint: screenshot authenticity + Turkish copy verbatim spot-check + Pitfall #19 callout.*
+
+  **Wave 2** *(blocked on 02-02)* — recon enrichment + toolchain lock
+  - 02-03: enrich n11-recon.md (§5-§8 + Decision Matrix subsection) + append PROJECT.md Key Decisions row (Vite 8 + React 19 SPA, with VITE_API_BASE_URL carry-forward) + resolve Open Question + STATE.md update — `FE-01`
+
 **UI hint**: yes
 **Risks**: Pitfall #20 (Turkish prompt drift — captured copy prevents drift in chat assistant later), Pitfall #19 (chat streaming UX — n11 has no chat to copy, so Phase 11 must invent — recon flags the gap), Pitfall #16 (CORS/auth mismatch — toolchain decision drives `.env` URL setup at the edge)
 **Research need**: HIGH — Playwright IS the research deliverable. Live-site reconnaissance is the only way around the 403.

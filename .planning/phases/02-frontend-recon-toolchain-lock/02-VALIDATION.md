@@ -1,10 +1,11 @@
 ---
 phase: 2
 slug: frontend-recon-toolchain-lock
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-04-29
+approved: 2026-04-29
 ---
 
 # Phase 2 — Validation Strategy
@@ -57,7 +58,7 @@ created: 2026-04-29
 - [ ] `tools/recon/package.json` — `@playwright/test` pinned, `npm run capture` script
 - [ ] `tools/recon/playwright.config.ts` — single project (chromium), `workers: 1`, `fullyParallel: false`, real desktop UA, `slowMo: 250`, `headless: false`
 - [ ] `tools/recon/.gitignore` — node_modules, test-results, playwright-report
-- [ ] `tools/recon/specs/` directory — capture specs go here in later tasks
+- [ ] `tools/recon/tests/` directory — capture specs go here in later tasks (matches Playwright default `testDir: './tests'`)
 - [ ] `scripts/check-phase-02-artifacts.sh` — artifact-shape lint (file existence + grep counts), used as quick run
 - [ ] `.planning/intel/` directory — `screenshots/` subdir reserved
 - [ ] `tools/recon/README.md` — how to run captures, anti-bot disclaimer (no real cart, gentle rate)
@@ -80,11 +81,11 @@ created: 2026-04-29
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies (confirmed by plan-checker pass 2)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (Wave 0 = 3/3, Wave 1 = 2 auto + 1 checkpoint, Wave 2 = 3/3)
+- [x] Wave 0 covers all MISSING references (10 items: scaffold + tsconfig.json + browser install)
+- [x] No watch-mode flags (`npx playwright test`, `npx tsc --noEmit`, plain bash — all one-shot)
+- [x] Feedback latency < 30s (artifact-lint < 2s; full Playwright dry-run ~30s)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-04-29 (after plan-checker VERIFICATION PASSED, pass 2)

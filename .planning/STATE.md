@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: "Phase 1 complete — all 8 plans across 4 waves landed. Foundations + Day-1 Contracts done: Gradle multi-module + gitleaks CI + saga/API contracts + Postgres+Rabbit infra + common-* libs + Eureka+Config+Gateway + service-template archetype + cross-schema deny test. Ready for Phase 2 (Frontend Recon + Toolchain Lock)."
-last_updated: "2026-04-28T23:20:00.000Z"
-last_activity: 2026-04-28 -- Plan 01-08 complete + Phase 1 closed (commits f4928f8 plan, finalization commit forthcoming)
+status: ready-to-execute
+stopped_at: "Phase 2 planned — 3 plans across 3 waves (bootstrap → capture → enrich+lock). VALIDATION.md approved (nyquist_compliant: true), checker pass 2 = VERIFICATION PASSED. Ready to execute Phase 2."
+last_updated: "2026-04-29T00:00:00.000Z"
+last_activity: 2026-04-29 -- Phase 2 plans landed (02-01, 02-02, 02-03) after revision loop iter 2; 6 of 6 checker findings closed
 progress:
   total_phases: 11
   completed_phases: 1
-  total_plans: 8
+  total_plans: 11
   completed_plans: 8
   percent: 9
 ---
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-28)
 
 **Core value:** A graders-impressing demonstration that the candidate can architect a clean, SOLID, microservices system AND layer differentiated AI capabilities on top of it.
-**Current focus:** Phase 01 — foundations-day-1-contracts
+**Current focus:** Phase 02 — frontend-recon-toolchain-lock (planned, ready to execute)
 
 ## Current Position
 
-Phase: 01 (foundations-day-1-contracts) — ✓ COMPLETE (8/8 plans)
-Next: Phase 02 — Frontend Recon + Toolchain Lock (Playwright session against n11.com + toolchain decision in PROJECT.md)
-Status: Phase 1 closed
-Last activity: 2026-04-28 -- Plan 01-08 complete; all of Phase 1 (Foundations + Day-1 Contracts) shipped
+Phase: 02 (frontend-recon-toolchain-lock) — ✓ PLANNED (3/3 plans, checker pass 2 PASSED)
+Next: /gsd-execute-phase 2 — Wave 0 (recon scaffold) → Wave 1 (n11.com captures, has human checkpoint) → Wave 2 (recon enrichment + PROJECT.md Key Decisions row)
+Status: Phase 2 ready to execute
+Last activity: 2026-04-29 -- Phase 2 plans landed and verified; planner addressed 6 checker findings in revision iter 2
 
 Progress: [█████████░] 9% (1 of 11 phases complete)
 
@@ -102,7 +102,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-28 (execute-phase 1, plan 01-06)
-Stopped at: Plan 01-06 complete; api-gateway is a runnable Spring Cloud Gateway 2025.0 (Northfields) reactive WebFlux Boot app with a Jib-built local image (n11/api-gateway:dev), permitAll() chain (D-14 -- Phase 3 will flip to JWT), reactive GatewayCorrelationIdFilter (D-09) + GatewayHeaderInjectionFilter stub (T-01-09), CD-05 overlay at config-server/src/main/resources/config/api-gateway.yml (discovery-locator on, /actuator/gateway/routes exposed, Springdoc aggregator with empty urls list, commented-out Phase 8 SSE forward-ref), and docker-compose.yml has been additively merged so `docker compose up -d` brings the full 5-service stack (postgres, rabbitmq, eureka-server, config-server, api-gateway) to (healthy) in 25s on a warm Docker daemon. Wave 2 continues with 01-07 (service-template archetype). 01-08 (infra-tests Testcontainers cross-schema deny smoke) blocks on 01-03 + 01-07 and opens Wave 3.
-Resume file: .planning/phases/01-foundations-day-1-contracts/01-07-PLAN.md (next dispatch unit)
-Next: /gsd-execute-phase 1 (continue Wave 2)
+Last session: 2026-04-29 (plan-phase 2)
+Stopped at: Phase 2 planned. Three PLAN.md files landed in `.planning/phases/02-frontend-recon-toolchain-lock/`: 02-01 (recon project bootstrap, Wave 0, autonomous, 12 files incl. tools/recon/tsconfig.json), 02-02 (n11.com capture run, Wave 1, depends_on=[02-01], NOT autonomous due to human-verify checkpoint task 3), 02-03 (recon enrichment + toolchain lock + STATE update, Wave 2, depends_on=[02-02], autonomous). Plan-checker pass 2 = ## VERIFICATION PASSED. Six findings from pass 1 closed: BLOCKER-1 (VALIDATION.md path drift `specs/`→`tests/`), BLOCKER-2 (RESEARCH.md "Open Questions" → "Recon Discovery Targets (RESOLVED)"), WARNING-3 (brittle tsx -e verify → npx tsc --noEmit + tsconfig.json), WARNING-4 (hardcoded 2026-04-29 → $(date +%Y-%m-%d)), NOTE-1 (check-recon.ts 9th assertion for `## Decision Matrix`), NOTE-2 (Plan 02-02 Task 2 pins exit-1 + exactly-1-PROJECT.md-match). Plan 02-02 Task 3 is a `checkpoint:human-verify` blocking gate covering Pitfalls #19 + #20 (no chat panel callout, Turkish copy verbatim). VALIDATION.md frontmatter flipped: status=approved, nyquist_compliant=true, all 6 sign-off boxes ticked. Headless `headless: false` browser window will open during Wave 1 — execute on a machine with display.
+Resume file: .planning/phases/02-frontend-recon-toolchain-lock/02-01-PLAN.md (next dispatch unit)
+Next: /gsd-execute-phase 2
