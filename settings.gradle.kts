@@ -14,6 +14,7 @@ include(
     "cart-service",
     "order-service",
     "payment-service",
+    "notification-service",
     "service-template",
     "infra-tests"
 )
