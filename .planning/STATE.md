@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 05 verified and closed (4/5 SCs verified; SC-1 KDV display deferred to Phase 10 per HUMAN-UAT). Ready for Phase 06 (Iyzico payment).
-last_updated: "2026-04-30T14:30:00Z"
-last_activity: 2026-04-30 -- Phase 05 verified — 4/5 SCs PASS, SC-1 deferred to Phase 10; HUMAN-UAT.md persists open item
+status: Phase 05 closed; HUMAN-UAT.md tracks deferred KDV display item until Phase 10
+stopped_at: Phase 6 context gathered
+last_updated: "2026-04-30T11:11:34.359Z"
+last_activity: 2026-04-30 -- Phase 05 verified (orchestrator) — 4/5 SCs PASS, SC-1 deferred; ready for Phase 06
 progress:
   total_phases: 13
   completed_phases: 5
@@ -129,7 +129,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-30T~12:30:00Z
-Stopped at: Phase 05 Plan 05 complete — gateway routes (cart + order) + docker-compose 11-service stack + Phase 5 smoke runbook authored + live smoke sign-off (12/12 checklist items passed, 3 mid-flight fixes in db25041). Phase 05 all 5/5 plans done.
-Resume file: None — begin Phase 06 planning (payment Iyzico)
+Last session: 2026-04-30T11:11:34.349Z
+Stopped at: Phase 6 context gathered
+Resume file: .planning/phases/06-payment-iyzico/06-CONTEXT.md
 Next: Phase 06 (payment Iyzico) — resolve Cloudflare Tunnel vs ngrok (Pitfall #5) during planning
