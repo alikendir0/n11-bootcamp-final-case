@@ -4,8 +4,8 @@ package com.n11.payment.iyzico;
  * Narrow infrastructure boundary for Iyzico Checkout Form.
  *
  * <p>The rest of payment-service depends on neutral command/result records only. Concrete SDK
- * mapping, signature verification, and any SDK-only fields such as checkoutFormContent stay behind
- * the adapter implemented in a later plan.</p>
+ * mapping, signature verification, and SDK-only embedded-form HTML stay behind the adapter
+ * implemented in a later plan.</p>
  */
 public interface IyzicoCheckoutClient {
 
