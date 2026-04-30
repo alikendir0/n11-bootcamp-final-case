@@ -46,11 +46,14 @@ Queues (13) — bound to exchanges by routing key, each queue has one logical co
 | `inventory.q.order-cancelled` | `orders.tx` | `order.cancelled` | inventory-service (compensation) |
 | `cart.q.order-confirmed` | `orders.tx` | `order.confirmed` | cart-service |
 | `notify.q.order-confirmed` | `orders.tx` | `order.confirmed` | notification-service |
+| `notify.q.order-cancelled` | `orders.tx` | `order.cancelled` | notification-service |
 | `notify.q.payment-failed` | `payments.tx` | `payment.failed` | notification-service |
 | `search.q.product-events` | `products.tx` | `product.*` | search-service |
 | `notify.q.user-registered` | `identity.tx` | `user.registered` | notification-service (Phase 7) |
 
 > Note: `products.tx` is added in Phase 4 alongside the search-service skeleton; it is not strictly part of the saga but is documented here so the topology table is complete.
+
+> Note: `notify.q.order-cancelled` was added to this table in Phase 7 (notification-service). The §7 event catalog already listed notification-service as a consumer of `order.cancelled`; this row reconciles the topology table with the catalog.
 
 ## 3. DLX / DLQ Convention
 
@@ -151,3 +154,4 @@ The event-type and field names (`order.created`, `orderId`, etc.) are independen
 
 ---
 *Updated 2026-04-29 (Phase 3): added `identity.tx` exchange + `notify.q.user-registered` queue + `user.registered` catalog entry. Schema file at `.planning/saga-contracts/user-registered.schema.json`.*
+*Updated 2026-04-30 (Phase 7): added `notify.q.order-cancelled` to §2 queue topology — notification-service consumer of `order.cancelled` (already listed in §7 event catalog; topology row was missing).*
