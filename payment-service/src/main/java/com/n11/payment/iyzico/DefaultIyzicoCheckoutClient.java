@@ -106,14 +106,32 @@ public class DefaultIyzicoCheckoutClient implements IyzicoCheckoutClient {
         if (response == null) {
             throw new PaymentInitializationException("IYZICO_RETRIEVE_FAILED: empty response");
         }
-        if (!Status.SUCCESS.getValue().equals(response.getStatus())) {
-            // Adapter-level retrieve failure (auth/transport/etc.). Domain mdStatus/paymentStatus
-            // failures still come through with status==success but paymentStatus!=SUCCESS.
-            throw new PaymentInitializationException("IYZICO_RETRIEVE_FAILED: " + safe(response.getErrorCode()));
+
+        boolean apiSuccess = Status.SUCCESS.getValue().equals(response.getStatus());
+        if (!apiSuccess) {
+            // Iyzico returns status=failure for two distinct cases:
+            //   (a) Transport/auth/schema failure — the payment was never processed.
+            //       paymentStatus and paymentId are absent; the errorCode is an API-level
+            //       code (10xxx). Surface as IYZICO_RETRIEVE_FAILED so the saga
+            //       compensates with reason=UNKNOWN.
+            //   (b) Domain payment failure — Iyzico processed the payment and the issuer
+            //       (or 3DS step) rejected it. paymentStatus and/or paymentId are
+            //       populated. Fall through; IyzicoCallbackOutcome.fromRetrieve will map
+            //       the granular taxonomy (IYZICO_DECLINED, IYZICO_FRAUD_REVIEW,
+            //       IYZICO_3DS_MDSTATUS_INVALID) downstream.
+            boolean domainFailure = !isBlank(response.getPaymentStatus()) || !isBlank(response.getPaymentId());
+            if (!domainFailure) {
+                throw new PaymentInitializationException("IYZICO_RETRIEVE_FAILED: " + safe(response.getErrorCode()));
+            }
+            // Domain failure: skip signature verification — Iyzico does not sign decline
+            // responses, and this is a server-to-server TLS hop so signature is
+            // belt-and-braces, not the only line of defence.
+        } else if (!response.verifySignature(options.getSecretKey())) {
+            throw new PaymentInitializationException("IYZICO_SIGNATURE_INVALID: token=" + safe(response.getToken())
+                + " conversationId=" + safe(response.getConversationId())
+                + " signaturePresent=" + (response.getSignature() != null));
         }
-        if (!response.verifySignature(options.getSecretKey())) {
-            throw new PaymentInitializationException("IYZICO_SIGNATURE_INVALID");
-        }
+
         return new IyzicoCheckoutResult.RetrievedCheckout(
             response.getToken(),
             response.getPaymentId(),
