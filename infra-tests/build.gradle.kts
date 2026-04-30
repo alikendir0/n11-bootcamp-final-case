@@ -29,6 +29,16 @@ dependencies {
 
     // SLF4J binding for Testcontainers logs
     testRuntimeOnly("org.slf4j:slf4j-simple")
+
+    // D-10: ArchUnit gate for @RabbitListener ack-mode invariant
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.2")
+    testImplementation("org.springframework.amqp:spring-rabbit")
+    testImplementation("com.rabbitmq:amqp-client")  // for com.rabbitmq.client.Channel symbol resolution by ArchUnit
+
+    // Services whose @RabbitListener classes ArchUnit must scan
+    testImplementation(project(":common-events"))     // Envelope + RabbitRetryConfig (no @RabbitListener but pulls Spring AMQP types)
+    testImplementation(project(":identity-service"))  // (no @RabbitListener today, but kept future-safe)
+    testImplementation(project(":inventory-service")) // OrderCreatedConsumer
 }
 
 tasks.register<Copy>("copyInitScript") {
