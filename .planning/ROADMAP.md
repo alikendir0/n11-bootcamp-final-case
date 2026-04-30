@@ -220,7 +220,26 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. notification-service is a fully independent microservice — own Spring Boot app, own Postgres schema, own DB user, own Flyway migrations, registers with Eureka — and its `notifications(...)` audit table records every "sent" payload.
   3. The saga happy-path integration test (QUAL-04) covers `OrderCreated → StockReserved → PaymentCompleted → OrderConfirmed → notification logged`, using Testcontainers + Awaitility, and passes on green CI.
   4. Each consumer is idempotent (uses the same processed-events pattern as Phase 5); poison messages land on DLQ within 3 retries.
-**Plans**: TBD
+**Plans**: 6 plans (3 waves)
+
+  **Wave 1** — module bootstrap + topology contract lock (parallel, no deps)
+  - [ ] 07-01-PLAN.md — notification-service Gradle module skeleton + Flyway V1 (processed_events) + V2 (notifications) + config-server YAML + docker-compose entry (`NOTIF-03`) — *complexity: scaffolding*
+  - [ ] 07-02-PLAN.md — saga-contracts.md §2 update (notify.q.order-cancelled row) + NotificationRabbitConfig (4 queues + 4 DLQs + 4 bindings + 3 service-prefixed exchange beans) (`NOTIF-01, NOTIF-03`) — *complexity: pattern-clone*
+
+  **Wave 2** — domain logic + per-service tests (parallel after Wave 1)
+  - [ ] 07-03-PLAN.md — 4 saga consumers + NotificationService (@Transactional delegate) + ProcessedEvent + Notification entities + repos + Turkish copy templates (`NOTIF-01, NOTIF-02, NOTIF-03`) — *complexity: domain-logic*
+  - [ ] 07-04-PLAN.md — 4 idempotency tests + NotificationServiceLogTest + ConsumerDlqRoutingTest (`NOTIF-01, NOTIF-02`) — *complexity: pattern-clone*
+
+  **Wave 3** — QUAL-04 saga closure + sign-off (depends on Wave 2)
+  - [ ] 07-05-PLAN.md — infra-tests QualFourSagaNotificationTest + NotificationServiceTestConfig + Flyway subdirectory test resources (`QUAL-04`) — *complexity: integration-design*
+  - [ ] 07-06-PLAN.md — Phase 7 smoke runbook + STATE.md update + operator human-verify checkpoint (`NOTIF-01, NOTIF-02, NOTIF-03`) — *complexity: scaffolding*
+
+  **Cross-cutting constraints** (recurring across ≥2 plans):
+  - Bean disambiguation for multi-service classpath in infra-tests: `@Entity(name="Notification*")`, exchange beans `*ForNotification` (Plans 07-02, 07-03, 07-05)
+  - Flyway subdirectory `classpath:db/migration/notification` for infra-tests Flyway location (Plans 07-01 main code, 07-05 test resources)
+  - Listener / @Transactional delegate split — `@RabbitListener` method NOT @Transactional; @Transactional only on NotificationService delegate (Plan 04-02 lesson; Plans 07-03, 07-04)
+  - All Turkish body copy lives in NotificationTemplates (Plans 07-03, 07-04, 07-06 runbook spot-checks)
+
 **Risks**: Pitfall #3 (idempotent consumers — same pattern as P5), Pitfall #28 (saga tests deferred — explicit QUAL-04 deliverable here, not later)
 **Research need**: LOW — trivial Spring AMQP listener.
 
@@ -297,7 +316,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 4. Catalog + Inventory | 3/3 | Complete | 2026-04-29 |
 | 5. Cart & Order Skeleton | 5/5 | Complete | 2026-04-30 |
 | 6. Payment (Iyzico) | 1/6 | In Progress | - |
-| 7. Notification (Saga Closure) | 0/TBD | Not started | - |
+| 7. Notification (Saga Closure) | 0/6 | Not started | - |
 | 8. AI Port + Adapter + Agent Toolset | 0/TBD | Not started | - |
 | 9. MCP Server | 0/TBD | Not started | - |
 | 10. Frontend Storefront | 0/TBD | Not started | - |
