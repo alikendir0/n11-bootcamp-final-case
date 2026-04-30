@@ -47,6 +47,9 @@ dependencies {
 
     // payment-service: saga E2E test boots PaymentServiceApplication
     testImplementation(project(":payment-service"))
+    // order-service: Plan 06-05 OrderPaymentFailureCompensationE2ETest boots
+    // order-service to assert payment.failed → order CANCELLED (PAY-03 + QUAL-05).
+    testImplementation(project(":order-service"))
     testImplementation(project(":common-outbox"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
