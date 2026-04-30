@@ -14,6 +14,7 @@ import com.iyzipay.model.Status;
 import com.iyzipay.request.CreateCheckoutFormInitializeRequest;
 import com.iyzipay.request.RetrieveCheckoutFormRequest;
 import com.n11.payment.order.PaymentInitializationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ public class DefaultIyzicoCheckoutClient implements IyzicoCheckoutClient {
     private final CheckoutInitializer initializer;
     private final CheckoutRetriever retriever;
 
+    @Autowired
     public DefaultIyzicoCheckoutClient(IyzicoProperties properties, Options options) {
         this(properties, options, CheckoutFormInitialize::create, CheckoutForm::retrieve);
     }
