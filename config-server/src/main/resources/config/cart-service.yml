@@ -1,0 +1,64 @@
+# ---------------------------------------------------------------------------
+# config-server/src/main/resources/config/cart-service.yml
+# Per-service config for the cart-service module (Phase 5, Plan 02).
+# Inherits the shared baseline from .../config/application.yml.
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8084
+
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: true
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/n11
+    username: cart_user
+    password: ${CART_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      connection-init-sql: SET search_path = cart, public
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: cart
+    default-schema: cart
+    create-schemas: false
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    placeholders:
+      schema: cart
+      flyway.schema: cart
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: cart
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: ${RABBITMQ_DEFAULT_USER}
+    password: ${RABBITMQ_DEFAULT_PASS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

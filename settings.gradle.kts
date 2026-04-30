@@ -11,6 +11,7 @@ include(
     "identity-service",
     "product-service",
     "inventory-service",
+    "cart-service",
     "service-template",
     "infra-tests"
 )
