@@ -58,6 +58,13 @@ iyzico:
   timeout-minutes: ${PAYMENT_TIMEOUT_MINUTES:15}
   demo-buyer-identity-number: ${IYZICO_DEMO_BUYER_IDENTITY_NUMBER:74300864791}
 
+payment:
+  timeout:
+    # PaymentTimeoutJob sweep cadence (PAY-06). Default 60s — coarse enough to keep DB
+    # load negligible; fine enough that abandoned checkouts release stock within ~1 min
+    # of expiration. Overridable per-environment via PAYMENT_TIMEOUT_SCAN_DELAY_MS.
+    scan-delay-ms: ${PAYMENT_TIMEOUT_SCAN_DELAY_MS:60000}
+
 app:
   clients:
     order:

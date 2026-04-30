@@ -147,6 +147,36 @@ public class PaymentTransactionalService {
         return true;
     }
 
+    /**
+     * Mark a PENDING payment TIMED_OUT from the scheduled timeout sweep. Idempotent —
+     * status guard ensures only PENDING rows are transitioned, so a callback racing with
+     * the timeout sweep (T-06-13) cannot double-emit terminal events: the first writer wins.
+     *
+     * <p>Writes exactly one {@code payment.failed} outbox event per transition with
+     * {@code reason=TIMEOUT} and {@code errorCode=PAYMENT_TIMEOUT}. The downstream
+     * compensation path (inventory release, order cancel) is identical to a callback
+     * decline — only the {@code errorCode} taxonomy distinguishes the two surfaces.
+     *
+     * @return {@code true} if the payment was transitioned (one outbox row written);
+     *         {@code false} if the row was already terminal (no-op).
+     */
+    @Transactional
+    public boolean timeoutFromScheduler(UUID paymentId) {
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() ->
+            new IllegalStateException("payment.timeout: payment row missing for " + paymentId));
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            LOG.info("payment.timeout: payment {} already terminal ({}), skipping timeout", paymentId, payment.getStatus());
+            return false;
+        }
+        payment.markTimedOut();
+        paymentRepository.save(payment);
+        // Same envelope shape as failFromCallback so order-service / inventory-service
+        // compensation consumers do not branch on timeout-vs-decline (PAY-06 + QUAL-05).
+        publishPaymentFailed(payment, "TIMEOUT", "PAYMENT_TIMEOUT");
+        LOG.info("payment.timeout: payment {} timed out", paymentId);
+        return true;
+    }
+
     private void publishPaymentCompleted(Payment payment, String iyzicoPaymentId) {
         UUID eventId = UUID.randomUUID();
         // Saga schema requires (orderId, paymentId, iyzicoPaymentId, amount, currency).
