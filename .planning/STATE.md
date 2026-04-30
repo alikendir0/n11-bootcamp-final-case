@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 6 context gathered
-last_updated: "2026-04-30T11:44:11.862Z"
+last_updated: "2026-04-30T12:02:05.704Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 13
   completed_phases: 5
   total_plans: 31
-  completed_plans: 26
-  percent: 84
+  completed_plans: 27
+  percent: 87
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 06 (payment-iyzico) — EXECUTING
-Plan: 2 of 6
-Next: Execute 06-02-PLAN.md — order-service internal payment context endpoint + payment-service client
+Plan: 3 of 6
+Next: Execute 06-03-PLAN.md — real Iyzico Checkout Form initialization and pending payment persistence
 Status: Ready to execute
 Last activity: 2026-04-30
 
-Progress: [████████░░] 84%
+Progress: [█████████░] 87%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [████████░░] 84%
 - Trend: Wave 2 unit cost stabilized at ~13-17 min in Phase 1 once Jib pre-build pattern was canonized in 01-05 and replicated in 01-06. Phase 2's recon plans came in at ~5-7 min apiece — recon tooling is npm-driven (no Gradle pre-build), and the Decision Matrix subsection paste was a single Edit operation. Recommend Phase 3 plans (Identity + Gateway Auth) re-baseline back to Phase 1's ~14-min Wave 2 unit cost given the Jib + Spring Boot return.
 
 *Updated after each plan completion*
+| Phase 06-payment-iyzico P02 | 4min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,9 @@ Recent decisions affecting current work:
 - 2026-04-28 (Plan 01-06): Pitfall #2 (gateway reactive vs MVC classpath collision) structurally locked down. configurations.all { exclude(group=org.springframework.boot, module=spring-boot-starter-tomcat); exclude(... starter-web); exclude(org.springdoc, springdoc-openapi-starter-webmvc-ui) } in api-gateway/build.gradle.kts. ./gradlew :api-gateway:dependencies --configuration runtimeClasspath shows zero matches for any of those.
 - 2026-04-30 (Plan 06-01): PUBLIC_BASE_URL is the single source for Iyzico callback URL derivation; payment-service normalizes trailing slashes and appends /api/v1/payments/iyzico/callback.
 - 2026-04-30 (Plan 06-01): Iyzico Checkout Form integration uses a narrow neutral adapter contract; SDK embedded-form HTML is not exposed by payment-service public contracts.
+- [Phase 06]: Payment-service obtains Iyzico buyer/address/item inputs through order-service internal REST, preserving schema ownership and keeping PII out of stock.reserved.
+- [Phase 06]: Payment context endpoint remains under /internal/orders and no api-gateway route was added; Docker mesh/gateway-only exposure remains the trust boundary.
+- [Phase 06]: 404 from order-service is treated as a non-retryable payment initialization failure with a sanitized message.
 
 ### Pending Todos
 
@@ -133,7 +137,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-30T11:44:11.852Z
-Stopped at: Phase 6 context gathered
+Last session: 2026-04-30T11:51:08.790Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
-Next: Execute 06-02-PLAN.md — order-service internal payment context endpoint + payment-service client
+Next: Execute 06-03-PLAN.md — real Iyzico Checkout Form initialization and pending payment persistence

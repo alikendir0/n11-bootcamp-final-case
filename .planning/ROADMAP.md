@@ -190,7 +190,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
   **Wave 1** — payment foundation + internal context (parallel)
   - [x] 06-01-PLAN.md — Iyzico SDK/config/schema/adapter contract for sandbox Checkout Form (`PAY-01, PAY-04, PAY-05`)
-  - [ ] 06-02-PLAN.md — order-service internal payment context endpoint + payment-service client (`PAY-01, PAY-02`)
+  - [x] 06-02-PLAN.md — order-service internal payment context endpoint + payment-service client (`PAY-01, PAY-02`)
 
   **Wave 2** *(blocked on Wave 1 completion)* — Checkout Form initialization
   - [ ] 06-03-PLAN.md — `stock.reserved` initializes one reusable pending Iyzico checkout link (`PAY-01, PAY-02, PAY-03`)
