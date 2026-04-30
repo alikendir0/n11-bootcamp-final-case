@@ -166,7 +166,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 05-02-PLAN.md — cart-service module + V2 Flyway + REST controller + product-snapshot client + cart.q.order-confirmed consumer + Testcontainers tests (`CART-01..06, ARCH-07, ARCH-08`) - DONE 2026-04-30 (commits 60cde57, 66dd389, b4ddb22)
 
   **Wave 2** *(blocked on Wave 1)* — order-service end-to-end
-  - [ ] 05-03-PLAN.md — order-service module + V2 Flyway + 4 saga consumers + Idempotency-Key dedup + outbox publisher + cancel endpoint + Testcontainers tests (`ORD-01..06, ARCH-06, ARCH-07, ARCH-08, QUAL-03`)
+  - [x] 05-03-PLAN.md — order-service module + V2 Flyway + 4 saga consumers + Idempotency-Key dedup + outbox publisher + cancel endpoint + Testcontainers tests (`ORD-01..06, ARCH-06, ARCH-07, ARCH-08, QUAL-03`) - DONE 2026-04-30 (commits 21313ec, f847684, 981bc4f)
 
   **Wave 3** *(blocked on Wave 2)* — payment-service skeleton + inventory comp + saga E2E
   - [ ] 05-04-PLAN.md — payment-service skeleton + StockReservedConsumer + inventory-service compensation consumers (CD-08 + CD-09) + saga publishing E2E test in infra-tests (`ARCH-06, ARCH-07, ARCH-08, QUAL-03`)
@@ -274,7 +274,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 2. Frontend Recon + Toolchain Lock | 0/TBD | Not started | - |
 | 3. Identity + Gateway Auth | 0/6 | Not started | - |
 | 4. Catalog + Inventory | 3/3 | Complete | 2026-04-29 |
-| 5. Cart & Order Skeleton | 0/TBD | Not started | - |
+| 5. Cart & Order Skeleton | 3/5 | In progress | - |
 | 6. Payment (Iyzico) | 0/TBD | Not started | - |
 | 7. Notification (Saga Closure) | 0/TBD | Not started | - |
 | 8. AI Port + Adapter + Agent Toolset | 0/TBD | Not started | - |

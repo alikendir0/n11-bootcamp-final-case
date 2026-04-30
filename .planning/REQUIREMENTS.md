@@ -45,12 +45,12 @@
 
 ### Order
 
-- [ ] **ORD-01**: User can convert cart to a pending order via checkout (`POST /orders` accepts `addressId`, `paymentMethod`)
-- [ ] **ORD-02**: order-service publishes `order.created` event on order creation, kicking off the saga
-- [ ] **ORD-03**: User can view their order list ("Siparişlerim") sorted by date desc
-- [ ] **ORD-04**: User can view order detail with status timeline ("Sipariş Alındı → Hazırlanıyor → Kargoya Verildi → Teslim Edildi")
-- [ ] **ORD-05**: Order status reflects saga progress (PENDING → STOCK_RESERVED → PAID → CONFIRMED → FAILED → CANCELLED)
-- [ ] **ORD-06**: order-service exposes REST API documented via Springdoc OpenAPI
+- [x] **ORD-01**: User can convert cart to a pending order via checkout (`POST /orders` accepts `addressId`, `paymentMethod`)
+- [x] **ORD-02**: order-service publishes `order.created` event on order creation, kicking off the saga
+- [x] **ORD-03**: User can view their order list ("Siparişlerim") sorted by date desc
+- [x] **ORD-04**: User can view order detail with status timeline ("Sipariş Alındı → Hazırlanıyor → Kargoya Verildi → Teslim Edildi")
+- [x] **ORD-05**: Order status reflects saga progress (PENDING → STOCK_RESERVED → PAID → CONFIRMED → FAILED → CANCELLED)
+- [x] **ORD-06**: order-service exposes REST API documented via Springdoc OpenAPI
 
 ### Payment (Iyzico)
 
@@ -120,9 +120,9 @@
 - [x] **ARCH-03**: Spring Cloud Config Server centralizes per-service config; bootstrap properties point to it *(Plan 01-05: config-server native profile + shared CD-05 baseline at config/application.yml; clients use spring.config.import per Cross-Cutting #2 in 01-06+)*
 - [x] **ARCH-04**: Spring Cloud Gateway (reactive) fronts all business services; routes via Eureka discovery
 - [ ] **ARCH-05**: RabbitMQ messaging — exchanges and queues defined per saga step; dead-letter queue per consumer
-- [ ] **ARCH-06**: SAGA pattern implemented as choreography via RabbitMQ events — full happy path + 4 compensation paths (stock-fail, payment-fail, user-cancel, payment-timeout)
-- [ ] **ARCH-07**: Saga consumers are idempotent — `processed_events` inbox table keyed by event ID; integration test for redelivery
-- [ ] **ARCH-08**: Saga events carry correlation ID + idempotency key + business payload; correlation ID flows through MDC/SLF4J for log tracing
+- [x] **ARCH-06**: SAGA pattern implemented as choreography via RabbitMQ events — full happy path + 4 compensation paths (stock-fail, payment-fail, user-cancel, payment-timeout)
+- [x] **ARCH-07**: Saga consumers are idempotent — `processed_events` inbox table keyed by event ID; integration test for redelivery
+- [x] **ARCH-08**: Saga events carry correlation ID + idempotency key + business payload; correlation ID flows through MDC/SLF4J for log tracing
 - [ ] **ARCH-09**: Schema-per-service on a single PostgreSQL host; each service has a distinct DB user with role-level deny on other schemas (boundary enforced at the data layer)
 - [ ] **ARCH-10**: Per-service Flyway migrations; no cross-service joins; no shared tables
 - [~] **ARCH-11**: All services start cleanly even if Eureka is briefly unreachable (registration retry with backoff) *(Plan 01-05 SERVER-half: eureka-server posture documented — no client retry config installed on the server itself per Pitfall #4 boundary; CLIENT-half retry config baked into service-template/application.yml in Plan 01-07)*
@@ -132,7 +132,7 @@
 
 - [ ] **QUAL-01**: Each service has Springdoc OpenAPI; Swagger UI per service; gateway aggregates docs
 - [ ] **QUAL-02**: Each service has at least one smoke unit test on its core domain logic
-- [ ] **QUAL-03**: Each service has 1–2 integration tests on the critical path (Testcontainers for Postgres + RabbitMQ where applicable)
+- [x] **QUAL-03**: Each service has 1–2 integration tests on the critical path (Testcontainers for Postgres + RabbitMQ where applicable)
 - [ ] **QUAL-04**: Saga happy-path integration test (with Awaitility async assertions) covering OrderCreated → StockReserved → PaymentCompleted → OrderConfirmed
 - [ ] **QUAL-05**: Saga compensation integration test for `payment.failed` (covers stock release)
 - [~] **QUAL-06**: Structured JSON logs (Logback configured) with correlation ID propagated via MDC — MDC propagation wires complete (Plan 01-04: 5 wires in common-logging registered via Spring Boot 3 AutoConfiguration.imports); Logback structured-JSON config (LogstashEncoder + `<includeMdcKeyName>correlationId</includeMdcKeyName>`) pending in Plan 01-07 service-template/logback-spring.xml

@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 5 context gathered (auto mode) — 11 gray areas auto-resolved, common-outbox refactor + 999.2 ArchUnit gate locked
-last_updated: "2026-04-30T08:14:37Z"
-last_activity: 2026-04-30 -- Phase 05 Plan 02 complete (cart-service)
+last_updated: "2026-04-30T08:32:30Z"
+last_activity: 2026-04-30 -- Phase 05 Plan 03 complete (order-service: 4 endpoints + Idempotency-Key + 4 saga consumers + 5 tests)
 progress:
   total_phases: 13
   completed_phases: 4
   total_plans: 25
-  completed_plans: 22
+  completed_plans: 23
   percent: 84
 ---
 
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 05 (cart-order-skeleton) — EXECUTING
-Plan: 3 of 5
-Next: Phase 05 Plan 03 (order-service)
+Plan: 4 of 5
+Next: Phase 05 Plan 04 (payment-service skeleton + inventory compensation + saga E2E)
 Status: Executing Phase 05
-Last activity: 2026-04-30 -- Phase 05 Plan 02 complete (cart-service: REST surface + UPSERT + saga consumer)
+Last activity: 2026-04-30 -- Phase 05 Plan 03 complete (order-service: 4 endpoints + Idempotency-Key + 4 saga consumers + 5 tests)
 
 Progress: [████░░░░░░] 36% (4 of 11 phases complete)
 
@@ -98,6 +98,11 @@ Recent decisions affecting current work:
 - 2026-04-30 (Plan 05-01): D-10 ArchUnit gate landed — AmqpAckModeArchTest in infra-tests/com.n11.infra.arch asserts every @RabbitListener method uses Message parameter + no Channel parameter. Fail-fast gate for the 999.2 MANUAL-ack regression (commit 2b61689).
 - 2026-04-30 (Plan 05-02): awaitility pinned to 4.2.0 in cart-service (plan specified 4.3.1 which does not exist in Maven Central; 4.2.0 matches inventory-service).
 - 2026-04-30 (Plan 05-02): cart-service does NOT import :common-outbox (consumer-only service — no outbox needed). ProcessedEvent entity is local to com.n11.cart.messaging.
+- 2026-04-30 (Plan 05-03): Two-bean @Transactional split: OrderService (orchestration/sync REST/idempotency check, no @Transactional) + OrderTransactionalService (@Transactional — DB persist). Sync REST calls (CartClient, IdentityClient, ProductClient) MUST happen BEFORE any @Transactional boundary opens (Pitfall #1).
+- 2026-04-30 (Plan 05-03): D-01 price drift detection: strict BigDecimal equality check of cart unit_price_snapshot vs current product price BEFORE @Transactional opens; raises PriceDriftException → HTTP 409 with ProblemDetail type=price-drift + updatedItems[] custom property (RFC-7807).
+- 2026-04-30 (Plan 05-03): Idempotency-Key (UUID) dedup on POST /orders: (idempotency_key, user_id) composite PK in order_idempotency_keys table. Repeat call returns existing orderId (200) not new order (202). Cross-user collision on same key returns 409.
+- 2026-04-30 (Plan 05-03): Saga consumer shared count-assertion fix: tests sharing same Spring context + Postgres container must filter processed_events by eventId (not count() all rows) — otherwise later-running tests see counts from previous test data accumulated in the same table.
+- 2026-04-30 (Plan 05-03): PaymentCompletedConsumer accepts both PENDING and STOCK_RESERVED as valid source states — race condition where payment.completed arrives before stock.reserved is processed requires both to be valid transition sources.
 - 2026-04-28 (Plan 01-06): Pitfall #2 (gateway reactive vs MVC classpath collision) structurally locked down. configurations.all { exclude(group=org.springframework.boot, module=spring-boot-starter-tomcat); exclude(... starter-web); exclude(org.springdoc, springdoc-openapi-starter-webmvc-ui) } in api-gateway/build.gradle.kts. ./gradlew :api-gateway:dependencies --configuration runtimeClasspath shows zero matches for any of those.
 
 ### Pending Todos
@@ -120,7 +125,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-30T08:14:37Z
-Stopped at: Phase 05 Plan 02 complete — cart-service: 4 REST endpoints + native UPSERT + D-07 saga consumer + 4 tests green
-Resume file: .planning/phases/05-cart-order-skeleton/05-03-PLAN.md
-Next: Phase 05 Plan 03 (order-service)
+Last session: 2026-04-30T08:32:30Z
+Stopped at: Phase 05 Plan 03 complete — order-service: 4 endpoints (POST /orders + GET /orders + GET /orders/{id} + DELETE /orders/{id}) + Idempotency-Key dedup + 4 saga consumers + 5 integration tests green
+Resume file: .planning/phases/05-cart-order-skeleton/05-04-PLAN.md
+Next: Phase 05 Plan 04 (payment-service skeleton + inventory compensation + saga E2E)
