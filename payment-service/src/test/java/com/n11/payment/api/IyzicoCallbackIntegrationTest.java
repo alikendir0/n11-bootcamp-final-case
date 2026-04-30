@@ -179,8 +179,10 @@ class IyzicoCallbackIntegrationTest {
             .filter(e -> e.getPayload().contains(orderId.toString()))
             .count();
         assertThat(completed).isEqualTo(1L);
-        // retrieve may be called twice; the second pass must not write a second outbox row.
-        verify(iyzicoCheckoutClient, times(2)).retrieve(any(), any());
+        // Duplicate terminal callbacks short-circuit: payment is already COMPLETED,
+        // so retrieve is called exactly once (the second delivery returns the cached
+        // terminal status without re-hitting Iyzico). T-06-10 mitigation.
+        verify(iyzicoCheckoutClient, times(1)).retrieve(any(), any());
     }
 
     @Test

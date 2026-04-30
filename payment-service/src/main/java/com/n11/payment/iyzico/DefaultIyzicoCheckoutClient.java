@@ -5,12 +5,14 @@ import com.iyzipay.model.Address;
 import com.iyzipay.model.BasketItem;
 import com.iyzipay.model.BasketItemType;
 import com.iyzipay.model.Buyer;
+import com.iyzipay.model.CheckoutForm;
 import com.iyzipay.model.CheckoutFormInitialize;
 import com.iyzipay.model.Currency;
 import com.iyzipay.model.Locale;
 import com.iyzipay.model.PaymentGroup;
 import com.iyzipay.model.Status;
 import com.iyzipay.request.CreateCheckoutFormInitializeRequest;
+import com.iyzipay.request.RetrieveCheckoutFormRequest;
 import com.n11.payment.order.PaymentInitializationException;
 import org.springframework.stereotype.Component;
 
@@ -33,15 +35,23 @@ public class DefaultIyzicoCheckoutClient implements IyzicoCheckoutClient {
     private final IyzicoProperties properties;
     private final Options options;
     private final CheckoutInitializer initializer;
+    private final CheckoutRetriever retriever;
 
     public DefaultIyzicoCheckoutClient(IyzicoProperties properties, Options options) {
-        this(properties, options, CheckoutFormInitialize::create);
+        this(properties, options, CheckoutFormInitialize::create, CheckoutForm::retrieve);
     }
 
+    /** Convenience overload used by existing initialize-only tests (Plan 06-03). */
     DefaultIyzicoCheckoutClient(IyzicoProperties properties, Options options, CheckoutInitializer initializer) {
+        this(properties, options, initializer, CheckoutForm::retrieve);
+    }
+
+    DefaultIyzicoCheckoutClient(IyzicoProperties properties, Options options,
+                                CheckoutInitializer initializer, CheckoutRetriever retriever) {
         this.properties = Objects.requireNonNull(properties, "properties must not be null");
         this.options = Objects.requireNonNull(options, "options must not be null");
         this.initializer = Objects.requireNonNull(initializer, "initializer must not be null");
+        this.retriever = Objects.requireNonNull(retriever, "retriever must not be null");
     }
 
     @Override
@@ -71,7 +81,38 @@ public class DefaultIyzicoCheckoutClient implements IyzicoCheckoutClient {
 
     @Override
     public IyzicoCheckoutResult.RetrievedCheckout retrieve(String token, String conversationId) {
-        throw new UnsupportedOperationException("Checkout Form retrieve is implemented in Plan 06-04");
+        if (isBlank(token)) {
+            throw new PaymentInitializationException("IYZICO_RETRIEVE_FAILED: token missing");
+        }
+        RetrieveCheckoutFormRequest request = new RetrieveCheckoutFormRequest();
+        request.setLocale(Locale.TR.getValue());
+        request.setConversationId(conversationId);
+        request.setToken(token);
+
+        CheckoutForm response;
+        try {
+            response = retriever.retrieve(request, options);
+        } catch (RuntimeException ex) {
+            throw new PaymentInitializationException("IYZICO_RETRIEVE_FAILED: " + ex.getClass().getSimpleName(), ex);
+        }
+        if (response == null) {
+            throw new PaymentInitializationException("IYZICO_RETRIEVE_FAILED: empty response");
+        }
+        if (!Status.SUCCESS.getValue().equals(response.getStatus())) {
+            // Adapter-level retrieve failure (auth/transport/etc.). Domain mdStatus/paymentStatus
+            // failures still come through with status==success but paymentStatus!=SUCCESS.
+            throw new PaymentInitializationException("IYZICO_RETRIEVE_FAILED: " + safe(response.getErrorCode()));
+        }
+        if (!response.verifySignature(options.getSecretKey())) {
+            throw new PaymentInitializationException("IYZICO_SIGNATURE_INVALID");
+        }
+        return new IyzicoCheckoutResult.RetrievedCheckout(
+            response.getToken(),
+            response.getPaymentId(),
+            response.getPaymentStatus(),
+            response.getFraudStatus(),
+            response.getErrorCode(),
+            response.getErrorMessage());
     }
 
     static CreateCheckoutFormInitializeRequest buildRequest(
@@ -190,5 +231,10 @@ public class DefaultIyzicoCheckoutClient implements IyzicoCheckoutClient {
     @FunctionalInterface
     interface CheckoutInitializer {
         CheckoutFormInitialize create(CreateCheckoutFormInitializeRequest request, Options options);
+    }
+
+    @FunctionalInterface
+    interface CheckoutRetriever {
+        CheckoutForm retrieve(RetrieveCheckoutFormRequest request, Options options);
     }
 }

@@ -1,6 +1,8 @@
 package com.n11.payment.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.n11.payment.iyzico.IyzicoCheckoutClient;
+import com.n11.payment.messaging.PaymentTransactionalService;
 import com.n11.payment.payment.Payment;
 import com.n11.payment.payment.PaymentRepository;
 import com.n11.payment.payment.PaymentStatus;
@@ -52,6 +54,8 @@ class PaymentControllerTest {
     @Autowired ObjectMapper objectMapper;
 
     @MockBean PaymentRepository paymentRepository;
+    @MockBean IyzicoCheckoutClient iyzicoCheckoutClient;
+    @MockBean PaymentTransactionalService paymentTransactionalService;
 
     @Test
     void getPayment_returns202_whenNoPaymentRowYet() throws Exception {
