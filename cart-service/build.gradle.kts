@@ -43,7 +43,7 @@ dependencies {
     testImplementation("org.testcontainers:rabbitmq")
     testImplementation("org.testcontainers:junit-jupiter")
 
-    testImplementation("org.awaitility:awaitility:4.3.1")
+    testImplementation("org.awaitility:awaitility:4.2.0")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
