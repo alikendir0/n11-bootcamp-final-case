@@ -202,7 +202,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 06-05-PLAN.md — payment-timeout job and payment-failure compensation E2E (`PAY-03, PAY-06, QUAL-05`)
 
   **Wave 5** *(blocked on 06-04 + 06-05)* — live sandbox runbook
-  - [ ] 06-06-PLAN.md — Cloudflare/ngrok runbook + Iyzico sandbox smoke checkpoint (`PAY-05, PAY-07`)
+  - [x] 06-06-PLAN.md — Cloudflare/ngrok runbook + Iyzico sandbox smoke checkpoint (`PAY-05, PAY-07`)
 
   **Cross-cutting constraints**:
   - `PUBLIC_BASE_URL` is the single source for callback URLs (CONTEXT D-02); no separate drifting callback URL variable.
