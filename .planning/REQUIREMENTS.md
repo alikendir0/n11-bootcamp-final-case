@@ -293,16 +293,16 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | ARCH-03 | Phase 1 (01-05) | Complete |
 | ARCH-04 | Phase 1 (01-06) | Complete |
 | ARCH-05 | Phase 1 | Pending |
-| ARCH-06 | Phase 5 | Pending |
-| ARCH-07 | Phase 5 | Pending |
-| ARCH-08 | Phase 5 | Pending |
+| ARCH-06 | Phase 5 (05-04) | Complete |
+| ARCH-07 | Phase 5 (05-01, 05-04) | Complete |
+| ARCH-08 | Phase 5 (05-04) | Complete |
 | ARCH-09 | Phase 1 | Pending |
 | ARCH-10 | Phase 1 | Pending |
 | ARCH-11 | Phase 1 (01-05 + 01-07) | Partial (01-05 server-half done — Pitfall #4 boundary; 01-07 client-half pending — service-template retry+backoff config) |
 | ARCH-12 | Phase 1 | Pending |
 | QUAL-01 | Phase 1 (01-06 + Phase 4+) | Partial (01-06: Springdoc aggregator config with urls=[] empty; Phase 4+ phases append per-service entries as they come online) |
 | QUAL-02 | Phase 3 | Pending |
-| QUAL-03 | Phase 5 | Pending |
+| QUAL-03 | Phase 5 (05-04) | Complete |
 | QUAL-04 | Phase 7 | Pending |
 | QUAL-05 | Phase 6 | Pending |
 | QUAL-06 | Phase 1 (01-04 + 01-07) | Partial (01-04 done — MDC wires; 01-07 pending — Logback JSON encoder) |

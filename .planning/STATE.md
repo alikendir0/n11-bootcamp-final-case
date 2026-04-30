@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 5 context gathered (auto mode) — 11 gray areas auto-resolved, common-outbox refactor + 999.2 ArchUnit gate locked
-last_updated: "2026-04-30T08:32:30Z"
-last_activity: 2026-04-30 -- Phase 05 Plan 03 complete (order-service: 4 endpoints + Idempotency-Key + 4 saga consumers + 5 tests)
+last_updated: "2026-04-30T09:45:13Z"
+last_activity: 2026-04-30 -- Phase 05 Plan 04 complete (payment-service skeleton + CD-08/CD-09 compensation + saga E2E test)
 progress:
   total_phases: 13
   completed_phases: 4
   total_plans: 25
-  completed_plans: 23
-  percent: 84
+  completed_plans: 24
+  percent: 88
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 05 (cart-order-skeleton) — EXECUTING
-Plan: 4 of 5
-Next: Phase 05 Plan 04 (payment-service skeleton + inventory compensation + saga E2E)
+Plan: 5 of 5
+Next: Phase 05 Plan 05 (gateway routes + docker-compose + smoke runbook)
 Status: Executing Phase 05
-Last activity: 2026-04-30 -- Phase 05 Plan 03 complete (order-service: 4 endpoints + Idempotency-Key + 4 saga consumers + 5 tests)
+Last activity: 2026-04-30 -- Phase 05 Plan 04 complete (payment-service skeleton + CD-08/CD-09 compensation + saga E2E test)
 
 Progress: [████░░░░░░] 36% (4 of 11 phases complete)
 
@@ -103,6 +103,10 @@ Recent decisions affecting current work:
 - 2026-04-30 (Plan 05-03): Idempotency-Key (UUID) dedup on POST /orders: (idempotency_key, user_id) composite PK in order_idempotency_keys table. Repeat call returns existing orderId (200) not new order (202). Cross-user collision on same key returns 409.
 - 2026-04-30 (Plan 05-03): Saga consumer shared count-assertion fix: tests sharing same Spring context + Postgres container must filter processed_events by eventId (not count() all rows) — otherwise later-running tests see counts from previous test data accumulated in the same table.
 - 2026-04-30 (Plan 05-03): PaymentCompletedConsumer accepts both PENDING and STOCK_RESERVED as valid source states — race condition where payment.completed arrives before stock.reserved is processed requires both to be valid transition sources.
+- 2026-04-30 (Plan 05-04): PaymentServiceTestConfig with excludeFilters for @SpringBootApplication annotations required in infra-tests — prevents other service Application classes from expanding @EntityScan to entire codebase when multi-service classpath is active.
+- 2026-04-30 (Plan 05-04): Bean disambiguation mandatory for multi-service classpath: @Entity(name=...), @RestController(beanName), @Component(beanName) required for all shared-name classes (SampleHealthController, ProcessedEvent, OutboxPoller) — apply to any new service before adding to infra-tests deps.
+- 2026-04-30 (Plan 05-04): infra-tests Flyway must use classpath:db/migration/<schema> subdirectory not classpath:db/migration — multiple services have V1+V2 at base path causing version collision. Pattern: copy service migrations to infra-tests/src/test/resources/db/migration/<schema>/.
+- 2026-04-30 (Plan 05-04): Sniffer queue in E2E tests must NOT use .autoDelete() — autoDelete causes queue deletion between Awaitility poll iterations when RabbitTemplate.receive() terminates its internal consumer. Use nonDurable + no autoDelete for sniffer queues.
 - 2026-04-28 (Plan 01-06): Pitfall #2 (gateway reactive vs MVC classpath collision) structurally locked down. configurations.all { exclude(group=org.springframework.boot, module=spring-boot-starter-tomcat); exclude(... starter-web); exclude(org.springdoc, springdoc-openapi-starter-webmvc-ui) } in api-gateway/build.gradle.kts. ./gradlew :api-gateway:dependencies --configuration runtimeClasspath shows zero matches for any of those.
 
 ### Pending Todos
@@ -125,7 +129,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-30T08:32:30Z
-Stopped at: Phase 05 Plan 03 complete — order-service: 4 endpoints (POST /orders + GET /orders + GET /orders/{id} + DELETE /orders/{id}) + Idempotency-Key dedup + 4 saga consumers + 5 integration tests green
-Resume file: .planning/phases/05-cart-order-skeleton/05-04-PLAN.md
-Next: Phase 05 Plan 04 (payment-service skeleton + inventory compensation + saga E2E)
+Last session: 2026-04-30T09:45:13Z
+Stopped at: Phase 05 Plan 04 complete — payment-service skeleton (D-06) + inventory CD-08/CD-09 compensation consumers + SagaHappyPathE2ETest (Testcontainers Postgres + RabbitMQ, real AMQP, Awaitility 15s, D-09 messageId invariant)
+Resume file: .planning/phases/05-cart-order-skeleton/05-05-PLAN.md
+Next: Phase 05 Plan 05 (gateway routes + docker-compose + smoke runbook)

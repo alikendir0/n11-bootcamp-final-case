@@ -169,7 +169,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 05-03-PLAN.md — order-service module + V2 Flyway + 4 saga consumers + Idempotency-Key dedup + outbox publisher + cancel endpoint + Testcontainers tests (`ORD-01..06, ARCH-06, ARCH-07, ARCH-08, QUAL-03`) - DONE 2026-04-30 (commits 21313ec, f847684, 981bc4f)
 
   **Wave 3** *(blocked on Wave 2)* — payment-service skeleton + inventory comp + saga E2E
-  - [ ] 05-04-PLAN.md — payment-service skeleton + StockReservedConsumer + inventory-service compensation consumers (CD-08 + CD-09) + saga publishing E2E test in infra-tests (`ARCH-06, ARCH-07, ARCH-08, QUAL-03`)
+  - [x] 05-04-PLAN.md — payment-service skeleton + StockReservedConsumer + inventory-service compensation consumers (CD-08 + CD-09) + saga publishing E2E test in infra-tests (`ARCH-06, ARCH-07, ARCH-08, QUAL-03`) - DONE 2026-04-30 (commits b0d1cf8, 22114b0, 3d65e1c)
 
   **Wave 4** *(blocked on Wave 3)* — gateway routes + smoke runbook
   - [ ] 05-05-PLAN.md — api-gateway routes + Springdoc aggregator entries + docker-compose merge + Phase 5 smoke runbook live sign-off (`CART-06, ORD-06, QUAL-01, ARCH-08, QUAL-03`)
