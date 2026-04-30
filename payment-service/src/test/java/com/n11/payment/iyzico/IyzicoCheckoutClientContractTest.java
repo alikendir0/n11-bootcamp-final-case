@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -57,7 +58,7 @@ class IyzicoCheckoutClientContractTest {
         var item = new IyzicoCheckoutResult.BasketItemInput(
             "item-1", "Ürün", "Kategori", "Alt Kategori", "PHYSICAL", new BigDecimal("10.00"));
         var command = new IyzicoCheckoutResult.CheckoutInitializationCommand(
-            UUID.randomUUID(), "conversation-1", new BigDecimal("10.00"), buyer, address, address, java.util.List.of(item));
+            UUID.randomUUID(), "conversation-1", new BigDecimal("10.00"), Instant.now(), buyer, address, address, java.util.List.of(item));
 
         assertThat(command.amount()).isEqualByComparingTo("10.00");
         assertThat(command.buyer().email()).isEqualTo("ali@example.com");

@@ -1,6 +1,7 @@
 package com.n11.payment.iyzico;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ public final class IyzicoCheckoutResult {
         UUID orderId,
         String conversationId,
         BigDecimal amount,
+        Instant createdAt,
         BuyerInput buyer,
         AddressInput shippingAddress,
         AddressInput billingAddress,
