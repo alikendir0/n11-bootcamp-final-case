@@ -2,8 +2,10 @@ package com.n11.identity.address;
 
 import com.n11.identity.address.dto.AddressResponse;
 import com.n11.identity.address.dto.CreateAddressRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,6 +26,20 @@ public class AddressService {
         return addressRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(AddressService::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * D-15: server enforces ownership. Returns 404 (not 403) when the address
+     * is not owned by the caller — opaque, no info leak about address existence.
+     */
+    @Transactional(readOnly = true)
+    public AddressResponse getForUser(UUID userId, UUID addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Adres bulunamadı"));
+        if (!address.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Adres bulunamadı");
+        }
+        return toResponse(address);
     }
 
     /**

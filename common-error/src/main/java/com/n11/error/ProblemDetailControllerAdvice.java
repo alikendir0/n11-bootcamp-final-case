@@ -1,6 +1,8 @@
 package com.n11.error;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -26,6 +28,8 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class ProblemDetailControllerAdvice {
+
+    private static final Logger log = LoggerFactory.getLogger(ProblemDetailControllerAdvice.class);
 
     public static final String CORRELATION_ID_MDC_KEY = "correlationId";
 
@@ -57,7 +61,10 @@ public class ProblemDetailControllerAdvice {
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(Exception exception, HttpServletRequest req) {
         // SECURITY: never echo the raw exception message — anti-leak rule per RESEARCH §14 V7.
-        // The full exception is logged via SLF4J at the consumer service (correlated via correlationId).
+        // The full exception is logged via SLF4J keyed by correlationId; the response body
+        // carries only the sanitized title + correlationId so ops can correlate via logs.
+        log.error("Unhandled exception at {} (correlationId={})",
+                req.getRequestURI(), MDC.get(CORRELATION_ID_MDC_KEY), exception);
         return base(ApiErrorCode.INTERNAL, HttpStatus.INTERNAL_SERVER_ERROR,
             "An unexpected error occurred", req);
     }

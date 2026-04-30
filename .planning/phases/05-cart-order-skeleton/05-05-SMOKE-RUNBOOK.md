@@ -62,7 +62,7 @@ curl -fsS -X POST http://localhost:8080/api/v1/identity/auth/register \
 
 JWT=$(curl -fsS -X POST http://localhost:8080/api/v1/identity/auth/login \
   -H 'Content-Type: application/json' \
-  -d "{\"email\":\"$EMAIL\",\"password\":\"$PASS\"}" | python3 -c 'import json,sys; print(json.load(sys.stdin)["token"])')
+  -d "{\"email\":\"$EMAIL\",\"password\":\"$PASS\"}" | python3 -c 'import json,sys; print(json.load(sys.stdin)["accessToken"])')
 echo "JWT=${JWT:0:30}..."
 ```
 
