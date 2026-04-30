@@ -58,6 +58,11 @@ iyzico:
   timeout-minutes: ${PAYMENT_TIMEOUT_MINUTES:15}
   demo-buyer-identity-number: ${IYZICO_DEMO_BUYER_IDENTITY_NUMBER:74300864791}
 
+app:
+  clients:
+    order:
+      base-url: ${ORDER_SERVICE_BASE_URL:http://order-service:8085}
+
 management:
   endpoints:
     web:
