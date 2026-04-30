@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Cart & Order Skeleton** - cart-service, order-service, RabbitMQ saga skeleton (no Iyzico yet), idempotency inbox — completed 2026-04-30 (5/5 plans, 4 waves; SC-1..SC-5 verified by live smoke test)
 - [x] **Phase 6: Payment (Iyzico)** - Iyzico Checkout Form, public webhook reachability, payment-timeout job, payment-fail compensation — completed 2026-04-30 (6/6 plans; PAY-07 live Iyzico sandbox smoke PASS)
 - [x] **Phase 7: Notification (Saga Closure)** - notification-service mock, saga happy-path closure, end-to-end saga integration test — completed 2026-04-30 (6/6 plans; 07-VERIFICATION.md persisted)
-- [ ] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat
+- [ ] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat (5 plans planned 2026-05-01)
 - [ ] **Phase 9: MCP Server** - mcp-server consumes shared agent-toolset, stdio + HTTP+SSE transports, API-key auth bridge
 - [ ] **Phase 10: Frontend Storefront** - Turkish React storefront: header/footer/hero/listing/PDP/cart/checkout/account
 - [ ] **Phase 11: Frontend Chat Assistant + DevOps Deploy** - Floating chat bubble with SSE streaming, Jib for every service, GH Actions build/test, local docker-compose deploy on the candidate's machine, public demo URL via Cloudflare Tunnel / ngrok, Slack webhook
@@ -253,7 +253,27 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The `agent-toolset` shared Gradle module exports the 10 canonical tools (`search_products`, `get_product`, `list_categories`, `add_to_cart`, `view_cart`, `update_cart_item`, `remove_from_cart`, `create_order`, `get_payment_link`, `get_order_status`); ai-service imports it and dispatches Gemini function-calls through `ToolDispatcher` with ID validation against repos (no hallucinated IDs accepted).
   4. ai-service streams a Turkish chat response via SSE through the gateway, with mid-stream tool-call indicators ("araç çalıştırılıyor..."); the system prompt forces `dil: tr-TR` and a 5-turn mixed-language assertion test passes; conversation state is persisted (Postgres `ai_conversations` + `messages`) and survives page refresh keyed by user-id.
   5. Items added by the chat assistant are visible in the cart-service REST cart (and vice versa) — verified by an integration test that adds via chat tool, reads via cart REST, and asserts equality; chat and a future external MCP both authenticate through the same gateway/JWT path (no parallel auth tree).
-**Plans**: TBD
+**Plans**: 5 plans (4 waves)
+
+  **Wave 0** -- module scaffolds, ai-port + agent-toolset interfaces, gateway SSE route, both Boot apps boot healthy (no deps)
+  - [ ] 08-01-PLAN.md -- 4 new Gradle modules + ai-port (zero-dep) + agent-toolset interfaces + ai-service/search-service Boot apps + Flyway V1 + config-server YAMLs + gateway SSE route activation + AiPortContractTest (`AI-01, AI-14`)
+
+  **Wave 1** *(blocked on 08-01)* -- parallel: tools + adapters
+  - [ ] 08-02-PLAN.md -- 10 canonical agent tools + per-service HTTP clients + AbstractAgentTool + AgentToolRegistryTest + ToolSchemaContractTest (`AI-05, AI-15`)
+  - [ ] 08-03-PLAN.md -- GeminiChatAdapter + GeminiEmbeddingAdapter + EchoChatProvider + GeminiTypeMapper + ApplicationReadyEvent model probe (Pitfall #1) + ApiErrorCode extension + EchoProviderActivationTest (`AI-02, AI-03, AI-04, AI-06`)
+
+  **Wave 2** *(blocked on 08-02 + 08-03)* -- ai-service business logic
+  - [ ] 08-04-PLAN.md -- Conversation/Message JPA + GuestSessionStore + ToolDispatcher (D-04 + D-08 provenance) + ChatService manual loop + SystemPromptProvider + ChatController + ChatStreamController (typed SSE) + 4 integration tests (`AI-06, AI-07, AI-08, AI-09, AI-10`)
+
+  **Wave 3** *(blocked on 08-04)* -- search-service skeleton + infra-tests + smoke runbook + human-verify
+  - [ ] 08-05-PLAN.md -- search-service EmbeddingProvider stub + SearchServiceContextTest + infra-tests classpath extension (AiServiceTestConfig) + 08-SMOKE-RUNBOOK.md + human-verify SOLID swap demo + AI-15 cart-bridge demo (`QUAL-08`)
+
+  **Cross-cutting constraints** (recurring across >=2 plans):
+  - Pitfall #7 sealed boundary: `com.google.genai` imports allowed ONLY in ai-service/.../infrastructure/llm/ (Plans 01 + 03 + 05 verify)
+  - Pitfall #10 ID provenance: ToolDispatcher.seenIds enforced centrally (Plan 04), NOT in tool implementations (Plan 02 contract — keeps mcp-server hand-off clean)
+  - X-User-Id forwarding (D-05): ai-service receives gateway-injected header; tool clients (Plan 02) and ChatService (Plan 04) propagate to outbound HTTP
+  - SSE caveat (api-contracts §6): gateway route metadata.response-timeout: -1 + no body filters (Plan 01 activates the anchor)
+
 **Risks**: Pitfall #1 (Gemini 3 Flash model identifier — verify `gemini-3-flash-preview` at impl, fallback `gemini-2.5-flash`), Pitfall #7 (leaky `ChatProvider` abstraction — collapses the SOLID thesis), Pitfall #10 (hallucinated tool args — dispatcher must validate IDs)
 **Research need**: HIGH — Gemini function-calling response shape, conversation state design, prompt template, model identifier verification at impl time.
 
@@ -317,7 +337,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 5. Cart & Order Skeleton | 5/5 | Complete | 2026-04-30 |
 | 6. Payment (Iyzico) | 6/6 | Complete | 2026-04-30 |
 | 7. Notification (Saga Closure) | 6/6 | Complete | 2026-04-30 |
-| 8. AI Port + Adapter + Agent Toolset | 0/TBD | Not started | - |
+| 8. AI Port + Adapter + Agent Toolset | 0/5 | Planned | - |
 | 9. MCP Server | 0/TBD | Not started | - |
 | 10. Frontend Storefront | 0/TBD | Not started | - |
 | 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
