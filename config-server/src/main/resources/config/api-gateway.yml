@@ -75,6 +75,24 @@ spring:
                 - Path=/api/v1/inventory/**
               filters:
                 - StripPrefix=2
+            # Phase 5: cart-service route (api-contracts.md §routing table).
+            # StripPrefix=2 strips /api/v1 → forwards /cart/... to controller @RequestMapping("/cart").
+            - id: cart-service
+              uri: lb://CART-SERVICE
+              predicates:
+                - Path=/api/v1/cart/**
+              filters:
+                - StripPrefix=2
+            # Phase 5: order-service route (api-contracts.md §routing table).
+            # StripPrefix=2 strips /api/v1 → forwards /orders/... to controller @RequestMapping("/orders").
+            - id: order-service
+              uri: lb://ORDER-SERVICE
+              predicates:
+                - Path=/api/v1/orders/**
+              filters:
+                - StripPrefix=2
+            # NOTE: NO payment-service route in Phase 5 (D-06 — no public REST in v1).
+            # Phase 6 adds /payments/checkout + the gateway route.
 
           # ─────────────────────────────────────────────────────────────────
           # Phase 8 SSE forward-reference (DO NOT enable in Phase 1 -- no
@@ -139,3 +157,9 @@ springdoc:
         url: /api/v1/products/v3/api-docs
       - name: inventory-service
         url: /api/v1/inventory/v3/api-docs
+      # Phase 5: cart-service and order-service Springdoc surfaces (CART-06, ORD-06).
+      # NO payment-service entry — D-06 (no public REST in v1).
+      - name: cart-service
+        url: /api/v1/cart/v3/api-docs
+      - name: order-service
+        url: /api/v1/orders/v3/api-docs
