@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 6 context gathered
-last_updated: "2026-04-30T11:20:52.314Z"
-last_activity: 2026-04-30 -- Phase 06 planning complete
+last_updated: "2026-04-30T11:44:11.862Z"
+last_activity: 2026-04-30
 progress:
   total_phases: 13
   completed_phases: 5
   total_plans: 31
-  completed_plans: 25
-  percent: 81
+  completed_plans: 26
+  percent: 84
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-28)
 
 **Core value:** A graders-impressing demonstration that the candidate can architect a clean, SOLID, microservices system AND layer differentiated AI capabilities on top of it.
-**Current focus:** Phase 05 — cart-order-skeleton
+**Current focus:** Phase 06 — payment-iyzico
 
 ## Current Position
 
-Phase: 05 (cart-order-skeleton) — VERIFIED + CLOSED (5/5 plans, 4/5 SCs pass, SC-1 KDV deferred to Phase 10 per HUMAN-UAT)
-Plan: 5 of 5 — DONE
-Next: Phase 06 (payment Iyzico) — Cloudflare Tunnel vs ngrok decision is the first gray area to resolve in /gsd-discuss-phase 6
+Phase: 06 (payment-iyzico) — EXECUTING
+Plan: 2 of 6
+Next: Execute 06-02-PLAN.md — order-service internal payment context endpoint + payment-service client
 Status: Ready to execute
-Last activity: 2026-04-30 -- Phase 06 planning complete
+Last activity: 2026-04-30
 
-Progress: [█████░░░░░░] 45% (5 of 11 phases complete)
+Progress: [████████░░] 84%
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Progress: [█████░░░░░░] 45% (5 of 11 phases complete)
 | 03 (identity-gateway-auth) | 6 | ~84 min | ~14 min |
 | 04 (catalog-inventory) Plan 01 | 1 | ~32 min | ~32 min |
 | 04 (catalog-inventory) Plan 02 | 4 | ~95 min | ~24 min |
+| 06 (payment-iyzico) Plan 01 | 1 | ~8 min | ~8 min |
 
 **Recent Trend:**
 
@@ -108,6 +109,8 @@ Recent decisions affecting current work:
 - 2026-04-30 (Plan 05-04): infra-tests Flyway must use classpath:db/migration/<schema> subdirectory not classpath:db/migration — multiple services have V1+V2 at base path causing version collision. Pattern: copy service migrations to infra-tests/src/test/resources/db/migration/<schema>/.
 - 2026-04-30 (Plan 05-04): Sniffer queue in E2E tests must NOT use .autoDelete() — autoDelete causes queue deletion between Awaitility poll iterations when RabbitTemplate.receive() terminates its internal consumer. Use nonDurable + no autoDelete for sniffer queues.
 - 2026-04-28 (Plan 01-06): Pitfall #2 (gateway reactive vs MVC classpath collision) structurally locked down. configurations.all { exclude(group=org.springframework.boot, module=spring-boot-starter-tomcat); exclude(... starter-web); exclude(org.springdoc, springdoc-openapi-starter-webmvc-ui) } in api-gateway/build.gradle.kts. ./gradlew :api-gateway:dependencies --configuration runtimeClasspath shows zero matches for any of those.
+- 2026-04-30 (Plan 06-01): PUBLIC_BASE_URL is the single source for Iyzico callback URL derivation; payment-service normalizes trailing slashes and appends /api/v1/payments/iyzico/callback.
+- 2026-04-30 (Plan 06-01): Iyzico Checkout Form integration uses a narrow neutral adapter contract; SDK embedded-form HTML is not exposed by payment-service public contracts.
 
 ### Pending Todos
 
@@ -126,10 +129,11 @@ Items acknowledged and carried forward from previous milestone close:
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | Hygiene | IDE-generated `*/bin/main/` directories pollute `git status` (8 modules from Plan 01-01 scaffolding via IDE; not in `.gitignore`) — see `.planning/phases/01-foundations-day-1-contracts/deferred-items.md` D-01 | OPEN — recommend Phase 1 hygiene cleanup or Phase 11 DevOps adds `**/bin/` to `.gitignore` | 2026-04-28 (Plan 01-03) |
+| Test infrastructure | `./gradlew :payment-service:test` starts AMQP infrastructure during `StockReservedConsumerIntegrationTest` and fails without a RabbitMQ test container/credentials (`AmqpAuthenticationException`). Plan-specific tests pass; see `.planning/phases/06-payment-iyzico/deferred-items.md` D-06-01 | OPEN — revisit when Phase 6 updates the stock-reserved consumer flow | 2026-04-30 (Plan 06-01) |
 
 ## Session Continuity
 
-Last session: 2026-04-30T11:11:34.349Z
+Last session: 2026-04-30T11:44:11.852Z
 Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-payment-iyzico/06-CONTEXT.md
-Next: Phase 06 (payment Iyzico) — resolve Cloudflare Tunnel vs ngrok (Pitfall #5) during planning
+Resume file: None
+Next: Execute 06-02-PLAN.md — order-service internal payment context endpoint + payment-service client

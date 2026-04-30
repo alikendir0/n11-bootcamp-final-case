@@ -54,11 +54,11 @@
 
 ### Payment (Iyzico)
 
-- [ ] **PAY-01**: payment-service integrates with Iyzico Checkout Form (sandbox)
+- [x] **PAY-01**: payment-service integrates with Iyzico Checkout Form (sandbox)
 - [ ] **PAY-02**: payment-service consumes `stock.reserved` events and initiates Iyzico payment
 - [ ] **PAY-03**: payment-service publishes `payment.completed` or `payment.failed` events to drive saga
-- [ ] **PAY-04**: 3DS callback handler URL implemented; Iyzico can return to the app and complete the order
-- [ ] **PAY-05**: Public webhook reachability solution chosen (Cloudflare Tunnel preferred, ngrok fallback) and documented in `payment-service/README.md`. The same tunnel exposes the gateway for the demo URL, so PAY-05 and DEV-05 share infrastructure.
+- [x] **PAY-04**: 3DS callback handler URL implemented; Iyzico can return to the app and complete the order
+- [x] **PAY-05**: Public webhook reachability solution chosen (Cloudflare Tunnel preferred, ngrok fallback) and documented in `payment-service/README.md`. The same tunnel exposes the gateway for the demo URL, so PAY-05 and DEV-05 share infrastructure.
 - [ ] **PAY-06**: Payment timeout job fires compensation events if Iyzico hangs (order stuck in `STOCK_RESERVED` for > N minutes)
 - [ ] **PAY-07**: User can complete a full sandbox payment with Iyzico test card `5528 7900 0000 0008`
 
@@ -242,11 +242,11 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | ORD-04 | Phase 5 (05-03, 05-04) | Complete |
 | ORD-05 | Phase 5 (05-03) | Complete |
 | ORD-06 | Phase 5 (05-03, 05-05) | Complete |
-| PAY-01 | Phase 6 | Pending |
+| PAY-01 | Phase 6 | Complete |
 | PAY-02 | Phase 6 | Pending |
 | PAY-03 | Phase 6 | Pending |
-| PAY-04 | Phase 6 | Pending |
-| PAY-05 | Phase 6 | Pending |
+| PAY-04 | Phase 6 | Complete |
+| PAY-05 | Phase 6 | Complete |
 | PAY-06 | Phase 6 | Pending |
 | PAY-07 | Phase 6 | Pending |
 | NOTIF-01 | Phase 7 | Pending |
