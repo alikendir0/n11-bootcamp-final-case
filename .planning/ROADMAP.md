@@ -227,8 +227,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 07-02-PLAN.md — saga-contracts.md §2 update (notify.q.order-cancelled row) + NotificationRabbitConfig (4 queues + 4 DLQs + 4 bindings + 3 service-prefixed exchange beans) (`NOTIF-01, NOTIF-03`) — *complexity: pattern-clone*
 
   **Wave 2** — domain logic + per-service tests (parallel after Wave 1)
-  - [ ] 07-03-PLAN.md — 4 saga consumers + NotificationService (@Transactional delegate) + ProcessedEvent + Notification entities + repos + Turkish copy templates (`NOTIF-01, NOTIF-02, NOTIF-03`) — *complexity: domain-logic*
-  - [ ] 07-04-PLAN.md — 4 idempotency tests + NotificationServiceLogTest + ConsumerDlqRoutingTest (`NOTIF-01, NOTIF-02`) — *complexity: pattern-clone*
+  - [x] 07-03-PLAN.md — 4 saga consumers + NotificationService (@Transactional delegate) + ProcessedEvent + Notification entities + repos + Turkish copy templates (`NOTIF-01, NOTIF-02, NOTIF-03`) — *complexity: domain-logic*
+  - [x] 07-04-PLAN.md — 4 idempotency tests + NotificationServiceLogTest + ConsumerDlqRoutingTest (`NOTIF-01, NOTIF-02`) — *complexity: pattern-clone*
 
   **Wave 3** — QUAL-04 saga closure + sign-off (depends on Wave 2)
   - [ ] 07-05-PLAN.md — infra-tests QualFourSagaNotificationTest + NotificationServiceTestConfig + Flyway subdirectory test resources (`QUAL-04`) — *complexity: integration-design*
