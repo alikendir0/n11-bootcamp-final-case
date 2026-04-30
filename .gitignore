@@ -12,6 +12,9 @@ secrets/
 *.pem
 *.key
 
+# Local docker-compose overrides (port remaps, dev mounts) — not committed
+docker-compose.override.yml
+
 # IDE
 .idea/
 *.iml

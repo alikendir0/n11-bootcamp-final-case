@@ -77,7 +77,7 @@ public class PaymentSagaService {
             name,
             surname,
             shipping.phone(),
-            context.userId() + "@n11clone.local",
+            context.userId() + "@buyer.example.com",
             iyzicoProperties.demoBuyerIdentityNumber(),
             addressLine,
             shipping.il(),

@@ -64,11 +64,17 @@ public class DefaultIyzicoCheckoutClient implements IyzicoCheckoutClient {
         if (response == null) {
             throw new PaymentInitializationException("IYZICO_INITIALIZE_FAILED: empty response");
         }
-        if (!response.verifySignature(options.getSecretKey())) {
-            throw new PaymentInitializationException("IYZICO_SIGNATURE_INVALID");
-        }
+        // Status check first — Iyzico returns no signature on auth/validation errors,
+        // so verifySignature would always fail and mask the real error.
         if (!Status.SUCCESS.getValue().equals(response.getStatus())) {
-            throw new PaymentInitializationException("IYZICO_INITIALIZE_FAILED: " + safe(response.getErrorCode()));
+            throw new PaymentInitializationException("IYZICO_INITIALIZE_FAILED: status=" + safe(response.getStatus())
+                + " errorCode=" + safe(response.getErrorCode())
+                + " errorMessage=" + safe(response.getErrorMessage()));
+        }
+        if (!response.verifySignature(options.getSecretKey())) {
+            throw new PaymentInitializationException("IYZICO_SIGNATURE_INVALID: token=" + safe(response.getToken())
+                + " conversationId=" + safe(response.getConversationId())
+                + " signaturePresent=" + (response.getSignature() != null));
         }
         if (isBlank(response.getToken()) || isBlank(response.getPaymentPageUrl())) {
             throw new PaymentInitializationException("IYZICO_INITIALIZE_FAILED: missing token or paymentPageUrl");
