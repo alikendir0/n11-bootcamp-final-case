@@ -105,10 +105,11 @@ public class InventoryOrderService {
                     ? UUID.randomUUID()
                     : reservedItems.get(0).reservationId();
 
-            StockReservedPayload successPayload = new StockReservedPayload(
+            com.n11.inventory.messaging.StockReservedPayload successPayload = new com.n11.inventory.messaging.StockReservedPayload(
                     orderId,
                     reservationId,
-                    reservedItems.stream().map(r -> new ReservedItemOut(r.productId(), r.qty())).toList()
+                    reservedItems.stream().map(r -> new com.n11.inventory.messaging.StockReservedPayload.Item(r.productId(), r.qty())).toList(),
+                    payload.totalAmount()   // W4 — propagate verbatim from order.created
             );
 
             Envelope outboundEnvelope = new Envelope(
@@ -146,6 +147,36 @@ public class InventoryOrderService {
         processedEventsRepository.save(
                 new ProcessedEvent(eventId, "OrderCreatedConsumer", envelope.eventType())
         );
+    }
+
+    /**
+     * Compensation: release stock reservations for the given orderId (CD-08, CD-09).
+     *
+     * <p>Called by {@link PaymentFailedConsumer} and {@link OrderCancelledConsumer}.
+     * Idempotent: checks processed_events INSIDE the transaction before any side effect.
+     */
+    @Transactional
+    public void releaseStockForOrder(UUID eventId, Envelope envelope, UUID orderId, String consumerName) {
+        if (processedEventsRepository.existsById(eventId)) {
+            LOG.debug("inventory.compensation: duplicate event {}, skipping", eventId);
+            return;
+        }
+
+        List<StockReservation> reservations = reservationRepository.findByOrderIdAndStatus(orderId, "RESERVED");
+        for (StockReservation r : reservations) {
+            Stock stock = stockRepository.findById(r.getProductId()).orElse(null);
+            if (stock != null) {
+                stock.release(r.getReservedQty());
+                stockRepository.save(stock);
+            }
+            r.markReleased();
+            reservationRepository.save(r);
+        }
+        LOG.info("inventory.compensation: released {} reservations for order {} (consumer={})",
+                reservations.size(), orderId, consumerName);
+
+        processedEventsRepository.save(
+                new ProcessedEvent(eventId, consumerName, envelope.eventType()));
     }
 
     private void publishReserveFailed(UUID orderId, String reason,
@@ -190,12 +221,6 @@ public class InventoryOrderService {
             int qty,
             java.math.BigDecimal unitPrice,
             String nameSnapshot
-    ) {}
-
-    record StockReservedPayload(
-            java.util.UUID orderId,
-            java.util.UUID reservationId,
-            List<ReservedItemOut> reservedItems
     ) {}
 
     record ReservedItemOut(java.util.UUID productId, int qty) {}

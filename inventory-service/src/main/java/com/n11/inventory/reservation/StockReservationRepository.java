@@ -11,4 +11,10 @@ public interface StockReservationRepository extends JpaRepository<StockReservati
      * Used for secondary idempotency guard in addition to the processed_events check.
      */
     boolean existsByOrderIdAndProductId(UUID orderId, UUID productId);
+
+    /**
+     * Find all reservations for a given order with the specified status.
+     * Used by compensation consumers (PaymentFailed, OrderCancelled) to release stock.
+     */
+    java.util.List<StockReservation> findByOrderIdAndStatus(UUID orderId, String status);
 }

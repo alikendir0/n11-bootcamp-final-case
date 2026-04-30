@@ -3,7 +3,7 @@
   "$id": "https://n11clone/saga/stock-reserved.schema.json",
   "title": "stock.reserved payload",
   "type": "object",
-  "required": ["orderId", "reservationId", "reservedItems"],
+  "required": ["orderId", "reservationId", "reservedItems", "totalAmount"],
   "additionalProperties": false,
   "properties": {
     "orderId":       { "type": "string", "format": "uuid" },
@@ -20,6 +20,11 @@
           "qty":       { "type": "integer", "minimum": 1 }
         }
       }
+    },
+    "totalAmount": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Order total in TRY (gross). Forwarded verbatim from order.created.totalAmount so payment-service can charge the correct amount. Required from Phase 5 W4 onward."
     }
   }
 }

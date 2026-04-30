@@ -55,4 +55,7 @@ public class StockReservation {
     public Instant getCreatedAt() { return createdAt; }
 
     public void setStatus(String status) { this.status = status; }
+
+    /** Convenience method for compensation flows — marks reservation as RELEASED. */
+    public void markReleased() { this.status = "RELEASED"; }
 }
