@@ -423,6 +423,39 @@ services:
     networks:
       - n11-net
 
+  # ---------------------------------------------------------------------------
+  # notification-service -- Phase 7 (port 8087) — pure leaf saga consumer.
+  # No sync REST deps. Consumes order.confirmed, order.cancelled, payment.failed, user.registered.
+  # NO `ports:` mapping — Pitfall #14 (internal-only on n11-net, gateway is the only entry).
+  # ---------------------------------------------------------------------------
+  notification-service:
+    image: n11/notification-service:dev
+    container_name: n11-notification-service
+    env_file:
+      - .env
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8087/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 25s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
 volumes:
   postgres-data:
   rabbitmq-data:
