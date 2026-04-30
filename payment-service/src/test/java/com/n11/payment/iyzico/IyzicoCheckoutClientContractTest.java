@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class IyzicoCheckoutClientContractTest {
 
     @Test
-    void checkoutClientExposesInitializeAndRetrieveWithoutDomainOrControllerTypes() {
+    void checkoutClientExposesInitializeAndRetrieveWithoutDomainOrControllerTypes() throws NoSuchMethodException {
         Method[] methods = IyzicoCheckoutClient.class.getDeclaredMethods();
 
         assertThat(Arrays.stream(methods).map(Method::getName)).containsExactlyInAnyOrder("initialize", "retrieve");
