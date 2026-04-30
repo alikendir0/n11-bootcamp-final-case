@@ -81,7 +81,7 @@ Each TDD task was committed atomically:
    - `886be9b` feat: neutral checkout adapter contract
    - `36666c3` fix: remove embedded-form field name from public contract docs
 
-**Plan metadata:** pending final docs commit
+**Plan metadata:** `d184a40` (docs: complete plan)
 
 ## Files Created/Modified
 
