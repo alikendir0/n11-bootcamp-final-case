@@ -127,16 +127,22 @@ class IyzicoCheckoutRequestMapperTest {
             address,
             address,
             List.of(
-                new IyzicoCheckoutResult.BasketItemInput(UUID.randomUUID().toString(), "Telefon", "General", null, "PHYSICAL", new BigDecimal("3.335")),
+                new IyzicoCheckoutResult.BasketItemInput(UUID.randomUUID().toString(), "Telefon", "General", null, "PHYSICAL", new BigDecimal("3.334")),
                 new IyzicoCheckoutResult.BasketItemInput(UUID.randomUUID().toString(), "Kulaklık", "General", null, "PHYSICAL", new BigDecimal("6.665"))));
     }
 
     private static CheckoutFormInitialize checkoutResponse(String status, boolean validSignature, String token, String paymentPageUrl) {
-        return new CheckoutFormInitialize() {
+        CheckoutFormInitialize response = new CheckoutFormInitialize() {
             @Override
             public boolean verifySignature(String secretKey) {
                 return validSignature;
             }
         };
+        response.setStatus(status);
+        response.setToken(token);
+        response.setPaymentPageUrl(paymentPageUrl);
+        response.setErrorCode(Status.FAILURE.getValue().equals(status) ? "failure-code" : null);
+        response.setErrorMessage(Status.FAILURE.getValue().equals(status) ? "failure" : null);
+        return response;
     }
 }
