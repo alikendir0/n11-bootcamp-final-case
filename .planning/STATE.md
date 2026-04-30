@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 5 context gathered (auto mode) — 11 gray areas auto-resolved, common-outbox refactor + 999.2 ArchUnit gate locked
-last_updated: "2026-04-30T09:45:13Z"
-last_activity: 2026-04-30 -- Phase 05 Plan 05 complete (gateway routes + docker-compose 11-service stack + smoke runbook signed off; Phase 5 all 5/5 plans done)
+stopped_at: Phase 05 verified and closed (4/5 SCs verified; SC-1 KDV display deferred to Phase 10 per HUMAN-UAT). Ready for Phase 06 (Iyzico payment).
+last_updated: "2026-04-30T14:30:00Z"
+last_activity: 2026-04-30 -- Phase 05 verified — 4/5 SCs PASS, SC-1 deferred to Phase 10; HUMAN-UAT.md persists open item
 progress:
   total_phases: 13
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 25
-  completed_plans: 24
-  percent: 88
+  completed_plans: 25
+  percent: 100
 ---
 
 # Project State
@@ -25,13 +25,13 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 
 ## Current Position
 
-Phase: 05 (cart-order-skeleton) — COMPLETE (5/5 plans done; verification pending orchestrator sign-off)
+Phase: 05 (cart-order-skeleton) — VERIFIED + CLOSED (5/5 plans, 4/5 SCs pass, SC-1 KDV deferred to Phase 10 per HUMAN-UAT)
 Plan: 5 of 5 — DONE
-Next: Phase 06 (payment Iyzico) — see Phase 6 prerequisites in 05-05-SUMMARY.md
-Status: Phase 05 complete — all SC-1..SC-5 verified by live smoke test
-Last activity: 2026-04-30 -- Phase 05 Plan 05 complete (gateway routes + docker-compose 11-service stack + smoke runbook signed off; Phase 5 all 5/5 plans done)
+Next: Phase 06 (payment Iyzico) — Cloudflare Tunnel vs ngrok decision is the first gray area to resolve in /gsd-discuss-phase 6
+Status: Phase 05 closed; HUMAN-UAT.md tracks deferred KDV display item until Phase 10
+Last activity: 2026-04-30 -- Phase 05 verified (orchestrator) — 4/5 SCs PASS, SC-1 deferred; ready for Phase 06
 
-Progress: [████░░░░░░] 36% (4 of 11 phases complete)
+Progress: [█████░░░░░░] 45% (5 of 11 phases complete)
 
 ## Performance Metrics
 

@@ -230,18 +230,18 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | PROD-07 | Phase 4 | Complete |
 | PROD-08 | Phase 4 | Complete |
 | PROD-09 | Phase 4 | Pending |
-| CART-01 | Phase 5 | Pending |
-| CART-02 | Phase 5 | Pending |
-| CART-03 | Phase 5 | Pending |
-| CART-04 | Phase 5 | Pending |
-| CART-05 | Phase 5 | Pending |
-| CART-06 | Phase 5 | Pending |
-| ORD-01 | Phase 5 | Pending |
-| ORD-02 | Phase 5 | Pending |
-| ORD-03 | Phase 5 | Pending |
-| ORD-04 | Phase 5 | Pending |
-| ORD-05 | Phase 5 | Pending |
-| ORD-06 | Phase 5 | Pending |
+| CART-01 | Phase 5 (05-02) | Complete |
+| CART-02 | Phase 5 (05-02) | Complete (KDV display deferred to Phase 10 — see 05-HUMAN-UAT.md) |
+| CART-03 | Phase 5 (05-02) | Complete |
+| CART-04 | Phase 5 (05-02) | Complete |
+| CART-05 | Phase 5 (05-02) | Complete |
+| CART-06 | Phase 5 (05-05) | Complete |
+| ORD-01 | Phase 5 (05-03) | Complete |
+| ORD-02 | Phase 5 (05-03) | Complete |
+| ORD-03 | Phase 5 (05-03) | Complete |
+| ORD-04 | Phase 5 (05-03, 05-04) | Complete |
+| ORD-05 | Phase 5 (05-03) | Complete |
+| ORD-06 | Phase 5 (05-03, 05-05) | Complete |
 | PAY-01 | Phase 6 | Pending |
 | PAY-02 | Phase 6 | Pending |
 | PAY-03 | Phase 6 | Pending |

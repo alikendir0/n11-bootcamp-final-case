@@ -16,6 +16,10 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 
 - [x] JWT-based authentication and authorization (validated at API gateway) — *Validated in Phase 3: identity-service issues RS256 JWT (24h, BCrypt(10)), api-gateway validates via Nimbus + JWKS, strips `Authorization` and injects `X-User-Id`/`X-User-Email`/`X-User-Roles`. AUTH-01/02/05/06/07/08, QUAL-02 covered. AUTH-03 + AUTH-04 deferred to Phase 10 (frontend storage/logout).*
 - [x] Logging mechanism for error tracking — *Validated in Phase 3: per-service logback-spring.xml with Logstash JSON encoder; identity-service smoke tests prove the pattern. Already wired in Phase 1 for skeleton; Phase 3 confirmed it across new services.*
+- [x] Cart operations: add, remove, update — *Validated in Phase 5: cart-service UPSERT with `qty<=99` constraint, qty 2+1=3 smoke-verified; consumer-only OrderConfirmedConsumer with processed_events idempotency. CART-01..06 covered (KDV display deferred to Phase 10).*
+- [x] Order management: order creation and order flow — *Validated in Phase 5: POST /orders with Idempotency-Key (D-08), saga reaches CONFIRMED in 3s on live smoke, cancel path → CANCELLED+RELEASED. ORD-01..06 covered.*
+- [x] SAGA pattern (choreography via RabbitMQ events) — *Validated in Phase 5: OrderCreated → StockReserved → PaymentCompleted → OrderConfirmed proven end-to-end on real RabbitMQ; AMQP message replay leaves stock_reservations stable at 1 (CLAUDE.md Rule #3). Compensations wired (StockReserveFailed, PaymentFailed, UserCancelled).*
+- [x] RabbitMQ messaging — *Validated in Phase 5: choreography saga running on real RabbitMQ 3.13-management; D-10 ArchUnit gate enforces `Message`-only listener signatures (no Channel injection); processed_events inbox per service guarantees idempotency on at-least-once delivery.*
 
 ### Active
 
@@ -24,8 +28,8 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 - [ ] RESTful APIs across product listing, cart, and order operations
 - [ ] PostgreSQL persistence (DB-per-service, single instance) for products, orders, users
 - [ ] Pagination on the product listing endpoint
-- [ ] Cart operations: add, remove, update
-- [ ] Order management: order creation and order flow
+- [x] Cart operations: add, remove, update — *moved to Validated by Phase 5*
+- [x] Order management: order creation and order flow — *moved to Validated by Phase 5*
 - [ ] Iyzico payment integration (sandbox)
 - [x] JWT-based authentication and authorization (validated at API gateway) — *moved to Validated by Phase 3*
 - [ ] Unit and integration tests (smoke unit + 1–2 integration per service on critical path)
@@ -55,8 +59,8 @@ If everything else fails, this must work: the bootcamp brief lands rock-solid (m
 
 - [ ] Microservices architecture with **at least 10 services** (target: 13)
 - [ ] Eureka service discovery
-- [ ] RabbitMQ messaging
-- [ ] SAGA pattern (choreography via RabbitMQ events)
+- [x] RabbitMQ messaging — *moved to Validated by Phase 5*
+- [x] SAGA pattern (choreography via RabbitMQ events) — *moved to Validated by Phase 5 (skeleton — Iyzico happy/fail paths in Phase 6)*
 
 #### Self-Imposed Differentiators (the "stand out" layer)
 
@@ -156,7 +160,9 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-29 — Phase 3 complete: identity-service issues RS256 JWT (24h, BCrypt(10)) with /.well-known/jwks.json; api-gateway validates via Nimbus + JWKS (1h refresh) and injects X-User-Id/X-User-Email/X-User-Roles after stripping Authorization. Transactional outbox drains user.registered events to RabbitMQ identity.tx exchange. AUTH-01/02/05/06/07/08 + QUAL-02 covered. AUTH-03 + AUTH-04 are Phase 10 frontend deferrals (persisted to 03-HUMAN-UAT.md). 5/5 must-haves verified by gsd-verifier; 6/6 plans across 4 waves.*
+*Last updated: 2026-04-30 — Phase 5 complete: cart-service + order-service + payment-service stub + common-outbox shared module + 11-service docker-compose stack. Saga choreography proven end-to-end on real RabbitMQ (OrderCreated → StockReserved → PaymentCompleted → OrderConfirmed in 3s on live smoke). 4/5 SCs verified; SC-1 KDV display deferred to Phase 10 frontend per `05-HUMAN-UAT.md`. Mid-flight fixes (commit db25041): added GET /addresses/{id} on identity-service; ProblemDetailControllerAdvice now log.errors on generic 500s; runbook field name corrected. Pre-existing observability gap (cart/order/payment-service log in plain Logback, not structured JSON with correlationId) noted but not in Phase 5 scope. CART-01..06, ORD-01..06, ARCH-06/07/08, QUAL-03 covered. 5/5 plans across 5 waves.*
+
+*Earlier — 2026-04-29: Phase 3 complete: identity-service issues RS256 JWT (24h, BCrypt(10)) with /.well-known/jwks.json; api-gateway validates via Nimbus + JWKS (1h refresh) and injects X-User-Id/X-User-Email/X-User-Roles after stripping Authorization. Transactional outbox drains user.registered events to RabbitMQ identity.tx exchange. AUTH-01/02/05/06/07/08 + QUAL-02 covered. AUTH-03 + AUTH-04 are Phase 10 frontend deferrals (persisted to 03-HUMAN-UAT.md). 5/5 must-haves verified by gsd-verifier; 6/6 plans across 4 waves.*
 
 *Earlier — 2026-04-29: Phase 2 complete: frontend toolchain locked (Vite 8 + React 19 SPA + Tailwind 4 + Zustand 5 + React Router 7 + TanStack Query 5 + react-hook-form + zod). Recon report `.planning/intel/n11-recon.md` is the Phase 10/11 hand-off contract (8 sections, 644 phrases, 25 color tokens, Decision Matrix subsection). FE-01 satisfied. Open Question "Frontend toolchain" moved to Resolved.*
 
