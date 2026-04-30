@@ -22,7 +22,7 @@
 | `notification-service/src/main/java/com/n11/notification/messaging/ProcessedEventRepository.java` | model | CRUD | `cart-service/src/main/java/com/n11/cart/messaging/ProcessedEventRepository.java` | exact |
 | `notification-service/src/main/java/com/n11/notification/domain/Notification.java` | model | N/A | `cart-service/src/main/java/com/n11/cart/messaging/ProcessedEvent.java` | role-match |
 | `notification-service/src/main/java/com/n11/notification/repository/NotificationRepository.java` | model | CRUD | `cart-service/src/main/java/com/n11/cart/cart/CartRepository.java` | role-match |
-| `notification-service/src/main/java/com/n11/notification/api/NotificationsController.java` | controller | request-response | `inventory-service/src/main/java/com/n11/inventory/stock/StockController.java` | role-match |
+| `notification-service/src/main/java/com/n11/notification/api/NotificationsController.java` | controller | request-response | `inventory-service/src/main/java/com/n11/inventory/stock/StockController.java` | **DEFERRED to Phase 10** |
 | `notification-service/src/main/resources/application.yml` | config | N/A | `cart-service/src/main/resources/application.yml` | exact |
 | `notification-service/src/main/resources/db/migration/V1__init_processed_events.sql` | migration | N/A | `cart-service/src/main/resources/db/migration/V1__init_processed_events.sql` | exact |
 | `notification-service/src/main/resources/db/migration/V2__init_notifications.sql` | migration | N/A | `cart-service/src/main/resources/db/migration/V2__init_cart.sql` | role-match |
@@ -33,6 +33,8 @@
 | `infra-tests/src/test/java/com/n11/infratests/saga/NotificationServiceTestConfig.java` | config | N/A | `infra-tests/src/test/java/com/n11/infratests/saga/PaymentServiceTestConfig.java` | exact |
 | `infra-tests/src/test/resources/db/migration/notification/V1__init_processed_events.sql` | migration | N/A | `infra-tests/src/test/resources/db/migration/payment/V1__init_processed_events.sql` | exact |
 | `infra-tests/src/test/resources/db/migration/notification/V2__init_notifications.sql` | migration | N/A | `infra-tests/src/test/resources/db/migration/payment/V2__init_payment.sql` | role-match |
+
+> **Note (revision iteration 1, WARNING 2 fix):** `NotificationsController.java` is **DEFERRED to Phase 10** (frontend storefront) when the inbox UI requires `GET /notifications` lookups. Phase 7 needs no REST surface beyond `/actuator/health` (autowired from `spring-boot-starter-actuator`); no plan in Phase 7 delivers `NotificationsController.java`, and no plan should — keeping it in this classification table is for forward reference only.
 
 Also modified:
 - `settings.gradle.kts` — add `"notification-service"` to include list

@@ -685,21 +685,26 @@ These items were not resolved in research and require planner decision:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All three open questions below were resolved during plan-checker revision iteration 1 (2026-04-30). Inline `**RESOLVED:**` blocks document each resolution. The section is retained for traceability of the original research-time uncertainties.
 
 1. **Does identity-service actually emit `user.registered` events in the current docker-compose stack?**
    - What we know: `OutboxBackedUserRegistrationOutboxPublisher.publishRegistered()` is wired in identity-service (verified in this session). `IdentityRabbitConfig` declares `identity.tx`. The outbox poller (based on `common-outbox.AbstractOutboxPoller`) polls every 5 s.
    - What's unclear: Whether the `identity-service` poller is actively publishing on the deployed stack (it migrated to `common-outbox` in Phase 5 Plan 05-01 — verify it was committed cleanly).
    - Recommendation: Phase 7 Wave 0 smoke — register a new user and grep `identity-service` logs for outbox poll → AMQP publish trace. If the event never appears, notification-service will silently skip `user.registered` without a queue error (queue is declared but never receives messages).
+   - **RESOLVED:** Plan 07-06 smoke runbook step 5 ("register a user → grep identity-service log for outbox publish trace → assert audit row in notification.notifications with `Hoş geldiniz!`") verifies emission live against the docker-compose stack. If the user.registered event never appears in the operator smoke run, Plan 07-06 records this as a deferred-items.md follow-up; it is NOT blocking for any plan in Wave 1 or Wave 2 (the queue + consumer + tests can be implemented and merged green even if identity-service's outbox publication is currently stale).
 
 2. **Should `notify.q.order-cancelled` be declared as part of notification-service or as an update to order-service's topology config?**
    - What we know: saga-contracts.md §2 table omits this queue; notification-service is the logical owner of its own consumer queues.
    - Recommendation: notification-service declares the queue (with DLQ) in `NotificationRabbitConfig`. No change to order-service is needed — order-service only publishes to `orders.tx/order.cancelled`; it does not know who is listening.
+   - **RESOLVED:** notification-service owns the queue. NotificationRabbitConfig (Plan 07-02 Task 2) declares `notify.q.order-cancelled` as a durable queue with DLQ via `x-dead-letter-exchange=""` + `x-dead-letter-routing-key=notify.q.order-cancelled.dlq`. saga-contracts.md §2 row added in the same plan (Plan 07-02 Task 1 is the Wave 0 saga-contracts edit; the matching code declaration is Wave 0 Task 2). order-service is not modified.
 
 3. **How wide should the QUAL-04 integration test be?**
    - What we know: ROADMAP says "OrderCreated → StockReserved → PaymentCompleted → OrderConfirmed → notification logged" — a five-service chain. Existing `SagaHappyPathE2ETest` already covers steps 1–4 (boots payment-service, asserts `payment.completed`).
    - What's unclear: Adding order-service to the infra-tests boot context carries the same bean-disambiguation risk encountered in Plan 05-04 (`OrderPaymentFailureCompensationE2ETest`). The planner should check whether `OrderServiceApplication` already carries proper `@EntityScan`/`@SpringBootApplication(scanBasePackages="com.n11")` annotations before adding it to the multi-service context.
    - Recommendation: Start with the narrower two-service test (publish `order.confirmed` directly → assert notification row). Then extend to five-hop if time permits; document as QUAL-04 satisfied by the narrower test + Phase 5's `SagaHappyPathE2ETest` as a chain witness.
+   - **RESOLVED:** Two-tier coverage. (a) Per-consumer narrow integration tests in `notification-service` (Plan 07-04: 4 idempotency tests + DLQ test + log-shape test) cover the consumer → DB row contract. (b) `infra-tests/QualFourSagaNotificationTest` (Plan 07-05) is the wider chain witness — boots NotificationServiceTestConfig, publishes `order.confirmed` to `orders.tx`, asserts a `notifications` row appears within 10s. Together with the existing Phase 5 `SagaHappyPathE2ETest` (which proves stock.reserved → payment.completed), the union covers SC-3's full `OrderCreated → ... → notification logged` chain. Both tests are required; neither is deferred.
 
 ---
 

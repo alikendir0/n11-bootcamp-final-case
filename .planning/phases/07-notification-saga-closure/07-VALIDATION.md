@@ -54,7 +54,11 @@ created: 2026-04-30
 
 ---
 
-## Wave 0 Requirements
+## Wave 0 Requirements (test stubs deferred to Plan 07-04)
+
+> **Note (revision iteration 1, WARNING 3 fix):** This phase intentionally produces test stubs in **Plan 07-04 (Wave 2)** rather than Wave 0. The 6 test Java files listed below are created by Plan 07-04 — NOT before Plan 07-01 / 07-02 / 07-03. Plan 07-03's `<verify>` block uses compile-only fallbacks where test classes aren't yet present (`./gradlew :notification-service:compileJava` is the canonical green for Plan 07-03; `./gradlew :notification-service:test` becomes canonical once Plan 07-04 lands). Nyquist Dimension 8 sampling is satisfied by per-task `compileJava` + per-wave full test runs after Wave 2.
+>
+> **`wave_0_complete: false`** in the frontmatter is correct for this layered approach — the renaming above documents the deferral so the plan-checker can recognise it as deliberate, not silent. (It will remain `false` until the orchestrator's next checker pass; the checker re-runs after this revision.)
 
 Files that MUST exist (created or stubbed) before Wave 1 tasks run, so the verification map above can be exercised:
 
