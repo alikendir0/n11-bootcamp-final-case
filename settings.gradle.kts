@@ -7,6 +7,7 @@ include(
     "common-error",
     "common-logging",
     "common-events",
+    "common-outbox",
     "identity-service",
     "product-service",
     "inventory-service",
