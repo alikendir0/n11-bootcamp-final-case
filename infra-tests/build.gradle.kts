@@ -50,6 +50,9 @@ dependencies {
     // order-service: Plan 06-05 OrderPaymentFailureCompensationE2ETest boots
     // order-service to assert payment.failed → order CANCELLED (PAY-03 + QUAL-05).
     testImplementation(project(":order-service"))
+    // notification-service: QUAL-04 saga closure E2E test (Plan 07-05) boots
+    // notification-service to assert order.confirmed → notification row written.
+    testImplementation(project(":notification-service"))
     testImplementation(project(":common-outbox"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
