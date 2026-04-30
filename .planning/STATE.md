@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 5 context gathered (auto mode) — 11 gray areas auto-resolved, common-outbox refactor + 999.2 ArchUnit gate locked
-last_updated: "2026-04-30T07:47:31.153Z"
-last_activity: 2026-04-30 -- Phase 05 execution started
+last_updated: "2026-04-30T08:14:37Z"
+last_activity: 2026-04-30 -- Phase 05 Plan 02 complete (cart-service)
 progress:
   total_phases: 13
   completed_phases: 4
   total_plans: 25
-  completed_plans: 21
+  completed_plans: 22
   percent: 84
 ---
 
@@ -26,10 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 05 (cart-order-skeleton) — EXECUTING
-Plan: 2 of 5
-Next: Phase 05 Plan 02 (cart-service skeleton)
+Plan: 3 of 5
+Next: Phase 05 Plan 03 (order-service)
 Status: Executing Phase 05
-Last activity: 2026-04-30 -- Phase 05 Plan 01 complete (common-outbox + D-09 + D-10)
+Last activity: 2026-04-30 -- Phase 05 Plan 02 complete (cart-service: REST surface + UPSERT + saga consumer)
 
 Progress: [████░░░░░░] 36% (4 of 11 phases complete)
 
@@ -96,6 +96,8 @@ Recent decisions affecting current work:
 - 2026-04-30 (Plan 05-01): @EntityScan("com.n11") required on @SpringBootApplication classes when a shared Gradle library module contributes JPA entities. @SpringBootApplication(scanBasePackages="com.n11") only sets component scan, not entity scan. Apply to ALL future services importing common-outbox.
 - 2026-04-30 (Plan 05-01): D-09 structural fix landed — AbstractOutboxPoller.poll() passes OutboxMessagePostProcessor as 4th arg to convertAndSend; messageId + correlationId always set from envelope JSON. The 999.2 per-service copy-paste regression (commit 06338b1) is now structurally impossible for any service extending AbstractOutboxPoller.
 - 2026-04-30 (Plan 05-01): D-10 ArchUnit gate landed — AmqpAckModeArchTest in infra-tests/com.n11.infra.arch asserts every @RabbitListener method uses Message parameter + no Channel parameter. Fail-fast gate for the 999.2 MANUAL-ack regression (commit 2b61689).
+- 2026-04-30 (Plan 05-02): awaitility pinned to 4.2.0 in cart-service (plan specified 4.3.1 which does not exist in Maven Central; 4.2.0 matches inventory-service).
+- 2026-04-30 (Plan 05-02): cart-service does NOT import :common-outbox (consumer-only service — no outbox needed). ProcessedEvent entity is local to com.n11.cart.messaging.
 - 2026-04-28 (Plan 01-06): Pitfall #2 (gateway reactive vs MVC classpath collision) structurally locked down. configurations.all { exclude(group=org.springframework.boot, module=spring-boot-starter-tomcat); exclude(... starter-web); exclude(org.springdoc, springdoc-openapi-starter-webmvc-ui) } in api-gateway/build.gradle.kts. ./gradlew :api-gateway:dependencies --configuration runtimeClasspath shows zero matches for any of those.
 
 ### Pending Todos
@@ -118,7 +120,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-30T08:01:43Z
-Stopped at: Phase 05 Plan 01 complete — common-outbox library + D-09 messageId fix + D-10 ArchUnit gate; identity/inventory migrated; all tests green
-Resume file: .planning/phases/05-cart-order-skeleton/05-02-PLAN.md
-Next: Phase 05 (cart-service + order-service + saga skeleton) — Phase 04 fully complete
+Last session: 2026-04-30T08:14:37Z
+Stopped at: Phase 05 Plan 02 complete — cart-service: 4 REST endpoints + native UPSERT + D-07 saga consumer + 4 tests green
+Resume file: .planning/phases/05-cart-order-skeleton/05-03-PLAN.md
+Next: Phase 05 Plan 03 (order-service)
