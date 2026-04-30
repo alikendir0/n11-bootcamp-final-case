@@ -12,6 +12,7 @@ include(
     "product-service",
     "inventory-service",
     "cart-service",
+    "order-service",
     "service-template",
     "infra-tests"
 )
