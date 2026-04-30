@@ -199,7 +199,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 06-04-PLAN.md — payment status/link API, public callback route, retrieve-driven `payment.completed` / `payment.failed` (`PAY-03, PAY-04, PAY-05, PAY-07, QUAL-05`)
 
   **Wave 4** *(blocked on 06-04)* — timeout + compensation proof
-  - [ ] 06-05-PLAN.md — payment-timeout job and payment-failure compensation E2E (`PAY-03, PAY-06, QUAL-05`)
+  - [x] 06-05-PLAN.md — payment-timeout job and payment-failure compensation E2E (`PAY-03, PAY-06, QUAL-05`)
 
   **Wave 5** *(blocked on 06-04 + 06-05)* — live sandbox runbook
   - [ ] 06-06-PLAN.md — Cloudflare/ngrok runbook + Iyzico sandbox smoke checkpoint (`PAY-05, PAY-07`)
