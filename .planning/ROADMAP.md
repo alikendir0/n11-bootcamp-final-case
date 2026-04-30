@@ -231,8 +231,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 07-04-PLAN.md — 4 idempotency tests + NotificationServiceLogTest + ConsumerDlqRoutingTest (`NOTIF-01, NOTIF-02`) — *complexity: pattern-clone*
 
   **Wave 3** — QUAL-04 saga closure + sign-off (depends on Wave 2)
-  - [ ] 07-05-PLAN.md — infra-tests QualFourSagaNotificationTest + NotificationServiceTestConfig + Flyway subdirectory test resources (`QUAL-04`) — *complexity: integration-design*
-  - [ ] 07-06-PLAN.md — Phase 7 smoke runbook + STATE.md update + operator human-verify checkpoint (`NOTIF-01, NOTIF-02, NOTIF-03`) — *complexity: scaffolding*
+  - [x] 07-05-PLAN.md — infra-tests QualFourSagaNotificationTest + NotificationServiceTestConfig + Flyway subdirectory test resources (`QUAL-04`) — *complexity: integration-design*
+  - [x] 07-06-PLAN.md — Phase 7 smoke runbook + STATE.md update + operator human-verify checkpoint (`NOTIF-01, NOTIF-02, NOTIF-03`) — *complexity: scaffolding*
 
   **Cross-cutting constraints** (recurring across ≥2 plans):
   - Bean disambiguation for multi-service classpath in infra-tests: `@Entity(name="Notification*")`, exchange beans `*ForNotification` (Plans 07-02, 07-03, 07-05)
