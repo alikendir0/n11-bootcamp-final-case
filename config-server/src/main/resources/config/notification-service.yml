@@ -1,0 +1,64 @@
+# ---------------------------------------------------------------------------
+# config-server/src/main/resources/config/notification-service.yml
+# Per-service config for the notification-service module (Phase 7, Plan 01).
+# Inherits the shared baseline from .../config/application.yml.
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8087
+
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: true
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/n11
+    username: notification_user
+    password: ${NOTIFICATION_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 2
+      connection-init-sql: SET search_path = notification, public
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: notification
+    default-schema: notification
+    create-schemas: false
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    placeholders:
+      schema: notification
+      flyway.schema: notification
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: notification
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: ${RABBITMQ_DEFAULT_USER}
+    password: ${RABBITMQ_DEFAULT_PASS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
