@@ -193,7 +193,8 @@ services:
         condition: service_healthy
       order-service:
         condition: service_healthy
-      # NOTE: NO payment-service in api-gateway.depends_on (D-06 — no public REST in v1)
+      payment-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 5s
@@ -387,10 +388,12 @@ services:
       - n11-net
 
   # ---------------------------------------------------------------------------
-  # payment-service -- Phase 5 minimal skeleton (port 8086) — D-06.
+  # payment-service -- Phase 6 (port 8086) — Iyzico Checkout Form integration.
   # Image: ./gradlew :payment-service:jibDockerBuild
-  # NO public REST in v1 — Phase 6 adds /payments/checkout + the gateway route.
-  # Single saga consumer (payment.q.stock-reserved); no sync REST out.
+  # Public REST: GET /payments/{orderId} (status/link), POST /payments/checkout
+  # (idempotent ensure/fetch), POST /payments/iyzico/callback (public, allowlisted).
+  # Saga consumer: stock.reserved → Iyzico initialize → PENDING checkout link.
+  # Saga producer: payment.completed / payment.failed via callback retrieve.
   # ---------------------------------------------------------------------------
   payment-service:
     image: n11/payment-service:dev

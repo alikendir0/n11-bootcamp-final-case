@@ -91,8 +91,16 @@ spring:
                 - Path=/api/v1/orders/**
               filters:
                 - StripPrefix=2
-            # NOTE: NO payment-service route in Phase 5 (D-06 — no public REST in v1).
-            # Phase 6 adds /payments/checkout + the gateway route.
+            # Phase 6 (Plan 06-04): payment-service public REST surface.
+            # StripPrefix=2 strips /api/v1 → forwards /payments/... to controller @RequestMapping("/payments").
+            # Includes the public Iyzico callback path /api/v1/payments/iyzico/callback;
+            # SecurityConfig allowlist permits this path without JWT (api-contracts.md §3).
+            - id: payment-service
+              uri: lb://PAYMENT-SERVICE
+              predicates:
+                - Path=/api/v1/payments/**
+              filters:
+                - StripPrefix=2
 
           # ─────────────────────────────────────────────────────────────────
           # Phase 8 SSE forward-reference (DO NOT enable in Phase 1 -- no
@@ -158,8 +166,10 @@ springdoc:
       - name: inventory-service
         url: /api/v1/inventory/v3/api-docs
       # Phase 5: cart-service and order-service Springdoc surfaces (CART-06, ORD-06).
-      # NO payment-service entry — D-06 (no public REST in v1).
       - name: cart-service
         url: /api/v1/cart/v3/api-docs
       - name: order-service
         url: /api/v1/orders/v3/api-docs
+      # Phase 6 (Plan 06-04): payment-service Springdoc surface (PAY-07).
+      - name: payment-service
+        url: /api/v1/payments/v3/api-docs
