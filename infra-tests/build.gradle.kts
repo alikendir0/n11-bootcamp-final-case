@@ -18,6 +18,7 @@ import java.time.Duration
 dependencies {
     // Testcontainers — versions managed by testcontainers-bom 2.0.5 (root build, Plan 01-01)
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:rabbitmq")
     testImplementation("org.testcontainers:junit-jupiter")
 
     // Postgres JDBC driver — version managed by Spring Boot BOM
@@ -27,18 +28,31 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    // SLF4J binding for Testcontainers logs
-    testRuntimeOnly("org.slf4j:slf4j-simple")
+    // SLF4J binding: use Logback (pulled in by spring-boot-starter-test via payment-service dependency)
+    // Note: slf4j-simple is intentionally NOT added here because Spring Boot brings Logback,
+    // and having both SLF4J bindings on the classpath causes "LoggerFactory is not a Logback LoggerContext".
 
     // D-10: ArchUnit gate for @RabbitListener ack-mode invariant
     testImplementation("com.tngtech.archunit:archunit-junit5:1.4.2")
     testImplementation("org.springframework.amqp:spring-rabbit")
     testImplementation("com.rabbitmq:amqp-client")  // for com.rabbitmq.client.Channel symbol resolution by ArchUnit
 
+    // Awaitility for saga E2E test assertions
+    testImplementation("org.awaitility:awaitility:4.2.0")
+
     // Services whose @RabbitListener classes ArchUnit must scan
     testImplementation(project(":common-events"))     // Envelope + RabbitRetryConfig (no @RabbitListener but pulls Spring AMQP types)
     testImplementation(project(":identity-service"))  // (no @RabbitListener today, but kept future-safe)
-    testImplementation(project(":inventory-service")) // OrderCreatedConsumer
+    testImplementation(project(":inventory-service")) // OrderCreatedConsumer + compensation consumers
+
+    // payment-service: saga E2E test boots PaymentServiceApplication
+    testImplementation(project(":payment-service"))
+    testImplementation(project(":common-outbox"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    // @EnableJpaRepositories needs spring-data-jpa on compile classpath for PaymentServiceTestConfig;
+    // the dep comes transitively on runtimeClasspath via payment-service, but not compileClasspath
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
 }
 
 tasks.register<Copy>("copyInitScript") {

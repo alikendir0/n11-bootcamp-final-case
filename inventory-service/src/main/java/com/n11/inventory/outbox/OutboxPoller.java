@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 // concrete @Component subclass — wiring only
-@Component
+@Component("inventoryOutboxPoller")
 public class OutboxPoller extends AbstractOutboxPoller {
     public OutboxPoller(OutboxRepository outboxRepository,
                         RabbitTemplate rabbitTemplate,

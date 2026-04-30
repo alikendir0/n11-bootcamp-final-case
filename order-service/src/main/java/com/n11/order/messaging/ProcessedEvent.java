@@ -14,7 +14,7 @@ import java.util.UUID;
  * <p>Written in the SAME @Transactional method as the state transition and outbox
  * row — if any save throws, the entire transaction rolls back (CLAUDE.md Rule #3).
  */
-@Entity
+@Entity(name = "OrderProcessedEvent")
 @Table(name = "processed_events")
 public class ProcessedEvent {
 

@@ -9,7 +9,7 @@ import java.util.Map;
  * Minimal health endpoint for docker-compose healthcheck and smoke testing.
  * Phase 6 adds the real /payments/checkout REST surface.
  */
-@RestController
+@RestController("paymentSampleHealthController")
 public class SampleHealthController {
 
     @GetMapping("/sample/health")

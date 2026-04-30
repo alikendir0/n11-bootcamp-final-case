@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@RestController
+@RestController("cartSampleHealthController")
 public class SampleHealthController {
     @GetMapping("/sample/health")
     public Map<String, String> health() { return Map.of("service", "cart-service", "status", "UP"); }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.Map;
 
-@RestController
+@RestController("identitySampleHealthController")
 public class SampleHealthController {
 
     @Value("${spring.application.name:identity-service}")

@@ -15,7 +15,7 @@ import java.util.UUID;
  * <p>Written in the SAME @Transactional method as the cart_items DELETE — if any
  * save throws, the entire transaction rolls back (CLAUDE.md Rule #3).
  */
-@Entity
+@Entity(name = "CartProcessedEvent")
 @Table(name = "processed_events")
 public class ProcessedEvent {
 

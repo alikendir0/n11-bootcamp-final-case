@@ -12,7 +12,7 @@ import java.util.UUID;
  * checks {@code processedEventsRepository.existsById(eventId)}. If the row exists,
  * the event has already been processed and the consumer skips.
  */
-@Entity
+@Entity(name = "PaymentProcessedEvent")
 @Table(name = "processed_events")
 public class ProcessedEvent {
 

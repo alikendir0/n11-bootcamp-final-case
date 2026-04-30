@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.Map;
 
-@RestController
+@RestController("inventorySampleHealthController")
 public class SampleHealthController {
 
     @Value("${spring.application.name:inventory-service}")
