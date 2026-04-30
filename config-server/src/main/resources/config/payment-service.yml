@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------
 # config-server/src/main/resources/config/payment-service.yml
-# Per-service config for the payment-service module (Phase 5, Plan 04, D-06).
+# Per-service config for the payment-service module (Phase 6 Iyzico Checkout Form).
 # Inherits the shared baseline from .../config/application.yml.
 # ---------------------------------------------------------------------------
 
@@ -50,9 +50,13 @@ spring:
     username: ${RABBITMQ_DEFAULT_USER}
     password: ${RABBITMQ_DEFAULT_PASS}
 
-mock:
-  payment:
-    delay-ms: 100
+iyzico:
+  base-url: https://sandbox-api.iyzipay.com
+  api-key: ${IYZICO_API_KEY}
+  secret-key: ${IYZICO_SECRET_KEY}
+  public-base-url: ${PUBLIC_BASE_URL}
+  timeout-minutes: ${PAYMENT_TIMEOUT_MINUTES:15}
+  demo-buyer-identity-number: ${IYZICO_DEMO_BUYER_IDENTITY_NUMBER:74300864791}
 
 management:
   endpoints:

@@ -17,6 +17,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17")
     implementation("org.flywaydb:flyway-core:12.5.0")
     implementation("org.flywaydb:flyway-database-postgresql:12.5.0")
+    implementation("com.iyzipay:iyzipay-java:2.0.141")
 
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("net.logstash.logback:logstash-logback-encoder:8.0")
