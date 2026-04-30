@@ -193,7 +193,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 06-02-PLAN.md — order-service internal payment context endpoint + payment-service client (`PAY-01, PAY-02`)
 
   **Wave 2** *(blocked on Wave 1 completion)* — Checkout Form initialization
-  - [ ] 06-03-PLAN.md — `stock.reserved` initializes one reusable pending Iyzico checkout link (`PAY-01, PAY-02, PAY-03`)
+  - [x] 06-03-PLAN.md — `stock.reserved` initializes one reusable pending Iyzico checkout link (`PAY-01, PAY-02, PAY-03`)
 
   **Wave 3** *(blocked on 06-03)* — REST handoff + callback finalization
   - [ ] 06-04-PLAN.md — payment status/link API, public callback route, retrieve-driven `payment.completed` / `payment.failed` (`PAY-03, PAY-04, PAY-05, PAY-07, QUAL-05`)

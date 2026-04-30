@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-04-30T12:02:05.704Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-04-30T12:16:19.058Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 13
   completed_phases: 5
   total_plans: 31
-  completed_plans: 27
-  percent: 87
+  completed_plans: 28
+  percent: 90
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 06 (payment-iyzico) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Next: Execute 06-03-PLAN.md — real Iyzico Checkout Form initialization and pending payment persistence
 Status: Ready to execute
 Last activity: 2026-04-30
 
-Progress: [█████████░] 87%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [█████████░] 87%
 
 *Updated after each plan completion*
 | Phase 06-payment-iyzico P02 | 4min | 2 tasks | 9 files |
+| Phase 06-payment-iyzico P03 | 11min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,9 @@ Recent decisions affecting current work:
 - [Phase 06]: Payment-service obtains Iyzico buyer/address/item inputs through order-service internal REST, preserving schema ownership and keeping PII out of stock.reserved.
 - [Phase 06]: Payment context endpoint remains under /internal/orders and no api-gateway route was added; Docker mesh/gateway-only exposure remains the trust boundary.
 - [Phase 06]: 404 from order-service is treated as a non-retryable payment initialization failure with a sanitized message.
+- [Phase 06]: Checkout initialization is driven only by stock.reserved; clients fetch the persisted paymentPageUrl later instead of creating Iyzico sessions directly.
+- [Phase 06]: Active PENDING checkout rows are reused before calling Iyzico so stock.reserved redelivery cannot create duplicate hosted sessions.
+- [Phase 06]: Internal order payment context includes createdAt for deterministic Iyzico buyer registrationDate/lastLoginDate mapping.
 
 ### Pending Todos
 
@@ -137,7 +141,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-30T11:51:08.790Z
+Last session: 2026-04-30T12:15:50.362Z
 Stopped at: Completed 06-02-PLAN.md
 Resume file: None
 Next: Execute 06-03-PLAN.md — real Iyzico Checkout Form initialization and pending payment persistence
