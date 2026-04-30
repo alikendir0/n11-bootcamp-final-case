@@ -1,10 +1,8 @@
 package com.n11.payment.messaging;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n11.events.Envelope;
 import com.n11.payment.iyzico.IyzicoCheckoutResult;
 import com.n11.payment.order.OrderPaymentContext;
-import com.n11.payment.outbox.PaymentOutboxRepository;
 import com.n11.payment.payment.Payment;
 import com.n11.payment.payment.PaymentRepository;
 import com.n11.payment.payment.PaymentStatus;
@@ -13,20 +11,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
 /**
- * @Transactional persist + outbox-write for payment.completed.
+ * Transactional persistence boundary for payment saga side effects.
  *
  * <p>Separate bean from {@link PaymentSagaService} so the AOP proxy is honored when invoked
  * cross-bean (Spring's @Transactional requires proxy invocation — self-invocation bypasses it).
  *
  * <p>Idempotency: processed_events check INSIDE @Transactional ensures redelivery → single
- * payments row + single outbox row (ARCH-07, CLAUDE.md Rule #3).
- *
- * <p>Amount sourced from {@code payload.totalAmount()} (W4 closure — never hardcoded).
+ * active checkout row (ARCH-07, CLAUDE.md Rule #3).
  */
 @Service
 public class PaymentTransactionalService {
@@ -34,17 +29,11 @@ public class PaymentTransactionalService {
     private static final Logger LOG = LoggerFactory.getLogger(PaymentTransactionalService.class);
     private final ProcessedEventRepository processedEventsRepository;
     private final PaymentRepository paymentRepository;
-    private final PaymentOutboxRepository outboxRepository;
-    private final ObjectMapper objectMapper;
 
     public PaymentTransactionalService(ProcessedEventRepository processedEventsRepository,
-                                       PaymentRepository paymentRepository,
-                                       PaymentOutboxRepository outboxRepository,
-                                       ObjectMapper objectMapper) {
+                                       PaymentRepository paymentRepository) {
         this.processedEventsRepository = processedEventsRepository;
         this.paymentRepository = paymentRepository;
-        this.outboxRepository = outboxRepository;
-        this.objectMapper = objectMapper;
     }
 
     @Transactional
@@ -95,10 +84,4 @@ public class PaymentTransactionalService {
         LOG.info("payment.saga: persisted pending checkout {} for order {} amount={}", paymentId, payload.orderId(), context.totalAmount());
     }
 
-    public record PaymentCompletedPayload(
-            UUID orderId,
-            UUID paymentId,
-            String iyzicoPaymentId,
-            BigDecimal amount,
-            String currency) {}
 }

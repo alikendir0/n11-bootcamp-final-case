@@ -17,13 +17,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * D-06 mock payment skeleton: consume stock.reserved → wait mock-delay → publish payment.completed.
+ * Payment saga orchestration: consume stock.reserved, fetch the order payment snapshot, initialize
+ * Iyzico Checkout Form, then persist a reusable PENDING checkout link.
  *
- * <p>v1 amount = stock.reserved.totalAmount (W4 closure — propagated verbatim from order.created
- * by inventory-service). Phase 6 swaps internals for real Iyzico without touching the topology.
- *
- * <p>NOT @Transactional — delegates to {@link PaymentTransactionalService} for the proxy boundary.
- * The mock delay happens BEFORE the transaction opens (Pitfall 1: don't sleep inside tx).
+ * <p>NOT @Transactional — external REST/SDK calls happen outside the database transaction and the
+ * transactional side effects are delegated to {@link PaymentTransactionalService}.
  */
 @Service
 public class PaymentSagaService {
