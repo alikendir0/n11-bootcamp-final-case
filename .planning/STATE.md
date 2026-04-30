@@ -5,7 +5,7 @@ milestone_name: milestone
 status: executing
 stopped_at: Phase 5 context gathered (auto mode) — 11 gray areas auto-resolved, common-outbox refactor + 999.2 ArchUnit gate locked
 last_updated: "2026-04-30T09:45:13Z"
-last_activity: 2026-04-30 -- Phase 05 Plan 04 complete (payment-service skeleton + CD-08/CD-09 compensation + saga E2E test)
+last_activity: 2026-04-30 -- Phase 05 Plan 05 complete (gateway routes + docker-compose 11-service stack + smoke runbook signed off; Phase 5 all 5/5 plans done)
 progress:
   total_phases: 13
   completed_phases: 4
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 
 ## Current Position
 
-Phase: 05 (cart-order-skeleton) — EXECUTING
-Plan: 5 of 5
-Next: Phase 05 Plan 05 (gateway routes + docker-compose + smoke runbook)
-Status: Executing Phase 05
-Last activity: 2026-04-30 -- Phase 05 Plan 04 complete (payment-service skeleton + CD-08/CD-09 compensation + saga E2E test)
+Phase: 05 (cart-order-skeleton) — COMPLETE (5/5 plans done; verification pending orchestrator sign-off)
+Plan: 5 of 5 — DONE
+Next: Phase 06 (payment Iyzico) — see Phase 6 prerequisites in 05-05-SUMMARY.md
+Status: Phase 05 complete — all SC-1..SC-5 verified by live smoke test
+Last activity: 2026-04-30 -- Phase 05 Plan 05 complete (gateway routes + docker-compose 11-service stack + smoke runbook signed off; Phase 5 all 5/5 plans done)
 
 Progress: [████░░░░░░] 36% (4 of 11 phases complete)
 
@@ -129,7 +129,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-30T09:45:13Z
-Stopped at: Phase 05 Plan 04 complete — payment-service skeleton (D-06) + inventory CD-08/CD-09 compensation consumers + SagaHappyPathE2ETest (Testcontainers Postgres + RabbitMQ, real AMQP, Awaitility 15s, D-09 messageId invariant)
-Resume file: .planning/phases/05-cart-order-skeleton/05-05-PLAN.md
-Next: Phase 05 Plan 05 (gateway routes + docker-compose + smoke runbook)
+Last session: 2026-04-30T~12:30:00Z
+Stopped at: Phase 05 Plan 05 complete — gateway routes (cart + order) + docker-compose 11-service stack + Phase 5 smoke runbook authored + live smoke sign-off (12/12 checklist items passed, 3 mid-flight fixes in db25041). Phase 05 all 5/5 plans done.
+Resume file: None — begin Phase 06 planning (payment Iyzico)
+Next: Phase 06 (payment Iyzico) — resolve Cloudflare Tunnel vs ngrok (Pitfall #5) during planning

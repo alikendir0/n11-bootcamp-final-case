@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Frontend Recon + Toolchain Lock** - Playwright recon of n11.com, frontend toolchain decision recorded
 - [x] **Phase 3: Identity + Gateway Auth** - identity-service issues JWT; gateway validates and injects user headers — completed 2026-04-29 (6/6 plans, 4 waves; 5/5 must-haves verified by gsd-verifier)
 - [x] **Phase 4: Catalog + Inventory** - product-service, inventory-service, Turkish seed data, basic ILIKE search — completed 2026-04-29 (3/3 plans, 3 waves; all 5 success criteria verified by live smoke test)
-- [ ] **Phase 5: Cart & Order Skeleton** - cart-service, order-service, RabbitMQ saga skeleton (no Iyzico yet), idempotency inbox
+- [x] **Phase 5: Cart & Order Skeleton** - cart-service, order-service, RabbitMQ saga skeleton (no Iyzico yet), idempotency inbox — completed 2026-04-30 (5/5 plans, 4 waves; SC-1..SC-5 verified by live smoke test)
 - [ ] **Phase 6: Payment (Iyzico)** - Iyzico Checkout Form, public webhook reachability, payment-timeout job, payment-fail compensation
 - [ ] **Phase 7: Notification (Saga Closure)** - notification-service mock, saga happy-path closure, end-to-end saga integration test
 - [ ] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat
@@ -172,7 +172,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 05-04-PLAN.md — payment-service skeleton + StockReservedConsumer + inventory-service compensation consumers (CD-08 + CD-09) + saga publishing E2E test in infra-tests (`ARCH-06, ARCH-07, ARCH-08, QUAL-03`) - DONE 2026-04-30 (commits b0d1cf8, 22114b0, 3d65e1c)
 
   **Wave 4** *(blocked on Wave 3)* — gateway routes + smoke runbook
-  - [ ] 05-05-PLAN.md — api-gateway routes + Springdoc aggregator entries + docker-compose merge + Phase 5 smoke runbook live sign-off (`CART-06, ORD-06, QUAL-01, ARCH-08, QUAL-03`)
+  - [x] 05-05-PLAN.md — api-gateway routes + Springdoc aggregator entries + docker-compose merge + Phase 5 smoke runbook live sign-off (`CART-06, ORD-06, QUAL-01, ARCH-08, QUAL-03`) - DONE 2026-04-30 (commits 096adc0, 4c45e99, b975b5d, db25041; live smoke 12/12 pass)
 **Risks**: Pitfall #3 (non-idempotent saga consumers → duplicate orders), Pitfall #11 (incomplete compensation — wire the skeleton with all 4 compensation paths from Day 1), dual-writes anti-pattern (transactional outbox is non-negotiable)
 **Research need**: LOW — saga choreography pattern and outbox are documented in `research/ARCHITECTURE.md` §3.
 
@@ -274,7 +274,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 2. Frontend Recon + Toolchain Lock | 0/TBD | Not started | - |
 | 3. Identity + Gateway Auth | 0/6 | Not started | - |
 | 4. Catalog + Inventory | 3/3 | Complete | 2026-04-29 |
-| 5. Cart & Order Skeleton | 3/5 | In progress | - |
+| 5. Cart & Order Skeleton | 5/5 | Complete | 2026-04-30 |
 | 6. Payment (Iyzico) | 0/TBD | Not started | - |
 | 7. Notification (Saga Closure) | 0/TBD | Not started | - |
 | 8. AI Port + Adapter + Agent Toolset | 0/TBD | Not started | - |
