@@ -43,6 +43,7 @@ public class PaymentContextService {
             order.getUserId(),
             order.getTotalAmount(),
             order.getCurrency(),
+            order.getCreatedAt(),
             new PaymentContextDto.ShippingAddress(
                 address.getRecipientName(),
                 address.getPhone(),

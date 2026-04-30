@@ -1,9 +1,9 @@
 package com.n11.payment.messaging;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n11.events.Envelope;
-import com.n11.outbox.OutboxEvent;
+import com.n11.payment.iyzico.IyzicoCheckoutResult;
+import com.n11.payment.order.OrderPaymentContext;
 import com.n11.payment.outbox.PaymentOutboxRepository;
 import com.n11.payment.payment.Payment;
 import com.n11.payment.payment.PaymentRepository;
@@ -32,8 +32,6 @@ import java.util.UUID;
 public class PaymentTransactionalService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PaymentTransactionalService.class);
-    private static final String MOCK_PAYMENT_PREFIX = "mock-";
-
     private final ProcessedEventRepository processedEventsRepository;
     private final PaymentRepository paymentRepository;
     private final PaymentOutboxRepository outboxRepository;
@@ -50,50 +48,51 @@ public class PaymentTransactionalService {
     }
 
     @Transactional
-    public void persistAndPublish(UUID eventId, Envelope envelope,
-                                  StockReservedConsumer.StockReservedPayload payload) {
+    public boolean hasProcessedEventOrRecordActiveCheckout(UUID eventId, Envelope envelope, UUID orderId) {
         if (processedEventsRepository.existsById(eventId)) {
             LOG.debug("payment.saga: duplicate event {}, skipping", eventId);
+            return true;
+        }
+        var active = paymentRepository.findFirstByOrderIdAndStatusOrderByCreatedAtDesc(orderId, PaymentStatus.PENDING);
+        if (active.isPresent()) {
+            processedEventsRepository.save(new ProcessedEvent(eventId, "StockReservedConsumer", envelope.eventType()));
+            LOG.info("payment.saga: reused active pending checkout for order {} on event {}", orderId, eventId);
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional
+    public void persistPendingCheckout(UUID eventId, Envelope envelope,
+                                       StockReservedConsumer.StockReservedPayload payload,
+                                       OrderPaymentContext context,
+                                       IyzicoCheckoutResult.InitializedCheckout checkout,
+                                       Instant expiresAt) {
+        if (processedEventsRepository.existsById(eventId)) {
+            LOG.debug("payment.saga: duplicate event {}, skipping pending persist", eventId);
             return;
         }
-
+        var active = paymentRepository.findFirstByOrderIdAndStatusOrderByCreatedAtDesc(payload.orderId(), PaymentStatus.PENDING);
+        if (active.isPresent()) {
+            processedEventsRepository.save(new ProcessedEvent(eventId, "StockReservedConsumer", envelope.eventType()));
+            return;
+        }
         UUID paymentId = UUID.randomUUID();
-        String iyzicoPaymentId = MOCK_PAYMENT_PREFIX + paymentId;
-        BigDecimal amount = payload.totalAmount();   // W4 closure — real order amount
-        if (amount == null) {
+        if (context.totalAmount() == null) {
             throw new IllegalStateException(
                 "stock.reserved.totalAmount missing for event " + eventId
                 + " — inventory-service must populate it from order.created");
         }
 
-        paymentRepository.save(new Payment(paymentId, payload.orderId(), amount, "TRY",
-                PaymentStatus.COMPLETED, iyzicoPaymentId));
-
-        // Outbox: payment.completed envelope per payment-completed.schema.json
-        UUID outEventId = UUID.randomUUID();
-        PaymentCompletedPayload outPayload = new PaymentCompletedPayload(
-                payload.orderId(), paymentId, iyzicoPaymentId, amount, "TRY");
-        Envelope outEnv = new Envelope(
-                outEventId.toString(),
-                "payment.completed",
-                1,
-                Instant.now(),
-                envelope.correlationId(),
-                envelope.eventId(),
-                "payment-service",
-                objectMapper.valueToTree(outPayload)
-        );
-        try {
-            String json = objectMapper.writeValueAsString(outEnv);
-            outboxRepository.save(new OutboxEvent(outEventId, "payments", "payment.completed", json, Instant.now()));
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Failed to serialize payment.completed envelope", e);
-        }
+        Payment payment = new Payment(paymentId, payload.orderId(), context.totalAmount(), context.currency(),
+                PaymentStatus.PENDING_INITIALIZATION, null);
+        payment.markPending(checkout.token(), checkout.paymentPageUrl(), expiresAt);
+        paymentRepository.save(payment);
 
         processedEventsRepository.save(
                 new ProcessedEvent(eventId, "StockReservedConsumer", envelope.eventType()));
 
-        LOG.info("payment.saga: persisted payment {} for order {} amount={}", paymentId, payload.orderId(), amount);
+        LOG.info("payment.saga: persisted pending checkout {} for order {} amount={}", paymentId, payload.orderId(), context.totalAmount());
     }
 
     public record PaymentCompletedPayload(

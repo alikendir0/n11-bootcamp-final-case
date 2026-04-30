@@ -11,6 +11,7 @@ import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +43,7 @@ class PaymentContextControllerTest {
             userId,
             new BigDecimal("199.90"),
             "TRY",
+            Instant.parse("2026-04-30T10:15:30Z"),
             new PaymentContextDto.ShippingAddress("Ayşe Yılmaz", "+905551112233", "İstanbul",
                 "Kadıköy", "Caferağa", "Moda Caddesi No:1", "34710", "Ev"),
             List.of(new PaymentContextDto.Item(productId, "Kablosuz Kulaklık", 2, new BigDecimal("99.95")))
@@ -55,6 +57,7 @@ class PaymentContextControllerTest {
             .andExpect(jsonPath("$.userId").value(userId.toString()))
             .andExpect(jsonPath("$.totalAmount").value(199.90))
             .andExpect(jsonPath("$.currency").value("TRY"))
+            .andExpect(jsonPath("$.createdAt").value("2026-04-30T10:15:30Z"))
             .andExpect(jsonPath("$.shippingAddress.il").value("İstanbul"))
             .andExpect(jsonPath("$.shippingAddress.ilce").value("Kadıköy"))
             .andExpect(jsonPath("$.items[0].productId").value(productId.toString()))

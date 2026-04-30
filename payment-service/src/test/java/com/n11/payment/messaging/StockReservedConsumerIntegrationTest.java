@@ -10,6 +10,7 @@ import com.n11.payment.payment.PaymentStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -64,9 +66,17 @@ class StockReservedConsumerIntegrationTest {
         DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"))
         .withDatabaseName("n11").withUsername("postgres").withPassword("postgres");
 
+    @Container
+    static GenericContainer<?> RABBIT = new GenericContainer<>(DockerImageName.parse("rabbitmq:3.13-management"))
+        .withExposedPorts(5672);
+
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry r) {
         r.add("spring.datasource.hikari.connection-init-sql", () -> "SET search_path = payment, public");
+        r.add("spring.rabbitmq.host", RABBIT::getHost);
+        r.add("spring.rabbitmq.port", () -> RABBIT.getMappedPort(5672));
+        r.add("spring.rabbitmq.username", () -> "guest");
+        r.add("spring.rabbitmq.password", () -> "guest");
     }
 
     @Autowired StockReservedConsumer consumer;
@@ -75,6 +85,7 @@ class StockReservedConsumerIntegrationTest {
     @Autowired PaymentOutboxRepository outboxRepository;
     @MockBean OrderPaymentContextClient orderPaymentContextClient;
     @MockBean IyzicoCheckoutClient iyzicoCheckoutClient;
+    @MockBean RabbitTemplate rabbitTemplate;
 
     @Test
     void stockReserved_initializesPendingCheckout_andRedeliveryReusesActiveCheckout() {

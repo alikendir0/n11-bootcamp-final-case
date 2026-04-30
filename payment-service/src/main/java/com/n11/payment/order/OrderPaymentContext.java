@@ -1,6 +1,7 @@
 package com.n11.payment.order;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ public record OrderPaymentContext(
         UUID userId,
         BigDecimal totalAmount,
         String currency,
+        Instant createdAt,
         ShippingAddress shippingAddress,
         List<Item> items) {
 

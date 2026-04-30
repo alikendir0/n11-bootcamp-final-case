@@ -11,6 +11,7 @@ import java.util.UUID;
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     List<Payment> findByOrderId(UUID orderId);
     Optional<Payment> findFirstByOrderIdOrderByCreatedAtDesc(UUID orderId);
+    Optional<Payment> findFirstByOrderIdAndStatusOrderByCreatedAtDesc(UUID orderId, PaymentStatus status);
     Optional<Payment> findByIyzicoToken(String token);
 
     @Query("select p from Payment p where p.status = 'PENDING' and p.expiresAt <= :now")

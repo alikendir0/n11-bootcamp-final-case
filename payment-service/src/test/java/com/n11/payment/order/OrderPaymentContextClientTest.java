@@ -32,6 +32,7 @@ class OrderPaymentContextClientTest {
                   "userId": "%s",
                   "totalAmount": 199.90,
                   "currency": "TRY",
+                  "createdAt": "2026-04-30T10:15:30Z",
                   "shippingAddress": {
                     "recipientName": "Ayşe Yılmaz",
                     "phone": "+905551112233",
@@ -56,6 +57,7 @@ class OrderPaymentContextClientTest {
 
         assertThat(context.orderId()).isEqualTo(orderId);
         assertThat(context.currency()).isEqualTo("TRY");
+        assertThat(context.createdAt()).isEqualTo(java.time.Instant.parse("2026-04-30T10:15:30Z"));
         assertThat(context.shippingAddress().il()).isEqualTo("İstanbul");
         assertThat(context.items()).hasSize(1);
         server.verify();
