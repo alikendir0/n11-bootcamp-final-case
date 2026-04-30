@@ -160,7 +160,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 (4 waves)
 
   **Wave 0** — common-outbox lift + ArchUnit gate (no deps)
-  - [ ] 05-01-PLAN.md — common-outbox shared module + identity/inventory migration + D-09 OutboxMessagePostProcessor + D-10 ArchUnit ack-mode gate (`ARCH-07, ARCH-08`)
+  - [x] 05-01-PLAN.md — common-outbox shared module + identity/inventory migration + D-09 OutboxMessagePostProcessor + D-10 ArchUnit ack-mode gate (`ARCH-07, ARCH-08`) - DONE 2026-04-30 (commits 0284247, 9ce1591, 46b93b3)
 
   **Wave 1** *(blocked on Wave 0)* — cart-service end-to-end
   - [ ] 05-02-PLAN.md — cart-service module + V2 Flyway + REST controller + product-snapshot client + cart.q.order-confirmed consumer + Testcontainers tests (`CART-01..06, ARCH-07, ARCH-08`)
