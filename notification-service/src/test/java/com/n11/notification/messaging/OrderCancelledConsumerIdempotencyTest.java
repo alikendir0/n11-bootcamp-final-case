@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -51,6 +52,11 @@ class OrderCancelledConsumerIdempotencyTest {
     static PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
         DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"))
         .withDatabaseName("n11").withUsername("postgres").withPassword("postgres");
+
+    @Container
+    @ServiceConnection
+    static RabbitMQContainer RABBIT = new RabbitMQContainer(
+        DockerImageName.parse("rabbitmq:3.13-management"));
 
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry r) {

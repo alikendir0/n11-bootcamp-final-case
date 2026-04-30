@@ -1,0 +1,39 @@
+# Test profile — disables Eureka/config-server lookup; Testcontainers Postgres
+# supplies datasource via @ServiceConnection. Flyway runs the full V1+V2 chain
+# against the test container so the schema is created.
+spring:
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+  config:
+    import: ""
+  datasource:
+    hikari:
+      connection-init-sql: "SET search_path = notification, public"
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        default_schema: notification
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: notification
+    default-schema: notification
+    create-schemas: true
+    placeholders:
+      schema: notification
+      flyway.schema: notification
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
