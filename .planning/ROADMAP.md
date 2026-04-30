@@ -13,12 +13,12 @@ A 6-day, AI-assisted build of a 13-service Spring Boot microservices e-commerce 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundations + Day-1 Contracts** - Multi-module skeleton, infra services, saga + REST contracts locked, deploy target locked to local docker-compose (no AWS) — completed 2026-04-28 (8/8 plans, 4 waves; SC-1 stack healthy in 25s under 60s budget)
-- [ ] **Phase 2: Frontend Recon + Toolchain Lock** - Playwright recon of n11.com, frontend toolchain decision recorded
+- [x] **Phase 2: Frontend Recon + Toolchain Lock** - Playwright recon of n11.com, frontend toolchain decision recorded — completed 2026-04-29 (3/3 plans; 644 phrases + 25 color tokens + 7 fullpage screenshots captured on rung 1)
 - [x] **Phase 3: Identity + Gateway Auth** - identity-service issues JWT; gateway validates and injects user headers — completed 2026-04-29 (6/6 plans, 4 waves; 5/5 must-haves verified by gsd-verifier)
 - [x] **Phase 4: Catalog + Inventory** - product-service, inventory-service, Turkish seed data, basic ILIKE search — completed 2026-04-29 (3/3 plans, 3 waves; all 5 success criteria verified by live smoke test)
 - [x] **Phase 5: Cart & Order Skeleton** - cart-service, order-service, RabbitMQ saga skeleton (no Iyzico yet), idempotency inbox — completed 2026-04-30 (5/5 plans, 4 waves; SC-1..SC-5 verified by live smoke test)
-- [ ] **Phase 6: Payment (Iyzico)** - Iyzico Checkout Form, public webhook reachability, payment-timeout job, payment-fail compensation
-- [ ] **Phase 7: Notification (Saga Closure)** - notification-service mock, saga happy-path closure, end-to-end saga integration test
+- [x] **Phase 6: Payment (Iyzico)** - Iyzico Checkout Form, public webhook reachability, payment-timeout job, payment-fail compensation — completed 2026-04-30 (6/6 plans; PAY-07 live Iyzico sandbox smoke PASS)
+- [x] **Phase 7: Notification (Saga Closure)** - notification-service mock, saga happy-path closure, end-to-end saga integration test — completed 2026-04-30 (6/6 plans; 07-VERIFICATION.md persisted)
 - [ ] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat
 - [ ] **Phase 9: MCP Server** - mcp-server consumes shared agent-toolset, stdio + HTTP+SSE transports, API-key auth bridge
 - [ ] **Phase 10: Frontend Storefront** - Turkish React storefront: header/footer/hero/listing/PDP/cart/checkout/account
@@ -310,17 +310,19 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundations + Day-1 Contracts | 6/8 | In progress | - |
-| 2. Frontend Recon + Toolchain Lock | 0/TBD | Not started | - |
-| 3. Identity + Gateway Auth | 0/6 | Not started | - |
+| 1. Foundations + Day-1 Contracts | 8/8 | Complete | 2026-04-28 |
+| 2. Frontend Recon + Toolchain Lock | 3/3 | Complete | 2026-04-29 |
+| 3. Identity + Gateway Auth | 6/6 | Complete | 2026-04-29 |
 | 4. Catalog + Inventory | 3/3 | Complete | 2026-04-29 |
 | 5. Cart & Order Skeleton | 5/5 | Complete | 2026-04-30 |
-| 6. Payment (Iyzico) | 1/6 | In Progress | - |
-| 7. Notification (Saga Closure) | 0/6 | Not started | - |
+| 6. Payment (Iyzico) | 6/6 | Complete | 2026-04-30 |
+| 7. Notification (Saga Closure) | 6/6 | Complete | 2026-04-30 |
 | 8. AI Port + Adapter + Agent Toolset | 0/TBD | Not started | - |
 | 9. MCP Server | 0/TBD | Not started | - |
 | 10. Frontend Storefront | 0/TBD | Not started | - |
 | 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
+
+**Milestone progress:** 7 of 11 active phases complete (64%). 37 plans authored and executed across Phases 1–7. Phases 8–11 plan counts are TBD until those phases enter the discuss/plan loop.
 
 ## Backlog
 
