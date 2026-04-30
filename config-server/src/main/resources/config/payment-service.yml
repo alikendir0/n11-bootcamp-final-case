@@ -1,0 +1,67 @@
+# ---------------------------------------------------------------------------
+# config-server/src/main/resources/config/payment-service.yml
+# Per-service config for the payment-service module (Phase 5, Plan 04, D-06).
+# Inherits the shared baseline from .../config/application.yml.
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8086    # D-21 / 808x convention
+
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: true
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/n11
+    username: payment_user
+    password: ${PAYMENT_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: payment
+    default-schema: payment
+    create-schemas: false
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    placeholders:
+      schema: payment
+      flyway.schema: payment
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: payment
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: ${RABBITMQ_DEFAULT_USER}
+    password: ${RABBITMQ_DEFAULT_PASS}
+
+mock:
+  payment:
+    delay-ms: 100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
