@@ -186,7 +186,28 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. payment-service consumes `stock.reserved` → initiates Iyzico checkout (publishes `payment.completed` on success or `payment.failed` on decline); the saga compensation integration test forces a payment failure and asserts inventory releases stock and order moves to CANCELLED.
   4. A scheduled payment-timeout job marks payments TIMED_OUT after N minutes and emits `payment.failed`, taking the same compensation path; the timeout integration test simulates a stuck Iyzico response.
   5. payment-service has Springdoc Swagger UI; idempotency on the callback uses `iyzico_payment_id` as the dedup key.
-**Plans**: TBD
+**Plans**: 6 plans (5 waves)
+
+  **Wave 1** — payment foundation + internal context (parallel)
+  - [ ] 06-01-PLAN.md — Iyzico SDK/config/schema/adapter contract for sandbox Checkout Form (`PAY-01, PAY-04, PAY-05`)
+  - [ ] 06-02-PLAN.md — order-service internal payment context endpoint + payment-service client (`PAY-01, PAY-02`)
+
+  **Wave 2** *(blocked on Wave 1 completion)* — Checkout Form initialization
+  - [ ] 06-03-PLAN.md — `stock.reserved` initializes one reusable pending Iyzico checkout link (`PAY-01, PAY-02, PAY-03`)
+
+  **Wave 3** *(blocked on 06-03)* — REST handoff + callback finalization
+  - [ ] 06-04-PLAN.md — payment status/link API, public callback route, retrieve-driven `payment.completed` / `payment.failed` (`PAY-03, PAY-04, PAY-05, PAY-07, QUAL-05`)
+
+  **Wave 4** *(blocked on 06-04)* — timeout + compensation proof
+  - [ ] 06-05-PLAN.md — payment-timeout job and payment-failure compensation E2E (`PAY-03, PAY-06, QUAL-05`)
+
+  **Wave 5** *(blocked on 06-04 + 06-05)* — live sandbox runbook
+  - [ ] 06-06-PLAN.md — Cloudflare/ngrok runbook + Iyzico sandbox smoke checkpoint (`PAY-05, PAY-07`)
+
+  **Cross-cutting constraints**:
+  - `PUBLIC_BASE_URL` is the single source for callback URLs (CONTEXT D-02); no separate drifting callback URL variable.
+  - `checkoutFormContent` remains internal to the adapter; Phase 6 exposes `paymentPageUrl` only (CONTEXT D-07).
+  - Repeated stock reservations, payment-link requests, callbacks, and timeout scans are idempotent; no duplicate Checkout Form sessions or duplicate terminal outbox events.
 **Risks**: Pitfall #5 (Iyzico callback unreachable on localhost), Pitfall #11 (compensation path missing), Pitfall #18 (sandbox/prod key mix — env vars only)
 **Research need**: HIGH — Iyzico Checkout Form Java sample lives in `src/test/java/com/iyzipay/sample/CheckoutFormSample.java` (per stack research); 3DS callback specifics; sandbox webhook reachability decision.
 
