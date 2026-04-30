@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n11.events.Envelope;
 import com.n11.identity.user.User;
 import com.n11.identity.user.UserRegistrationOutboxPublisher;
+import com.n11.outbox.OutboxEvent;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

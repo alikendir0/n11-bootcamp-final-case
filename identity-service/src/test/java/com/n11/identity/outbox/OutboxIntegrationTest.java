@@ -3,6 +3,7 @@ package com.n11.identity.outbox;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n11.identity.auth.dto.RegisterRequest;
+import com.n11.outbox.OutboxEvent;
 import com.n11.identity.user.UserService;
 import com.networknt.schema.Error;
 import com.networknt.schema.InputFormat;

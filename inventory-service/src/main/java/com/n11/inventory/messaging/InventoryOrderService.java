@@ -2,7 +2,7 @@ package com.n11.inventory.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n11.events.Envelope;
-import com.n11.inventory.outbox.OutboxEvent;
+import com.n11.outbox.OutboxEvent;
 import com.n11.inventory.outbox.OutboxRepository;
 import com.n11.inventory.reservation.StockReservation;
 import com.n11.inventory.reservation.StockReservationRepository;

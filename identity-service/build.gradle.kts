@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":common-error"))
     implementation(project(":common-logging"))
     implementation(project(":common-events"))
+    implementation(project(":common-outbox"))
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
