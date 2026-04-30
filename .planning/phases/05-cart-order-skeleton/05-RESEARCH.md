@@ -1416,30 +1416,35 @@ If the planner finds multi-service boot is required for the SC-2 acceptance, the
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should Phase 5 add a `POST /products/by-ids` batch endpoint to product-service for the order-service price-revalidation step (D-01)?**
    - What we know: order-service must re-fetch prices for every cart item before order create (price-drift detection). Phase 4's product-service exposes `GET /products/{id}` only.
    - What's unclear: per-product loop cost (~5–10 cart items × ~10ms each = 100ms p99) is tolerable for v1. A bulk endpoint is cleaner but adds product-service work.
    - **Recommendation:** Add a 30-LOC `GET /products/by-ids?ids=uuid1,uuid2,...` endpoint to product-service in the Phase 5 plan (Wave 2 task on order-service plan; small product-service change shipped alongside). CONTEXT.md "Deferred Ideas" line 252 tags it as plan-decides.
+   - **RESOLVED:** Accept the per-product loop as v1 cost (≤99 items, sub-100ms p99 against in-network product-service). 30 LOC of batch endpoint is not worth the cross-service contract change in Phase 5; revisit in Phase 10 polish if perf signals emerge. Plan 05-03 keeps the per-product `productClient.fetchSnapshot()` loop in `OrderService.createOrder` price-drift block.
 
 2. **`POST /orders` `body.paymentMethod` field — what values are accepted in Phase 5?**
    - What we know: API contracts list `paymentMethod` as a request field but don't enumerate values. Phase 6 introduces real Iyzico (CARD via Checkout Form). Kapıda Ödeme is a CONTEXT.md open question for Phase 5.
    - What's unclear: should Phase 5 accept `CARD` only? Reject `KAPIDA_ODEME`? Stub it as a no-op path?
    - **Recommendation:** Phase 5 accepts `CARD` only; `KAPIDA_ODEME` returns 400 RFC-7807 ("Bu ödeme yöntemi henüz desteklenmiyor"). Frontend (Phase 10) can render the radio button as disabled. Phase 6 plan revisits.
+   - **RESOLVED:** Only `CARD` accepted. Anything else (including `KAPIDA_ODEME`) rejected with HTTP 400 RFC-7807, type `https://n11clone/errors/validation`, detail "Bu ödeme yöntemi henüz desteklenmiyor: <method>". Already implemented in Plan 05-03 `OrderService.createOrder` first-line guard. Phase 6 plan revisits when real payment methods land.
 
 3. **Does the cart-service `cart.q.order-confirmed` consumer also need to handle `order.cancelled`?**
    - What we know: D-07 says `order.confirmed` clears the cart. `order.cancelled` (via stock-fail or payment-fail) does NOT clear the cart — the user might want to retry checkout with the same items.
    - What's unclear: if the user explicitly `POST /orders/{id}/cancel`s, should we clear the cart?
    - **Recommendation:** NO — only `order.confirmed` clears. User-cancel preserves the cart so the user can fix the issue and re-checkout. Document this in CART consumer's javadoc.
+   - **RESOLVED:** NO. Cart-service consumer only fires on `order.confirmed`. `order.cancelled` (stock-fail / payment-fail / user-cancel) preserves the cart so the user can retry checkout with the same items. CONTEXT.md D-07 confirms. Plan 05-02 `CartRabbitConfig` binds `cart.q.order-confirmed` to `orders.tx`/`order.confirmed` only — no `order.cancelled` binding.
 
 4. **Should the Phase 5 smoke runbook add a `POST /orders/{id}/cancel` smoke step?**
    - What we know: CD-09 says wire the path. Phase 4 smoke runbook did NOT have a cancel step (didn't exist).
    - **Recommendation:** YES — add Step 10 to the Phase 5 smoke runbook: `POST /orders/{newOrderId}/cancel`, verify `status=CANCELLED, cancel_reason=USER_CANCELLED`, verify `inventory.q.order-cancelled` consumed (stock released). Mirrors Step 7-8 shape.
+   - **RESOLVED:** YES. Plan 05-05 smoke runbook Step 10 covers user-cancel. To reliably win the race against the 100ms mock-payment delay (Assumption A5 — sub-100ms cancel window on the live stack), the runbook adds a pre-step that bumps `MOCK_PAYMENT_DELAY_MS=5000` via docker-compose env override, restarts payment-service, places a fresh order, waits 1s, then issues `POST /orders/{id}/cancel` — the 5s window guarantees the cancel arrives before payment-service's mock-completed event. After Step 10 completes, the runbook restores the delay to 100ms.
 
 5. **Should `mock.payment.delay-ms: 100` be set per-environment or hardcoded?**
    - What we know: D-06 says configurable; tests set 0.
    - **Recommendation:** Default `100ms` in `payment-service.yml` (config-server); test profile (`application-test.yml`) sets `0`. Both via env-var override (`MOCK_PAYMENT_DELAY_MS`) for runtime tweaks. Plan-phase confirms.
+   - **RESOLVED:** Configured per-environment. Default `100ms` in `config-server/src/main/resources/config/payment-service.yml` (`mock.payment.delay-ms: 100`); test profile `payment-service/src/test/resources/application-test.yml` sets `mock.payment.delay-ms: 0` to keep Awaitility windows tight; runtime override via env var `MOCK_PAYMENT_DELAY_MS` (Spring relaxed binding). Plan 05-05 smoke runbook Step 10 bumps to 5000ms only for the user-cancel race-window test, then restores to 100ms.
 
 ---
 
