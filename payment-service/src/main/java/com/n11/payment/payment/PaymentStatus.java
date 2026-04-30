@@ -1,7 +1,9 @@
 package com.n11.payment.payment;
 
 public enum PaymentStatus {
+    PENDING_INITIALIZATION,
     PENDING,
     COMPLETED,
-    FAILED
+    FAILED,
+    TIMED_OUT
 }
