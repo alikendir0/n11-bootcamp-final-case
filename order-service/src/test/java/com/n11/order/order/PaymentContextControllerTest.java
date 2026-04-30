@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -14,13 +15,18 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PaymentContextController.class)
+@WebMvcTest(value = PaymentContextController.class, properties = {
+    "spring.cloud.config.enabled=false",
+    "spring.cloud.config.import-check.enabled=false",
+    "eureka.client.enabled=false"
+})
 class PaymentContextControllerTest {
 
     @Autowired MockMvc mvc;
@@ -71,7 +77,9 @@ class PaymentContextControllerTest {
     void paymentContext_isOnlyExposedOnInternalOrdersPath() throws Exception {
         UUID orderId = UUID.randomUUID();
 
-        mvc.perform(get("/orders/{orderId}/payment-context", orderId))
-            .andExpect(status().isNotFound());
+        var result = mvc.perform(get("/orders/{orderId}/payment-context", orderId))
+            .andReturn();
+
+        assertThat(result.getHandler()).isInstanceOf(ResourceHttpRequestHandler.class);
     }
 }
