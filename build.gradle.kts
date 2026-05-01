@@ -23,6 +23,7 @@ subprojects {
             mavenBom("org.springframework.boot:spring-boot-dependencies:3.5.14")
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
             mavenBom("org.testcontainers:testcontainers-bom:2.0.5")
+            mavenBom("org.springframework.ai:spring-ai-bom:1.1.5")
         }
     }
 

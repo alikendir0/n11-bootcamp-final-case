@@ -20,7 +20,8 @@ include(
     "ai-port",
     "agent-toolset",
     "ai-service",
-    "search-service"
+    "search-service",
+    "mcp-server"
 )
 
 // Gradle 8.x auto-detects gradle/libs.versions.toml at the conventional path and
