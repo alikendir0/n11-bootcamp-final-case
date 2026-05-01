@@ -289,7 +289,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 7 (4 waves)
 
   **Wave 1** — module skeleton + auth-bridge backend (parallel, no deps)
-  - [ ] 09-01-PLAN.md — root Spring AI BOM + mcp-server module skeleton (compile + boot smoke) — `AI-11, AI-12`
+  - [x] 09-01-PLAN.md — root Spring AI BOM + mcp-server module skeleton (compile + boot smoke) — `AI-11, AI-12`
   - [ ] 09-02-PLAN.md — identity-service `agent_api_keys` table + `/agents/exchange` + AgentSeedRunner — `AI-13`
 
   **Wave 2** *(blocked on Wave 1)* — adapter, JWT cache, gateway/compose entry (parallel)
