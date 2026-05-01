@@ -54,6 +54,14 @@ dependencies {
     // notification-service to assert order.confirmed → notification row written.
     testImplementation(project(":notification-service"))
     testImplementation(project(":common-outbox"))
+    // Phase 8 (Plan 08-05): ai-service + search-service classpath additions.
+    // ai-port and agent-toolset are added explicitly because ai-service uses
+    // 'implementation' (not 'api'), so their classes are on ai-service's runtime
+    // classpath but NOT on infra-tests' compile classpath via transitive resolution.
+    testImplementation(project(":ai-service"))
+    testImplementation(project(":search-service"))
+    testImplementation(project(":ai-port"))
+    testImplementation(project(":agent-toolset"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     // @EnableJpaRepositories needs spring-data-jpa on compile classpath for PaymentServiceTestConfig;
