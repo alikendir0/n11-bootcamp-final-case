@@ -12,6 +12,7 @@ import RegisterPage from './pages/RegisterPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
 import CheckoutAddressPage from './pages/CheckoutAddressPage';
+import CheckoutPaymentPage from './pages/CheckoutPaymentPage';
 import { ROUTES } from './lib/routes';
 
 export const router = createBrowserRouter([
@@ -44,7 +45,7 @@ export const router = createBrowserRouter([
         element: <RequireAuth />,
         children: [
           { path: 'odeme/adres', element: <CheckoutAddressPage /> },                    // Plan 10-07
-          { path: 'odeme/odeme', element: <PlaceholderPage name="Ödeme" /> },          // Plan 10-07
+          { path: 'odeme/odeme', element: <CheckoutPaymentPage /> },                    // Plan 10-07
           { path: 'odeme/sonuc', element: <PlaceholderPage name="Sonuç" /> },          // Plan 10-07
           { path: 'hesabim', element: <PlaceholderPage name="Hesabım" /> },            // Plan 10-08
           { path: 'siparislerim', element: <PlaceholderPage name="Siparişlerim" /> },  // Plan 10-08
