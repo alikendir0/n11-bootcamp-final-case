@@ -6,6 +6,7 @@ import { RouteErrorFallback } from './ErrorBoundary';
 
 function ThrowingRoute() {
   throw new Error('secret route stack should not be shown');
+  return null;
 }
 
 describe('RouteErrorFallback', () => {

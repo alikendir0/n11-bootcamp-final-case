@@ -14,12 +14,14 @@ import CartPage from './pages/CartPage';
 import CheckoutAddressPage from './pages/CheckoutAddressPage';
 import CheckoutPaymentPage from './pages/CheckoutPaymentPage';
 import CheckoutResultPage from './pages/CheckoutResultPage';
+import { RouteErrorFallback } from './components/feedback/ErrorBoundary';
 import { ROUTES } from './lib/routes';
 
 export const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
     element: <Layout />,
+    errorElement: <RouteErrorFallback />,
     children: [
       { index: true, element: <HomePage /> },
 

@@ -1,7 +1,38 @@
 import { Component, type ReactNode } from 'react';
+import { useRouteError } from 'react-router-dom';
 
 interface Props { children: ReactNode; }
 interface State { hasError: boolean; error?: Error; }
+
+function reloadPage() {
+  window.location.reload();
+}
+
+export function ErrorFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--color-body-bg)]">
+      <div className="bg-white rounded-lg p-8 max-w-md text-center border border-[var(--color-border)]">
+        <h1 className="text-xl font-bold mb-2">Bir hata oluştu</h1>
+        <p className="text-sm text-gray-700 mb-6">
+          Sayfa yüklenirken beklenmedik bir sorun oldu. Lütfen sayfayı yenileyiniz.
+        </p>
+        <button
+          type="button"
+          onClick={reloadPage}
+          className="bg-[#1C1C1E] text-white px-6 py-3 rounded font-bold"
+        >
+          Sayfayı Yenile
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function RouteErrorFallback() {
+  const error = useRouteError();
+  console.error('[RouteErrorBoundary]', error);
+  return <ErrorFallback />;
+}
 
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false };
@@ -14,29 +45,9 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('[ErrorBoundary]', error, info);
   }
 
-  handleReload = () => {
-    window.location.reload();
-  };
-
   render() {
     if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex items-center justify-center px-4 bg-[var(--color-body-bg)]">
-          <div className="bg-white rounded-lg p-8 max-w-md text-center border border-[var(--color-border)]">
-            <h1 className="text-xl font-bold mb-2">Bir hata oluştu</h1>
-            <p className="text-sm text-gray-700 mb-6">
-              Sayfa yüklenirken beklenmedik bir sorun oldu. Lütfen sayfayı yenileyiniz.
-            </p>
-            <button
-              type="button"
-              onClick={this.handleReload}
-              className="bg-[#1C1C1E] text-white px-6 py-3 rounded font-bold"
-            >
-              Sayfayı Yenile
-            </button>
-          </div>
-        </div>
-      );
+      return <ErrorFallback />;
     }
     return this.props.children;
   }
