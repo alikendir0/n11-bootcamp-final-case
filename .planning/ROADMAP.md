@@ -300,7 +300,24 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can complete a multi-step checkout (address selection from the address book → Iyzico Checkout Form → confirmation page); cart page shows line items + KDV breakdown + "Siparişi Tamamla" CTA; all prices use `Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' })` rendering as `1.299,90 ₺`; dates render `28 Nisan 2026`.
   4. User can register / log in (Turkish form validation messages), view "Siparişlerim" with status timeline, and manage their address book.
   5. The frontend hits the backend exclusively via the api-gateway base URL (no direct service URLs in source); skeleton loaders show on PDP + listing fetches; failures show Turkish toast / inline error messages; the React Query cache + auth header injection survive 401-retry.
-**Plans**: TBD
+**Plans**: 9 plans (4 waves)
+
+  **Wave 0** — foundation (no deps)
+  - 10-01: Vite 8 + React 19 SPA scaffold + Tailwind 4 @theme + lib primitives (format, tokenStore, routes, apiClient, queryClient) + Zustand auth/checkout stores + .env.example wiring (`FE-13, FE-15, FE-16, LOC-02, LOC-05, AUTH-03`)
+
+  **Wave 1** — parallel feature pages (depend only on 10-01)
+  - 10-02: App shell — sticky header + footer + category nav + RequireAuth guard + sonner toast + AuthEventBridge 401 handler + ErrorBoundary + 14-route data router (`FE-02, FE-03, FE-13, FE-15, FE-16, AUTH-04`)
+  - 10-03: Auth pages — /giris-yap + /uye-ol with react-hook-form + zod + Turkish errorMap + redirectUrl + auto-login on register (`FE-11, FE-13, FE-15, AUTH-01, AUTH-02, AUTH-03, AUTH-04`)
+  - 10-04: Catalog — homepage hero carousel + Yeni Gelenler rail + 8 category routes + /arama + ListingGrid + Pagination + URL adapter D-10 with Vitest tests (`FE-04, FE-05, FE-06, FE-13, FE-14, FE-15, LOC-01, LOC-02`)
+  - 10-05: PDP — /urun/:slug-:id with image gallery + breadcrumbs + KDV-inclusive price + taksit table 1/2/3/6/9/12 + Kargo Bedava badge + Stokta/Tükendi + Sepete Ekle (`FE-07, FE-13, FE-15, LOC-01, LOC-02, LOC-03, LOC-04`)
+  - 10-06: Cart — /sepetim two-column populated state + empty state + qty stepper + remove with undo toast + Sipariş Özeti CTA (`FE-08, FE-13, FE-15, LOC-01, LOC-02, CART-01, CART-03, CART-04`)
+
+  **Wave 2** — composition pages (depend on Wave 1 features)
+  - 10-07: Checkout — /odeme/adres + /odeme/odeme + /odeme/sonuc with stepper, address picker + new-address inline form, Idempotency-Key UUID, Iyzico paymentPageUrl redirect, 30s status poll (`FE-09, FE-13, FE-15, LOC-01, LOC-02, AUTH-08, ORD-01, PAY-04`)
+  - 10-08: Account section — /hesabim hub + /siparislerim list + /siparislerim/:orderId timeline + cancel modal + /adreslerim CRUD floor (`FE-10, FE-13, FE-15, LOC-04, LOC-05, AUTH-08, ORD-03, ORD-04`)
+
+  **Wave 3** — verification
+  - 10-09: Test posture — Vitest umbrella (32 unit cases) + Playwright smoke E2E demo flow + check-frontend-invariants.sh CI gate (`FE-13, FE-15, FE-16, LOC-02, LOC-03, LOC-05`)
 **UI hint**: yes
 **Risks**: Pitfall #19 (streaming UI freeze — relevant in P11 not P10, but cart-update reactivity matters here), Pitfall #23 (CORS/auth mismatch — gateway origin allow-list locked from P1), Pitfall #20 (Turkish drift — copy table from P2 prevents)
 **Research need**: LOW — toolchain locked in Phase 2; remaining work is straightforward React + recon-driven layout.
@@ -339,7 +356,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 7. Notification (Saga Closure) | 6/6 | Complete | 2026-04-30 |
 | 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
 | 9. MCP Server | 0/TBD | Not started | - |
-| 10. Frontend Storefront | 0/TBD | Not started | - |
+| 10. Frontend Storefront | 0/9 | Planning complete | - |
 | 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
 
 **Milestone progress:** 7 of 11 active phases complete (64%). 37 plans authored and executed across Phases 1–7. Phases 8–11 plan counts are TBD until those phases enter the discuss/plan loop.
