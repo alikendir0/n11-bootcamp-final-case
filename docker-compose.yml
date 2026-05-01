@@ -177,7 +177,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
     ports:
-      - "8080:8080"
+      - "9090:8080"
     depends_on:
       eureka-server:
         condition: service_healthy

@@ -69,7 +69,7 @@ export default function CheckoutResultPage() {
   const isStillProcessing = !isSuccess && !isFailure;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
+    <div className="mx-auto max-w-7xl px-4 py-6">
       <CheckoutStepper active="onay" />
       <div className="bg-white border border-[var(--color-border)] rounded p-8 text-center">
         {isLoading || (isStillProcessing && !timedOut) ? (

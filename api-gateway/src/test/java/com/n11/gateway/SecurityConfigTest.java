@@ -5,8 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -101,6 +105,19 @@ class SecurityConfigTest {
                     assertThat(status)
                         .as("CORS preflight must not be rejected by Spring Security (not 401)")
                         .isNotEqualTo(HttpStatus.UNAUTHORIZED.value()));
+    }
+
+    @Test
+    void corsConfigurationAllowsLanFrontendOrigin() {
+        CorsConfigurationSource source = new SecurityConfig().corsConfigurationSource();
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/v1/categories").build());
+
+        CorsConfiguration configuration = source.getCorsConfiguration(exchange);
+
+        assertThat(configuration).isNotNull();
+        assertThat(configuration.checkOrigin("http://192.168.1.46:8083"))
+                .isEqualTo("http://192.168.1.46:8083");
     }
 
     // Minimal stub — wired for slice test context.

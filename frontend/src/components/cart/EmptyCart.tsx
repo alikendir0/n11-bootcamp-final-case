@@ -5,7 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 export function EmptyCart() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded p-12 text-center max-w-2xl mx-auto">
+    <div className="bg-white border border-[var(--color-border)] rounded p-12 text-center max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-3">Sepetin Boş Görünüyor</h1>
       <p className="text-gray-700 mb-6">Alışverişe başlamak için ürün ekleyin.</p>
       <Link

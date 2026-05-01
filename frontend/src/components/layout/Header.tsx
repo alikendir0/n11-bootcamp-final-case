@@ -37,7 +37,7 @@ function SearchBar() {
     navigate(`${ROUTES.SEARCH}?q=${encodeURIComponent(trimmed)}`);
   }
   return (
-    <form onSubmit={onSubmit} role="search" className="flex-1 max-w-2xl">
+    <form onSubmit={onSubmit} role="search" className="flex-1 max-w-5xl">
       <div className="relative">
         <input
           type="search"

@@ -97,7 +97,7 @@ export default function CartPage() {
   if (isLoading) return <CartSkeleton />;
   if (isError) {
     return (
-      <div className="mx-auto max-w-3xl my-12 px-4">
+      <div className="mx-auto max-w-7xl my-12 px-4">
         <div className="bg-white border border-[#DC2626] rounded p-6 text-center">
           <p className="mb-4">Sepet yüklenirken bir hata oluştu.</p>
           <button

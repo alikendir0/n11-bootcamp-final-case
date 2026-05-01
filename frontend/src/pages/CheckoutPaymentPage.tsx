@@ -60,7 +60,7 @@ export default function CheckoutPaymentPage() {
   if (!addressId) return null; // navigating away
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
+    <div className="mx-auto max-w-7xl px-4 py-6">
       <CheckoutStepper active="odeme" />
       <h1 className="text-xl font-bold mb-6">Ödeme Yöntemi</h1>
 

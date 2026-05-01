@@ -39,7 +39,7 @@ import java.util.List;
  *       hostname is the only working URI for NimbusReactiveJwtDecoder's
  *       internal WebClient.</li>
  *   <li>T-3-03 mitigation: JwtTimestampValidator(30s) explicit; default is 60s.</li>
- *   <li>T-01-11 (CORS misconfig) preserved: allowedOrigins is an explicit list,
+ *   <li>T-01-11 (CORS misconfig) preserved: allowed origin patterns are explicit,
  *       NOT "*" — required by allowCredentials=true.</li>
  * </ul>
  */
@@ -49,11 +49,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,
-                                                      ReactiveJwtDecoder jwtDecoder,
-                                                      ReactiveJwtAuthenticationConverter jwtAuthConverter) {
+                                                       ReactiveJwtDecoder jwtDecoder,
+                                                       ReactiveJwtAuthenticationConverter jwtAuthConverter,
+                                                       CorsConfigurationSource corsConfigurationSource) {
         http
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .authorizeExchange(ex -> ex
                 // CORS preflight — always permit
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -122,10 +123,11 @@ public class SecurityConfig {
         return converter;
     }
 
-    /** CORS preserved verbatim from Phase 1. Phase 11 will append the tunnel hostname. */
-    private CorsConfigurationSource corsConfigurationSource() {
+    /** CORS for local Vite development. Phase 11 will append the tunnel hostname. */
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:5173"));
+        cfg.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://192.168.1.46:8083"));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setExposedHeaders(List.of("X-Correlation-Id"));
