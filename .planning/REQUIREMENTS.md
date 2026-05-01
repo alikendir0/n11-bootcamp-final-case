@@ -75,11 +75,11 @@
 - [ ] **AI-03**: `GeminiEmbeddingAdapter` implements `EmbeddingProvider` using `google-genai 1.51.0`
 - [ ] **AI-04**: `EchoChatProvider` second adapter ships in tests to prove port substitutability (the SOLID artifact)
 - [ ] **AI-05**: `agent-toolset` shared Gradle module defines `AgentTool` interface + the 10 canonical tools (`search_products`, `get_product`, `list_categories`, `add_to_cart`, `view_cart`, `update_cart_item`, `remove_from_cart`, `create_order`, `get_payment_link`, `get_order_status`)
-- [ ] **AI-06**: ai-service hosts the in-storefront chat assistant; serves Turkish responses via Gemini 3 Flash; verifies model identifier (`gemini-3-flash-preview` per research, fallback `gemini-2.5-flash`) at impl time per official Google AI docs
-- [ ] **AI-07**: ai-service dispatches Gemini function-calls to the shared agent toolset; tool layer validates IDs against repos and returns clean errors for hallucinated args
-- [ ] **AI-08**: ai-service streams chat responses to the browser via SSE, with mid-stream tool-call indicators ("araç çalıştırılıyor...")
-- [ ] **AI-09**: Chat conversation state is persisted (Redis or Postgres — decide at AI phase planning) keyed by user-id; survives page refresh
-- [ ] **AI-10**: System prompt forces Turkish (`dil: tr-TR`); language-detection assertion in tests catches drift to English
+- [x] **AI-06**: ai-service hosts the in-storefront chat assistant; serves Turkish responses via Gemini 3 Flash; verifies model identifier (`gemini-3-flash-preview` per research, fallback `gemini-2.5-flash`) at impl time per official Google AI docs
+- [x] **AI-07**: ai-service dispatches Gemini function-calls to the shared agent toolset; tool layer validates IDs against repos and returns clean errors for hallucinated args
+- [x] **AI-08**: ai-service streams chat responses to the browser via SSE, with mid-stream tool-call indicators ("araç çalıştırılıyor...")
+- [x] **AI-09**: Chat conversation state is persisted (Redis or Postgres — decide at AI phase planning) keyed by user-id; survives page refresh
+- [x] **AI-10**: System prompt forces Turkish (`dil: tr-TR`); language-detection assertion in tests catches drift to English
 - [ ] **AI-11**: mcp-server registers the SAME `agent-toolset` (single source of truth — no copy-paste) via Spring AI MCP starter (`spring-ai-starter-mcp-server-webmvc 1.1.5`)
 - [ ] **AI-12**: mcp-server supports stdio transport (Claude Desktop demo) AND HTTP+SSE transport (network demo); both wired
 - [ ] **AI-13**: mcp-server auth bridge: external agents authenticate via `MCP_API_KEY` env var; key exchanged for an internal JWT against identity-service `/agents/exchange`; JWT propagates through gateway like a normal user
@@ -257,11 +257,11 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | AI-03 | Phase 8 | Pending |
 | AI-04 | Phase 8 | Pending |
 | AI-05 | Phase 8 | Pending |
-| AI-06 | Phase 8 | Pending |
-| AI-07 | Phase 8 | Pending |
-| AI-08 | Phase 8 | Pending |
-| AI-09 | Phase 8 | Pending |
-| AI-10 | Phase 8 | Pending |
+| AI-06 | Phase 8 | Complete |
+| AI-07 | Phase 8 | Complete |
+| AI-08 | Phase 8 | Complete |
+| AI-09 | Phase 8 | Complete |
+| AI-10 | Phase 8 | Complete |
 | AI-11 | Phase 9 | Pending |
 | AI-12 | Phase 9 | Pending |
 | AI-13 | Phase 9 | Pending |

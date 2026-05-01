@@ -263,7 +263,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 08-03-PLAN.md -- GeminiChatAdapter + GeminiEmbeddingAdapter + EchoChatProvider + GeminiTypeMapper + ApplicationReadyEvent model probe (Pitfall #1) + ApiErrorCode extension + EchoProviderActivationTest (`AI-02, AI-03, AI-04, AI-06`)
 
   **Wave 2** *(blocked on 08-02 + 08-03)* -- ai-service business logic
-  - [ ] 08-04-PLAN.md -- Conversation/Message JPA + GuestSessionStore + ToolDispatcher (D-04 + D-08 provenance) + ChatService manual loop + SystemPromptProvider + ChatController + ChatStreamController (typed SSE) + 4 integration tests (`AI-06, AI-07, AI-08, AI-09, AI-10`)
+  - [x] 08-04-PLAN.md -- Conversation/Message JPA + GuestSessionStore + ToolDispatcher (D-04 + D-08 provenance) + ChatService manual loop + SystemPromptProvider + ChatController + ChatStreamController (typed SSE) + 4 integration tests (`AI-06, AI-07, AI-08, AI-09, AI-10`)
 
   **Wave 3** *(blocked on 08-04)* -- search-service skeleton + infra-tests + smoke runbook + human-verify
   - [ ] 08-05-PLAN.md -- search-service EmbeddingProvider stub + SearchServiceContextTest + infra-tests classpath extension (AiServiceTestConfig) + 08-SMOKE-RUNBOOK.md + human-verify SOLID swap demo + AI-15 cart-bridge demo (`QUAL-08`)
@@ -337,7 +337,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 5. Cart & Order Skeleton | 5/5 | Complete | 2026-04-30 |
 | 6. Payment (Iyzico) | 6/6 | Complete | 2026-04-30 |
 | 7. Notification (Saga Closure) | 6/6 | Complete | 2026-04-30 |
-| 8. AI Port + Adapter + Agent Toolset | 0/5 | Planned | - |
+| 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
 | 9. MCP Server | 0/TBD | Not started | - |
 | 10. Frontend Storefront | 0/TBD | Not started | - |
 | 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
@@ -350,7 +350,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 
 **Goal:** [Captured for future planning]
 **Requirements:** TBD
-**Plans:** 0 plans
+**Plans:** 4/5 plans executed
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog when ready)
