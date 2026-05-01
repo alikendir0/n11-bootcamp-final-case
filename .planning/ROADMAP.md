@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Cart & Order Skeleton** - cart-service, order-service, RabbitMQ saga skeleton (no Iyzico yet), idempotency inbox — completed 2026-04-30 (5/5 plans, 4 waves; SC-1..SC-5 verified by live smoke test)
 - [x] **Phase 6: Payment (Iyzico)** - Iyzico Checkout Form, public webhook reachability, payment-timeout job, payment-fail compensation — completed 2026-04-30 (6/6 plans; PAY-07 live Iyzico sandbox smoke PASS)
 - [x] **Phase 7: Notification (Saga Closure)** - notification-service mock, saga happy-path closure, end-to-end saga integration test — completed 2026-04-30 (6/6 plans; 07-VERIFICATION.md persisted)
-- [ ] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat (5 plans planned 2026-05-01)
+- [x] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat — completed 2026-05-01 (5/5 plans; ai-port zero-Gemini guard verified by AiPortContractTest; EchoChatProvider second adapter proves substitutability)
 - [ ] **Phase 9: MCP Server** - mcp-server consumes shared agent-toolset, stdio + HTTP+SSE transports, API-key auth bridge
 - [ ] **Phase 10: Frontend Storefront** - Turkish React storefront: header/footer/hero/listing/PDP/cart/checkout/account
 - [ ] **Phase 11: Frontend Chat Assistant + DevOps Deploy** - Floating chat bubble with SSE streaming, Jib for every service, GH Actions build/test, local docker-compose deploy on the candidate's machine, public demo URL via Cloudflare Tunnel / ngrok, Slack webhook
