@@ -286,7 +286,28 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. A real MCP client (`npx @modelcontextprotocol/inspector` or Claude Desktop) connects via stdio AND HTTP+SSE, lists the 10 tools, and successfully invokes `search_products` and `view_cart` (read tools).
   3. External agent authenticates with `MCP_API_KEY=...`; mcp-server exchanges the key for an internal JWT against identity-service `/agents/exchange`; the JWT then propagates through the gateway like a normal user — proving mutating tools (`add_to_cart`, `create_order`) work end-to-end from an external MCP client.
   4. mcp-server has zero local tool definitions (greps for tool implementations point only to the `agent-toolset` module), proving the "one toolset, two surfaces" architecture.
-**Plans**: TBD
+**Plans**: 7 (4 waves)
+
+  **Wave 1** — module skeleton + auth-bridge backend (parallel, no deps)
+  - [ ] 09-01-PLAN.md — root Spring AI BOM + mcp-server module skeleton (compile + boot smoke) — `AI-11, AI-12`
+  - [ ] 09-02-PLAN.md — identity-service `agent_api_keys` table + `/agents/exchange` + AgentSeedRunner — `AI-13`
+
+  **Wave 2** *(blocked on Wave 1)* — adapter, JWT cache, gateway/compose entry (parallel)
+  - [ ] 09-03-PLAN.md — `AgentToolMcpRegistration` adapter (DRY proof; ToolCallbackProvider) — `AI-11`
+  - [ ] 09-04-PLAN.md — AgentJwtCache + AgentJwtClient + JwtBearerInterceptor + McpRestClientConfig — `AI-13`
+  - [ ] 09-05-PLAN.md — api-gateway `/mcp/**` route + docker-compose mcp-server entry + .env.example placeholder — `AI-12`
+
+  **Wave 3** *(blocked on 09-01 + 09-03)* — infra-tests integration proof
+  - [ ] 09-06-PLAN.md — infra-tests `McpServerToolsListEqualityTest` (SC-1 + SC-4 grading proof) — `AI-11`
+
+  **Wave 4** *(blocked on 09-04 + 09-05 + 09-06)* — RUNBOOK + manual SC-2/SC-3 sign-off
+  - [ ] 09-07-PLAN.md — RUNBOOK.md + STATE.md/ROADMAP.md update + human-verify e2e demo gate — `AI-12, AI-13`
+
+  **Cross-cutting constraints** (recurring across >=2 plans):
+  - Spring AI BOM 1.1.5 in root `build.gradle.kts` is the Wave-0 blocker (Plans 09-01 + 09-04 + 09-06 all depend on resolution of `org.springframework.ai:spring-ai-starter-mcp-server-webmvc`)
+  - Zero local AgentTool implementations in `mcp-server/src/main/java/` (CLAUDE.md Rule #2; structurally enforced by Plans 09-03 + 09-06)
+  - JWT 10-minute refresh buffer (Pitfall #4 mitigation, supersedes D-07's 5-minute) (Plans 09-04 + 09-07 troubleshooting)
+  - Stale-Jib-image hazard: editing `config-server/src/main/resources/config/*.yml` requires `jibDockerBuild` BEFORE `compose up` (Plans 09-01 + 09-05 + 09-07)
 **Risks**: Pitfall #15 (MCP transport mismatch — stdio vs HTTP+SSE pick the wrong one for Claude Desktop), Pitfall #16 (toolset duplicated — must consume the shared module), Pitfall #23 (auth bridge missing — mutating tools fail without it)
 **Research need**: HIGH — MCP spec 2025-11-25 transport details, Spring AI MCP starter capability negotiation, auth bridge handshake.
 
@@ -355,7 +376,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 6. Payment (Iyzico) | 6/6 | Complete | 2026-04-30 |
 | 7. Notification (Saga Closure) | 6/6 | Complete | 2026-04-30 |
 | 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
-| 9. MCP Server | 0/TBD | Not started | - |
+| 9. MCP Server | 0/7 | In Progress |  |
 | 10. Frontend Storefront | 11/11 | Complete   | 2026-05-01 |
 | 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
 
