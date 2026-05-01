@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
 import PlaceholderPage from './pages/PlaceholderPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import { CATEGORY_SLUGS } from './lib/categories';
 import { ROUTES } from './lib/routes';
 
@@ -31,7 +32,7 @@ export const router = createBrowserRouter([
         element: <RedirectIfAuthed />,
         children: [
           { path: 'giris-yap', element: <LoginPage /> },
-          { path: 'uye-ol', element: <PlaceholderPage name="Üye Ol" /> },
+          { path: 'uye-ol', element: <RegisterPage /> },
         ],
       },
 
