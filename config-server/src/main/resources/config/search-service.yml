@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------------------
+# config-server/src/main/resources/config/search-service.yml
+# Per-service config for search-service (Phase 8 SKELETON, D-09).
+# No /search REST endpoint in v1. Wires EmbeddingProvider only.
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8089
+
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: true
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/n11
+    username: search_user
+    password: ${SEARCH_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 2                          # Pitfall #8 budget -- skeleton only
+      minimum-idle: 1
+      connection-init-sql: SET search_path = search, public
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration/search
+    schemas: search
+    default-schema: search
+    create-schemas: false
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: search
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

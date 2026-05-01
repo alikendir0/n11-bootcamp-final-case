@@ -3,6 +3,9 @@ build/
 .gradle/
 out/
 
+# Stray META-INF from google-genai jar service files (Jackson KotlinModule registration)
+/META-INF/
+
 # Secrets — NEVER commit
 .env
 .env.local
