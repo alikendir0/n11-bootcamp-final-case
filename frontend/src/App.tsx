@@ -1,8 +1,23 @@
+import { useEffect } from 'react';
+import { RouterProvider } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { router } from './router';
+import { queryClient } from './lib/queryClient';
+import { useAuthStore } from './store/authStore';
+import { ErrorBoundary } from './components/feedback/ErrorBoundary';
+
 export default function App() {
+  const hydrateFromStorage = useAuthStore(s => s.hydrateFromStorage);
+
+  useEffect(() => {
+    hydrateFromStorage();
+  }, [hydrateFromStorage]);
+
   return (
-    <div style={{ padding: 24 }}>
-      <h1>n11 Storefront — Phase 10 (foundation only)</h1>
-      <p>Bu sayfa Wave 1&apos;de gerçek içerikle değişecek.</p>
-    </div>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
