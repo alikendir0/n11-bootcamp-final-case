@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 10-09-PLAN.md
-last_updated: "2026-05-01T12:28:04.022Z"
+status: ready
+stopped_at: Completed 10-10-PLAN.md
+last_updated: "2026-05-01T13:02:57.007Z"
 last_activity: 2026-05-01
 progress:
   total_phases: 13
   completed_phases: 9
-  total_plans: 51
-  completed_plans: 51
+  total_plans: 52
+  completed_plans: 52
   percent: 100
 ---
 
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 
 ## Current Position
 
-Phase: 10 (frontend-storefront) — COMPLETE
-Plan: 9 of 9
+Phase: 10 (frontend-storefront) — EXECUTING
+Plan: 10 of 10
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge
-Status: Phase 10 complete; ready for Phase 9
+Status: Phase 10 complete
 Last activity: 2026-05-01
 
 Progress: [██████████] 100%
@@ -64,6 +64,7 @@ Progress: [██████████] 100%
 | Phase 06-payment-iyzico P03 | 11min | 2 tasks | 13 files |
 | Phase 08-ai-port-adapter-agent-toolset P04 | 3h | 3 tasks | 26 files |
 | Phase 10-frontend-storefront P09 | ~3min | 3 tasks | 8 files |
+| Phase 10-frontend-storefront P10 | 3min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Native INSERT ON CONFLICT DO NOTHING for client-assigned UUID JPA entities avoids StaleObjectStateException
 - [Phase ?]: liveHistory mutable list tracks in-session turns not yet flushed to DB snapshot
 - [Phase 10]: Playwright E2E baseURL remains env-driven via PLAYWRIGHT_BASE_URL with localhost:5173 default; live validation can override to localhost:8083 without committed config drift.
+- [Phase 10]: Product-service listing DTOs are normalized at frontend API boundary via normalizeProductPage before ProductCard rendering.
+- [Phase 10]: Register form uses @hookform/resolvers 5.2.2 with Zod 4 and mirrors backend password policy in Turkish validation.
+- [Phase 10]: Root React Router errorElement renders the shared Turkish RouteErrorFallback for route exceptions.
 
 ### Pending Todos
 
@@ -149,7 +153,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-01T12:28:04.003Z
-Stopped at: Completed 10-09-PLAN.md
+Last session: 2026-05-01T13:02:56.996Z
+Stopped at: Completed 10-10-PLAN.md
 Resume file: None
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge.

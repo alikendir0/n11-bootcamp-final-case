@@ -13,8 +13,8 @@
 
 ### Authentication & Identity
 
-- [ ] **AUTH-01**: User can register with email and password
-- [ ] **AUTH-02**: User can log in and receive a JWT (`Authorization: Bearer <token>`)
+- [x] **AUTH-01**: User can register with email and password
+- [x] **AUTH-02**: User can log in and receive a JWT (`Authorization: Bearer <token>`)
 - [ ] **AUTH-03**: User session persists across browser refresh (token stored client-side, refreshed on 401)
 - [ ] **AUTH-04**: User can log out from any page
 - [ ] **AUTH-05**: identity-service issues JWTs with user-id and roles claims
@@ -91,14 +91,14 @@
 - [ ] **FE-01**: Frontend toolchain locked post-Playwright n11 recon (likely Vite + TypeScript + Tailwind + Zustand; locked in PROJECT.md Key Decisions at end of Phase 3)
 - [ ] **FE-02**: Header layout — left logo, center search bar, right cluster (account, cart with item-count badge); sticky on scroll
 - [ ] **FE-03**: Footer with help links ("Hakkımızda", "İletişim", "Yardım", "Sözleşmeler") and payment-method icon strip
-- [ ] **FE-04**: Hero carousel on homepage (3–4 static slides; no CMS)
-- [ ] **FE-05**: Bestseller / "Çok Satanlar" rail on homepage (single endpoint, hard-coded seed for v1)
-- [ ] **FE-06**: Product listing page with paginated grid + numbered pages ("Önceki / Sonraki / Sayfa 1 / N") in Turkish
+- [x] **FE-04**: Hero carousel on homepage (3–4 static slides; no CMS)
+- [x] **FE-05**: Bestseller / "Çok Satanlar" rail on homepage (single endpoint, hard-coded seed for v1)
+- [x] **FE-06**: Product listing page with paginated grid + numbered pages ("Önceki / Sonraki / Sayfa 1 / N") in Turkish
 - [ ] **FE-07**: Product detail page (`/urun/:slug-:id`) with image gallery, tabs (Açıklama, Özellikler, Kargo), price (KDV-inclusive), stock, "Sepete Ekle" CTA
 - [ ] **FE-08**: Cart page with line items, totals, KDV breakdown, taksit preview, "Siparişi Tamamla" CTA
 - [ ] **FE-09**: Multi-step checkout (address → payment → confirmation); Iyzico Checkout Form embedded
 - [ ] **FE-10**: Account section: "Siparişlerim" (orders list), order detail with status timeline, address book
-- [ ] **FE-11**: Login / register pages in Turkish with form validation messages in Turkish
+- [x] **FE-11**: Login / register pages in Turkish with form validation messages in Turkish
 - [ ] **FE-12**: Floating chat assistant bubble bottom-right; persistent across all pages; opens overlay panel; streams Gemini responses token-by-token
 - [x] **FE-13**: All UI copy in Turkish — "Sepete Ekle", "Hemen Al", "Stokta", "Tükendi", "Kargo Bedava", "Siparişi Tamamla", "Önceki", "Sonraki", "Sepetim Boş"
 - [ ] **FE-14**: Pagination component with Turkish labels and accessible keyboard navigation
@@ -213,8 +213,8 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 3 | Pending |
-| AUTH-02 | Phase 3 | Pending |
+| AUTH-01 | Phase 3 | Complete |
+| AUTH-02 | Phase 3 | Complete |
 | AUTH-03 | Phase 3 | Pending |
 | AUTH-04 | Phase 3 | Pending |
 | AUTH-05 | Phase 3 | Pending |
@@ -270,14 +270,14 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | FE-01 | Phase 2 | Pending |
 | FE-02 | Phase 10 | Pending |
 | FE-03 | Phase 10 | Pending |
-| FE-04 | Phase 10 | Pending |
-| FE-05 | Phase 10 | Pending |
-| FE-06 | Phase 10 | Pending |
+| FE-04 | Phase 10 | Complete |
+| FE-05 | Phase 10 | Complete |
+| FE-06 | Phase 10 | Complete |
 | FE-07 | Phase 10 | Pending |
 | FE-08 | Phase 10 | Pending |
 | FE-09 | Phase 10 | Pending |
 | FE-10 | Phase 10 | Pending |
-| FE-11 | Phase 10 | Pending |
+| FE-11 | Phase 10 | Complete |
 | FE-12 | Phase 11 | Pending |
 | FE-13 | Phase 10 | Complete |
 | FE-14 | Phase 10 | Pending |
