@@ -1,10 +1,12 @@
 ---
 phase: 10
 slug: frontend-storefront
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-01
+revised: 2026-05-01
+reviewed_at: 2026-05-01
 ---
 
 # Phase 10 — UI Design Contract
@@ -44,22 +46,24 @@ Standard 8-point scale. Tailwind 4 `@theme` block — declare as CSS custom prop
 
 Exceptions:
 - Touch targets for header icon buttons (Hesabım, Sepetim): minimum 44px × 44px per accessibility baseline. Not a grid-spacing value; enforced via `min-h-[44px] min-w-[44px]` on the anchor/button.
-- Listing grid column gap: 20px (between the lg=24px and xl=32px slots). Recon §6 counts 4 columns at 1440px; 20px gutters preserve card widths. Declare as `--spacing-grid-gap: 20px` in `@theme`.
+- Listing grid column gap: use `gap-4` (16px = `--spacing-md`). The 4-column layout at 1440px uses `grid-cols-4` with standard 16px gutters — Tailwind responsive widths absorb the arithmetic without a custom gutter token. No `--spacing-grid-gap` token needed.
 
 ---
 
 ## Typography
 
-Font stack: `"Open Sans", Arial, Helvetica, sans-serif` (body + heading). CTA button: `Arial, sans-serif` per recon §5 observation. Load Open Sans via `@fontsource/open-sans`; import 400 + 600 + 700 weights only.
+Font stack: `"Open Sans", Arial, Helvetica, sans-serif` (body + heading). CTA button: `Arial, sans-serif` per recon §5 observation. Load Open Sans via `@fontsource/open-sans`; import **400 and 700 weights only** — two weights maximum.
 
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
 | Body | 16px | 400 | 1.5 | Paragraph text, card descriptions, form labels, toast messages |
 | Label | 14px | 400 | 1.4 | Badges, tabs, breadcrumb items, pagination numbers, form helper text |
-| Heading | 20px | 600 | 1.2 | PDP product title (H1), page section headings, cart section titles |
-| Display | 16px | 700 | 1.2 | CTA button text ("Sepete Ekle", "Siparişi Tamamla"), homepage H1 |
+| Heading | 20px | 700 | 1.2 | PDP product title (H1), page section headings, cart section titles |
+| Display | 24px | 700 | 1.2 | PDP price block, homepage H1, hero overlay heading |
 
-> Recon §5 exact observations: body = 16px/400, homepage H1 = 16px/700, PDP H1 = 20px/600, CTA button = 700. Four distinct roles map to these four tokens — no additional sizes permitted.
+> **Weight collapse rationale:** The original spec declared three weights (400, 600, 700). The 2-weight maximum is a contract rule. Weight 600 is dropped entirely; the Heading role moves to 700. The Display role was 16px/700 (same size as Body/400 — ambiguous), now reassigned to 24px to replace the PDP price block size that appeared only in the page-level contract. Result: 4 distinct sizes (14, 16, 20, 24) at 2 weights (400, 700). All page-level contracts use these 4 roles exclusively.
+
+> Recon §5 exact observations: body = 16px/400, homepage H1 = 16px/700, PDP H1 = 20px/700, CTA button = 700, PDP price = visually larger than heading — 24px/700 maps to Display. Four distinct roles map to these four tokens — no additional sizes permitted.
 
 ---
 
@@ -69,14 +73,16 @@ Token values paste verbatim from recon §4 into `frontend/src/index.css` `@theme
 
 | Role | Token | Hex | Usage |
 |------|-------|-----|-------|
-| Dominant (60%) | `--color-body-bg-bg` | `#EDEFF3` | Page background, listing page bg, checkout page bg, account page bg |
-| Secondary (30%) | `--color-body-bg-bg` (white variant) | `#FFFFFF` | Card surfaces, modal overlays, form input backgrounds, login/register page bg |
-| Accent (10%) | `--color-cta-primary-bg` | `#1C1C1E` | **Reserved for**: primary CTA button background only ("Sepete Ekle", "Siparişi Tamamla", "Giriş Yap", "Kayıt Ol", "Sipariş Ver") |
+| Dominant (60%) | `--color-body-bg` | `#EDEFF3` | Page background, listing page bg, checkout page bg, account page bg |
+| Secondary (30%) | `--color-surface-card` | `#FFFFFF` | Card surfaces, modal overlays, form input backgrounds, login/register page bg |
+| Accent (10%) | `--color-cta-primary-bg` | `#1C1C1E` | **Reserved for**: primary CTA button background ("Sepete Ekle", "Siparişi Tamamla", "Giriş Yap", "Kayıt Ol", "Sipariş Ver") + active category nav indicator (text color + underline only, no filled background) + current pagination page (filled background + white text) |
 | Destructive | `#DC2626` (Tailwind red-600) | `#DC2626` | Cancel order confirmation only; destructive inline form errors |
 | Text primary | `--color-link` / `--color-heading-primary` | `#000000` | All body text, headings, links (non-hover) |
-| Text on accent | `--color-cta-primary` | `#FFFFFF` | Text on black CTA button |
+| Text on accent | `--color-cta-primary` | `#FFFFFF` | Text on black CTA button; text on current pagination page |
 
-Accent reserved for: primary CTA buttons only. Never used on pagination links, tabs, breadcrumbs, badges, nav items, or secondary actions. Brand-adjacent orange (n11 promotional color) is NOT used anywhere in Phase 10 — recon §6 and CONTEXT.md explicitly forbid it on primary CTAs. Orange may appear only as a promo price-discount ribbon on listing cards if the backend sends a discount flag (out of v1 scope — omit for now).
+**Accent reservation policy:** `#1C1C1E` is used for (a) primary CTA button fill, (b) active category nav link — text color + bottom-border underline only, not a filled pill, and (c) current pagination page — filled background with white text. It is never used on secondary buttons, badges, breadcrumbs, non-active nav items, tabs, or non-current pagination links. Brand-adjacent orange (n11 promotional color) is NOT used anywhere in Phase 10 — recon §6 and CONTEXT.md explicitly forbid it on primary CTAs. Orange may appear only as a promo price-discount ribbon on listing cards if the backend sends a discount flag (out of v1 scope — omit for now).
+
+> **Token rename note:** The original spec used `--color-body-bg-bg` for both Dominant and Secondary rows (duplicate token name). The Dominant row is now `--color-body-bg`; the Secondary (white `#FFFFFF`) row is `--color-surface-card`. Both must appear as distinct CSS custom properties in the `@theme` block.
 
 Additional recon-derived tokens to declare in `@theme`:
 - `--color-badge-free-ship-bg`: derive from listing card analysis — use `#34A853` (green) as a safe default for "Kargo Bedava" badge (recon §4 does not capture badge bg; green is universal convention for free-shipping affordance).
@@ -94,7 +100,7 @@ Additional recon-derived tokens to declare in `@theme`:
 - Sticky: `position: sticky; top: 0; z-index: 50`.
 - Height: 64px (= 4xl + 2×md).
 - Left: logo (image, height 32px, links to `/`).
-- Center: search input — full-width between logo and right cluster. Submits `GET /arama?q=<value>` on Enter or icon-click. Placeholder: "Aradığınız ürün, kategori veya markayı yazınız" (recon-faithful). No autocomplete dropdown in Phase 10 (deferred).
+- Center: search input — full-width between logo and right cluster. Submits `GET /arama?q=<value>` on Enter or icon-click. Placeholder: "Aradığınız ürün, kategori veya markayı yazınız" (recon-faithful). No autocomplete dropdown in Phase 10 (deferred). Submit icon button: `aria-label="Ara"`.
 - Right cluster: "Hesabım" (authenticated: name or "Hesabım" with dropdown; anonymous: "Giriş Yap / Üye Ol") + "Sepetim" with numeric badge. Badge shows cart item count from TanStack Query cache; 0 = hidden badge (no "0" label). Touch target: 44×44px minimum.
 - Below header: secondary category nav bar — 8 horizontal links mapped to slugs from CONTEXT.md D-06. Does not sticky-pin independently (scrolls out with page; header stays). On viewports < 768px, category nav collapses to a "Kategoriler" hamburger icon (planner discretion for mobile collapse).
 
@@ -102,7 +108,7 @@ Additional recon-derived tokens to declare in `@theme`:
 
 - 8 top-level links in a single horizontal row: Elektronik · Moda · Ev & Yaşam · Anne & Bebek · Kozmetik · Spor & Outdoor · Süpermarket · Kitap, Müzik, Film, Oyun.
 - Each link is `/elektronik`, `/moda`, etc. (CONTEXT.md D-06 slugs).
-- Active page gets `font-weight: 600` underline indicator in `#1C1C1E`. No mega-menu in Phase 10 (recon shows one; out of v1 scope given sub-category deferral).
+- Active page: `font-weight: 700` (Display weight) + `color: #1C1C1E` + bottom-border underline `border-b-2 border-[#1C1C1E]`. This is a text-only indicator — no filled background pill. No mega-menu in Phase 10 (recon shows one; out of v1 scope given sub-category deferral).
 
 ### Hero Carousel (FE-04)
 
@@ -119,10 +125,10 @@ Additional recon-derived tokens to declare in `@theme`:
 
 ### Listing Grid (FE-06, PROD-01, PROD-04, PROD-05)
 
-- Grid: `grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4` (1 → 2 → 3 → 4 columns).
-- Card: product image (aspect 3:4), title (2-line clamp), price (`formatTRY(price_gross)`), "Kargo Bedava" badge when applicable (PDP-only in v1; FE-V2-02 deferred for listing cards — omit for now).
+- Grid: `grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4` (1 → 2 → 3 → 4 columns). Column gap: `gap-4` (16px).
+- Card: product image (aspect 3:4), title (2-line clamp), price (`formatTRY(price_gross)` at 20px/700), "Kargo Bedava" badge when applicable (PDP-only in v1; FE-V2-02 deferred for listing cards — omit for now).
 - Sort controls above grid: dropdown with options "Tarihe Göre (Yeni→Eski)" / "Fiyata Göre (Düşük→Yük)" / "Fiyata Göre (Yük→Düş)". Maps to URL params per CONTEXT.md D-10.
-- Pagination component below grid per CONTEXT.md D-09: "Önceki / 1 2 3 ... N / Sonraki". Current page in `#1C1C1E` background + white text. Other pages: text link. Keyboard-accessible (tabindex, Enter key).
+- Pagination component below grid per CONTEXT.md D-09: "Önceki / 1 2 3 ... N / Sonraki". Current page: `#1C1C1E` filled background + white text. Other pages: text link. Keyboard-accessible (tabindex, Enter key).
 
 ### Product Detail Page / PDP (FE-07, PROD-02, LOC-01, LOC-02, LOC-03, LOC-04)
 
@@ -130,20 +136,20 @@ Additional recon-derived tokens to declare in `@theme`:
 - Breadcrumb above title: "Ana Sayfa › {Category Label} › {Product Title}" (recon §8 phrase 477-478 confirms; two-level category trail).
 - Layout: left column ~50% image gallery + right column ~50% info.
   - Gallery: primary image + thumbnail strip below (max 5 thumbnails). Click thumbnail → swap primary image.
-  - Right column top-to-bottom: breadcrumb (mobile: above image), product title H1 20px/600, price block, taksit preview, stock indicator, "Sepete Ekle" CTA, seller info.
-- Price block: `formatTRY(price_gross)` at 24px/700. No crossed-out original price in v1 (no discount system).
+  - Right column top-to-bottom: breadcrumb (mobile: above image), product title H1 20px/700 (Heading role), price block, taksit preview, stock indicator, "Sepete Ekle" CTA, seller info.
+- Price block: `formatTRY(price_gross)` at **24px/700 (Display role)**. No crossed-out original price in v1 (no discount system).
 - "Kargo Bedava" badge: shown when `price_gross >= FREE_SHIPPING_THRESHOLD` (env config). Green badge with white text above the CTA (recon phrase 627).
 - Stock indicator: green dot + "Stokta" text when `quantity > 0`. Red dot + "Tükendi" + disabled CTA when `quantity === 0`. No "Son N ürün!" (confirmed out of scope per recon §8).
 - Taksit preview (LOC-03): rendered as a 2×6 table or horizontal chip row for 1/2/3/6/9/12 installments. Formula: `Math.ceil(price_gross / n)` formatted as `formatTRY(...)` for each tier. Label: "Taksit Seçenekleri".
 - "Sepete Ekle" CTA: `#1C1C1E` bg, white text, 16px/700 Arial, full-width in right column. Disabled + "Tükendi" variant when out of stock. On success: toast "Ürün sepete eklendi." + header badge increments.
-- Tabs below fold: "Açıklama" / "Özellikler" / "Kargo". Active tab underline in `#1C1C1E`. Content areas show static product field text from backend.
+- Tabs below fold: "Açıklama" / "Özellikler" / "Kargo". Active tab: underline in `#1C1C1E` (text color + `border-b-2`, consistent with Category Nav active style). Content areas show static product field text from backend.
 
 ### Cart Page (FE-08, CART-01, CART-02, LOC-01, LOC-02)
 
 - URL: `/sepetim`. Anonymous-allowed (no auth redirect).
 - Empty state: "Sepetin Boş Görünüyor" (recon phrase 73) H2 + body "Alışverişe başlamak için ürün ekleyin." + CTA "Alışverişe Başla" → `/`. When anonymous: also show "Hemen Giriş Yap" CTA (recon phrase 76).
 - Populated state: two-column layout — left (items list) + right (order summary sidebar).
-  - Left: each line item shows product image (64px square), title, quantity stepper (−/+), unit price, line total. Remove button (trash icon). Qty stepper calls `PUT /api/v1/cart/items/{productId}`. Remove calls `DELETE`.
+  - Left: each line item shows product image (64px square), title, quantity stepper (−/+), unit price, line total. Remove button: trash icon with `aria-label="Ürünü kaldır"` and tooltip "Ürünü kaldır". Qty stepper calls `PUT /api/v1/cart/items/{productId}`. Remove calls `DELETE`.
   - Right sidebar: "Sipariş Özeti" (recon phrase 643) heading. Lines: Ara Toplam, KDV (extracted from items), Kargo (free threshold logic), **Toplam**. "Siparişi Tamamla" CTA (recon phrase 631) → `/odeme/adres` if authenticated; `/giris-yap?redirectUrl=/odeme/adres` if anonymous.
 - KDV display: backend sends `price_gross`; KDV is included. Display as line "KDV Dahil" with no separate KDV breakdown in v1 (CART-02 notes "KDV display deferred to Phase 10" — ship "KDV Dahil" label next to line total, no complex breakdown).
 
@@ -245,7 +251,7 @@ All copy is Turkish. English identifiers in code (component names, function name
 | Primary CTA — Place order | "Sipariş Ver" | CONTEXT.md D-13 |
 | Primary CTA — Login | "Giriş Yap" | Recon phrase 1 |
 | Primary CTA — Register | "Üye Ol" | Recon phrase 2 |
-| Primary CTA — Continue (checkout) | "Devam Et" | Standard Turkish e-commerce |
+| Primary CTA — Continue (checkout) | "Devam Et" | Standard Turkish e-commerce — kept as-is (see note below) |
 | Secondary CTA — Buy now | "Hemen Al" | Recon phrase 624 |
 | Secondary CTA — View order | "Siparişimi Gör" | CONTEXT.md D-15 |
 | Empty state — cart | "Sepetin Boş Görünüyor" | Recon phrase 73 |
@@ -278,13 +284,16 @@ All copy is Turkish. English identifiers in code (component names, function name
 | Cart — anonymous prompt | "Hemen Giriş Yap" | Recon phrase 76 |
 | Order summary | "Sipariş Özeti" | Recon phrase 643 |
 | PDP tabs | "Açıklama" / "Özellikler" / "Kargo" | Recon phrases 635/636/637 |
+| Retry CTA (payment failure) | "Tekrar Dene" | CONTEXT.md D-16 — kept as-is (see note below) |
+
+> **Single-verb CTA rationale:** "Devam Et" (Address → Payment step transition) and "Tekrar Dene" (payment failure retry) are single-verb CTAs. Both are kept as-is. n11's actual checkout (recon §8) uses "Devam Et" verbatim for step progression; longer forms like "Ödemeye Devam Et" would deviate from the recon-faithful copy contract. "Tekrar Dene" is the canonical retry label across Turkish e-commerce (Trendyol, HepsiBurada use identical phrasing); destination context (`/sepetim`) is clear from the surrounding failure page copy. Recon §2 does not supply a more specific phrase for either — these are locked as shown.
 
 ### Destructive Actions
 
 | Action | Confirmation Approach |
 |--------|----------------------|
 | Cancel order | Modal dialog: "Siparişinizi iptal etmek istediğinizden emin misiniz?" + two buttons: "Evet, İptal Et" (`#DC2626` bg) + "Vazgeç" (secondary outline). No input required. |
-| Remove cart item | No confirmation modal. Icon-only trash button with tooltip "Ürünü kaldır". Immediate optimistic removal with undo toast: "Ürün sepetten çıkarıldı. [Geri al]" (5s window). |
+| Remove cart item | No confirmation modal. Icon-only trash button with `aria-label="Ürünü kaldır"` and tooltip "Ürünü kaldır". Immediate optimistic removal with undo toast: "Ürün sepetten çıkarıldı. [Geri al]" (5s window). |
 | Logout | No confirmation. Immediate. Toast "Çıkış yapıldı." (D-03). |
 
 ---
@@ -393,12 +402,21 @@ No shadcn. No third-party component registry. Not applicable.
 | n11-recon.md §2 | 644 phrases — copywriting contract uses verbatim phrases at positions 1, 11, 67, 73, 76, 624-644 |
 | n11-recon.md §3 | 8 top-level category slugs — routing table and category nav |
 | n11-recon.md §4 | 25 color tokens — all pasted into Color section; `#EDEFF3`, `#FFFFFF`, `#1C1C1E`, `#000000` locked |
-| n11-recon.md §5 | Typography: Open Sans, 16px body/400, 16px display/700, 20px heading/600, 14px label — 4 roles locked |
+| n11-recon.md §5 | Typography: Open Sans, 16px body/400, 24px display/700, 20px heading/700, 14px label — 4 roles at 2 weights locked |
 | n11-recon.md §6 | Layout patterns: sticky header 64px, 4-col grid at 1440px, PDP 50/50 split, cart items-left + summary-right |
 | n11-recon.md §7 | Anti-patterns: 5 explicit prohibitions carried into contract |
-| n11-recon.md §8 | Open questions resolved: no "Son N ürün!", Kapıda Ödeme = disabled radio, login = `/giris-yap` |
+| n11-recon.md §8 | Open questions resolved: no "Son N ürün!", Kapıda Ödeme = disabled radio, login = `/giris-yap` not `/giris` |
 | ROADMAP.md Phase 10 | Success criteria 1-5 — all page sections trace to at least one criterion |
 | User input this session | 0 — all design contract questions answered by upstream artifacts |
+
+---
+
+## Revision Log
+
+| Date | Revision | Checker Issues Resolved |
+|------|----------|------------------------|
+| 2026-05-01 | v1 — initial draft | — |
+| 2026-05-01 | v2 — checker fixes | BLOCK Dim-4 typography (drop weight 600; reassign Display to 24px); BLOCK Dim-5 spacing (remove non-standard 20px grid-gap token, use gap-4/16px); FLAG Dim-3 color (resolve accent reservation contradictions; rename duplicate `--color-body-bg-bg` token to `--color-surface-card`); FLAG Dim-2 accessibility (add `aria-label="Ürünü kaldır"` on trash button, `aria-label="Ara"` on search submit); FLAG Dim-1 copywriting (document rationale for single-verb CTAs "Devam Et" and "Tekrar Dene") |
 
 ---
 
