@@ -5,6 +5,7 @@ import { RedirectIfAuthed } from './components/layout/RedirectIfAuthed';
 import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
 import PlaceholderPage from './pages/PlaceholderPage';
+import LoginPage from './pages/LoginPage';
 import { CATEGORY_SLUGS } from './lib/categories';
 import { ROUTES } from './lib/routes';
 
@@ -29,7 +30,7 @@ export const router = createBrowserRouter([
       {
         element: <RedirectIfAuthed />,
         children: [
-          { path: 'giris-yap', element: <PlaceholderPage name="Giriş Yap" /> },
+          { path: 'giris-yap', element: <LoginPage /> },
           { path: 'uye-ol', element: <PlaceholderPage name="Üye Ol" /> },
         ],
       },
