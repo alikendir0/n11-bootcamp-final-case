@@ -16,3 +16,16 @@ export function addToCart(req: AddToCartRequest): Promise<void> {
     body: JSON.stringify(req),
   });
 }
+
+export function updateCartItem(productId: string, qty: number): Promise<void> {
+  return apiFetch<void>(`/cart/items/${encodeURIComponent(productId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ qty }),
+  });
+}
+
+export function removeCartItem(productId: string): Promise<void> {
+  return apiFetch<void>(`/cart/items/${encodeURIComponent(productId)}`, {
+    method: 'DELETE',
+  });
+}
