@@ -256,11 +256,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 plans (4 waves)
 
   **Wave 0** -- module scaffolds, ai-port + agent-toolset interfaces, gateway SSE route, both Boot apps boot healthy (no deps)
-  - [ ] 08-01-PLAN.md -- 4 new Gradle modules + ai-port (zero-dep) + agent-toolset interfaces + ai-service/search-service Boot apps + Flyway V1 + config-server YAMLs + gateway SSE route activation + AiPortContractTest (`AI-01, AI-14`)
+  - [x] 08-01-PLAN.md -- 4 new Gradle modules + ai-port (zero-dep) + agent-toolset interfaces + ai-service/search-service Boot apps + Flyway V1 + config-server YAMLs + gateway SSE route activation + AiPortContractTest (`AI-01, AI-14`)
 
   **Wave 1** *(blocked on 08-01)* -- parallel: tools + adapters
-  - [ ] 08-02-PLAN.md -- 10 canonical agent tools + per-service HTTP clients + AbstractAgentTool + AgentToolRegistryTest + ToolSchemaContractTest (`AI-05, AI-15`)
-  - [ ] 08-03-PLAN.md -- GeminiChatAdapter + GeminiEmbeddingAdapter + EchoChatProvider + GeminiTypeMapper + ApplicationReadyEvent model probe (Pitfall #1) + ApiErrorCode extension + EchoProviderActivationTest (`AI-02, AI-03, AI-04, AI-06`)
+  - [x] 08-02-PLAN.md -- 10 canonical agent tools + per-service HTTP clients + AbstractAgentTool + AgentToolRegistryTest + ToolSchemaContractTest (`AI-05, AI-15`)
+  - [x] 08-03-PLAN.md -- GeminiChatAdapter + GeminiEmbeddingAdapter + EchoChatProvider + GeminiTypeMapper + ApplicationReadyEvent model probe (Pitfall #1) + ApiErrorCode extension + EchoProviderActivationTest (`AI-02, AI-03, AI-04, AI-06`)
 
   **Wave 2** *(blocked on 08-02 + 08-03)* -- ai-service business logic
   - [ ] 08-04-PLAN.md -- Conversation/Message JPA + GuestSessionStore + ToolDispatcher (D-04 + D-08 provenance) + ChatService manual loop + SystemPromptProvider + ChatController + ChatStreamController (typed SSE) + 4 integration tests (`AI-06, AI-07, AI-08, AI-09, AI-10`)
