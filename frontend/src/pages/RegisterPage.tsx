@@ -9,11 +9,15 @@ import { useAuthStore } from '../store/authStore';
 import { ROUTES } from '../lib/routes';
 import { ApiError } from '../lib/apiClient';
 
+const PASSWORD_POLICY_MESSAGE = 'Şifre en az 8 karakter olmalı, en az bir harf ve bir rakam içermelidir.';
+
 const registerSchema = z
   .object({
     fullName: z.string().min(2, { message: 'Ad Soyad en az 2 karakter olmalıdır.' }),
     email: z.string().min(1).email(),
-    password: z.string().min(8, { message: 'Şifre en az 8 karakter olmalıdır.' }),
+    password: z.string().regex(/^(?=.*[A-Za-zÇĞİÖŞÜçğıöşü])(?=.*\d).{8,}$/, {
+      message: PASSWORD_POLICY_MESSAGE,
+    }),
     passwordConfirm: z.string().min(1),
   })
   .refine(d => d.password === d.passwordConfirm, {
@@ -30,6 +34,7 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -51,6 +56,12 @@ export default function RegisterPage() {
     onError: (err) => {
       if (err instanceof ApiError && err.status === 409) {
         toast.error(err.problem?.detail ?? 'Bu e-posta adresi zaten kullanımda.');
+        return;
+      }
+      if (err instanceof ApiError && err.status === 400) {
+        setError('root.server', {
+          message: err.problem?.detail ?? 'Kayıt bilgilerinizi kontrol ediniz.',
+        });
         return;
       }
       const detail = err instanceof ApiError ? err.problem?.detail : undefined;
@@ -107,6 +118,11 @@ export default function RegisterPage() {
           >
             {mutation.isPending ? "Kayıt yapılıyor..." : "Üye Ol"}
           </button>
+          {errors.root?.server?.message && (
+            <p role="alert" className="text-sm text-[#DC2626] bg-red-50 border border-red-100 rounded p-3">
+              {errors.root.server.message}
+            </p>
+          )}
         </form>
         <p className="text-center text-sm mt-6">
           Zaten üye misin?{' '}
