@@ -26,6 +26,9 @@ dependencies {
     // without triggering RabbitAutoConfiguration. Same fix ai-service uses (line 34
     // of ai-service/build.gradle.kts).
     runtimeOnly("org.springframework.amqp:spring-amqp")
+    // common-logging also contributes RabbitListenerCorrelationAspect; provide
+    // AspectJ runtime symbols without enabling any AMQP listener infrastructure.
+    runtimeOnly("org.aspectj:aspectjweaver")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
