@@ -99,17 +99,19 @@ export interface ShippingAddress {
   title: string;
 }
 
+export type OrderStatus =
+  | 'PENDING'
+  | 'STOCK_RESERVED'
+  | 'PAID'
+  | 'CONFIRMED'
+  | 'STOCK_FAILED'
+  | 'PAYMENT_FAILED'
+  | 'CANCELLED';
+
 export interface Order {
   id: string;
   userId: string;
-  status:
-    | 'PENDING'
-    | 'STOCK_RESERVED'
-    | 'PAID'
-    | 'CONFIRMED'
-    | 'STOCK_FAILED'
-    | 'PAYMENT_FAILED'
-    | 'CANCELLED';
+  status: OrderStatus;
   totalAmount: number;
   currency: 'TRY';
   cancelReason?: string;

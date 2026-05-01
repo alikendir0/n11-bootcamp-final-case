@@ -6,7 +6,6 @@ import HomePage from './pages/HomePage';
 import CategoryListingPage from './pages/CategoryListingPage';
 import SearchPage from './pages/SearchPage';
 import NotFoundPage from './pages/NotFoundPage';
-import PlaceholderPage from './pages/PlaceholderPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -14,6 +13,10 @@ import CartPage from './pages/CartPage';
 import CheckoutAddressPage from './pages/CheckoutAddressPage';
 import CheckoutPaymentPage from './pages/CheckoutPaymentPage';
 import CheckoutResultPage from './pages/CheckoutResultPage';
+import AccountHubPage from './pages/AccountHubPage';
+import OrdersPage from './pages/OrdersPage';
+import OrderDetailPage from './pages/OrderDetailPage';
+import AddressesPage from './pages/AddressesPage';
 import { RouteErrorFallback } from './components/feedback/ErrorBoundary';
 import { ROUTES } from './lib/routes';
 
@@ -50,10 +53,10 @@ export const router = createBrowserRouter([
           { path: 'odeme/adres', element: <CheckoutAddressPage /> },                    // Plan 10-07
           { path: 'odeme/odeme', element: <CheckoutPaymentPage /> },                    // Plan 10-07
           { path: 'odeme/sonuc', element: <CheckoutResultPage /> },                    // Plan 10-07
-          { path: 'hesabim', element: <PlaceholderPage name="Hesabım" /> },            // Plan 10-08
-          { path: 'siparislerim', element: <PlaceholderPage name="Siparişlerim" /> },  // Plan 10-08
-          { path: 'siparislerim/:orderId', element: <PlaceholderPage name="Sipariş Detayı" /> },  // Plan 10-08
-          { path: 'adreslerim', element: <PlaceholderPage name="Adreslerim" /> },     // Plan 10-08
+          { path: 'hesabim', element: <AccountHubPage /> },                            // Plan 10-08
+          { path: 'siparislerim', element: <OrdersPage /> },                           // Plan 10-08
+          { path: 'siparislerim/:orderId', element: <OrderDetailPage /> },             // Plan 10-08
+          { path: 'adreslerim', element: <AddressesPage /> },                          // Plan 10-08
         ],
       },
 
