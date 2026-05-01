@@ -5,14 +5,16 @@
 set -u
 
 FAIL=0
-FRONTEND_SRC="frontend/src"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FRONTEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+FRONTEND_SRC="$FRONTEND_DIR/src"
 
 step() { echo "==> $1"; }
 pass() { echo "    OK"; }
 fail() { echo "    FAIL: $1"; FAIL=$((FAIL + 1)); }
 
 if [ ! -d "$FRONTEND_SRC" ]; then
-  echo "frontend/src/ not found — run from repo root."
+  echo "frontend/src/ not found. Expected source directory at: $FRONTEND_SRC"
   exit 2
 fi
 
