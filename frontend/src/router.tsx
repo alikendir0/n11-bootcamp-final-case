@@ -9,6 +9,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import PlaceholderPage from './pages/PlaceholderPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ProductDetailPage from './pages/ProductDetailPage';
 import { ROUTES } from './lib/routes';
 
 export const router = createBrowserRouter([
@@ -22,7 +23,7 @@ export const router = createBrowserRouter([
       { path: 'arama', element: <SearchPage /> },
 
       // Product detail — Plan 10-05
-      { path: 'urun/:slugAndId', element: <PlaceholderPage name="Ürün Detay" /> },
+      { path: 'urun/:slugAndId', element: <ProductDetailPage /> },
 
       // Cart — Plan 10-06
       { path: 'sepetim', element: <PlaceholderPage name="Sepetim" /> },
