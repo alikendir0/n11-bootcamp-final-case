@@ -40,6 +40,25 @@ export interface Product {
   createdAt: string;             // ISO-8601
 }
 
+export interface BackendProductSummaryDto {
+  id: string;
+  nameTr: string;
+  priceGross: number;
+  firstImageUrl: string | null;
+  categoryName: string;
+  categoryId?: string;
+  stockQty?: number;
+  createdAt?: string;
+}
+
+export interface BackendProductPage {
+  content: BackendProductSummaryDto[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
 export interface ProductPage {
   content: Product[];
   totalElements: number;

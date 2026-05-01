@@ -1,6 +1,31 @@
 import { apiFetch } from '../lib/apiClient';
-import type { Product, ProductPage } from '../lib/types';
+import type { BackendProductPage, BackendProductSummaryDto, Product, ProductPage } from '../lib/types';
 import type { BackendListingParams } from '../lib/listingParams';
+
+function normalizeProductSummary(dto: BackendProductSummaryDto): Product {
+  return {
+    id: dto.id,
+    name: dto.nameTr,
+    description: '',
+    priceGross: dto.priceGross,
+    kdvRate: 0,
+    imageUrl: dto.firstImageUrl ?? '',
+    categoryId: dto.categoryId ?? '',
+    categoryLabel: dto.categoryName,
+    stockQty: dto.stockQty ?? 0,
+    createdAt: dto.createdAt ?? '',
+  };
+}
+
+export function normalizeProductPage(page: BackendProductPage): ProductPage {
+  return {
+    content: page.content.map(normalizeProductSummary),
+    totalElements: page.totalElements,
+    totalPages: page.totalPages,
+    number: page.number,
+    size: page.size,
+  };
+}
 
 /**
  * Backend product-service accepts ?categoryId=<UUID> (not slug).
@@ -27,7 +52,7 @@ export function fetchProducts(
       : params.categoryFilter;
     qs.set('categoryId', resolvedId);
   }
-  return apiFetch<ProductPage>(`/products?${qs.toString()}`);
+  return apiFetch<BackendProductPage>(`/products?${qs.toString()}`).then(normalizeProductPage);
 }
 
 export function fetchProductById(id: string): Promise<Product> {

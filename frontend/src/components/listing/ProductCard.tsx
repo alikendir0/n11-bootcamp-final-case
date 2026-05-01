@@ -4,8 +4,8 @@ import { formatTRY } from '../../lib/format';
 import type { Product } from '../../lib/types';
 
 /** Build the slug-id segment per FE-07: kebab-cased name + product-id. */
-function productSlug(p: Product): string {
-  const slug = p.name
+function productSlug(p: Product, displayName: string): string {
+  const slug = displayName
     .toLocaleLowerCase('tr-TR')
     .replace(/[^a-z0-9ğüşıöçĞÜŞİÖÇ]+/g, '-')
     .replace(/^-+|-+$/g, '')
@@ -15,16 +15,17 @@ function productSlug(p: Product): string {
 
 export function ProductCard({ product }: { product: Product }) {
   const outOfStock = product.stockQty <= 0;
+  const displayName = product.name?.trim() || 'Ürün';
   return (
     <Link
-      to={ROUTES.PRODUCT(productSlug(product))}
-      aria-label={product.name}
+      to={ROUTES.PRODUCT(productSlug(product, displayName))}
+      aria-label={displayName}
       className="block bg-white border border-[var(--color-border)] rounded overflow-hidden hover:shadow-md transition-shadow"
     >
       <div className="relative aspect-[3/4] bg-gray-100">
         <img
           src={product.imageUrl}
-          alt={product.name}
+          alt={displayName}
           loading="lazy"
           className="w-full h-full object-cover"
         />
@@ -37,7 +38,7 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
       <div className="p-3">
-        <h3 className="text-sm line-clamp-2 min-h-[2.5em] mb-2">{product.name}</h3>
+        <h3 className="text-sm line-clamp-2 min-h-[2.5em] mb-2">{displayName}</h3>
         <p className="text-xl font-bold">{formatTRY(product.priceGross)}</p>
       </div>
     </Link>
