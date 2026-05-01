@@ -103,6 +103,9 @@ export interface Order {
 
 export interface PaymentStatus {
   orderId: string;
-  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'TIMED_OUT';
+  /** PENDING_INITIALIZATION = no payment row yet (202 from PaymentController). */
+  status: 'PENDING_INITIALIZATION' | 'PENDING' | 'COMPLETED' | 'FAILED' | 'TIMED_OUT';
   paymentPageUrl: string | null;
+  failureReason?: string | null;
+  updatedAt?: string | null;
 }
