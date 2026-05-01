@@ -3,6 +3,7 @@ package com.n11.logging;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.client.RestClient;
 
 /**
@@ -22,6 +23,7 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
 
     @Bean
+    @Primary
     public RestClient.Builder correlationIdAwareRestClientBuilder(
             CorrelationIdRestClientInterceptor interceptor) {
         return RestClient.builder().requestInterceptor(interceptor);
