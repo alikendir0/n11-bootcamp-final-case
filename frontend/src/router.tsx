@@ -10,6 +10,7 @@ import PlaceholderPage from './pages/PlaceholderPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import CartPage from './pages/CartPage';
 import { ROUTES } from './lib/routes';
 
 export const router = createBrowserRouter([
@@ -26,7 +27,7 @@ export const router = createBrowserRouter([
       { path: 'urun/:slugAndId', element: <ProductDetailPage /> },
 
       // Cart — Plan 10-06
-      { path: 'sepetim', element: <PlaceholderPage name="Sepetim" /> },
+      { path: 'sepetim', element: <CartPage /> },
 
       // Anonymous-only auth pages — Plan 10-03
       {
