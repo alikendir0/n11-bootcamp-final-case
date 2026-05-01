@@ -456,6 +456,71 @@ services:
     networks:
       - n11-net
 
+  # ---------------------------------------------------------------------------
+  # ai-service -- Phase 8 (port 8088).
+  # Chat assistant (REST + SSE). Calls product/cart/order/payment via
+  # Eureka discovery + X-User-Id forwarding (CONTEXT D-05).
+  # Requires: ./gradlew :ai-service:jibDockerBuild before docker compose up
+  # ---------------------------------------------------------------------------
+  ai-service:
+    image: n11/ai-service:dev
+    container_name: n11-ai-service
+    env_file:
+      - .env
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_PROFILES_ACTIVE: docker
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8088/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 25s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
+  # ---------------------------------------------------------------------------
+  # search-service -- Phase 8 skeleton (port 8089). D-09: no /search
+  # endpoint in v1; second consumer of the AI port (EmbeddingProvider).
+  # ---------------------------------------------------------------------------
+  search-service:
+    image: n11/search-service:dev
+    container_name: n11-search-service
+    env_file:
+      - .env
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8089/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 25s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
 volumes:
   postgres-data:
   rabbitmq-data:

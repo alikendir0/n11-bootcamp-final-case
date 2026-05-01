@@ -16,7 +16,11 @@ include(
     "payment-service",
     "notification-service",
     "service-template",
-    "infra-tests"
+    "infra-tests",
+    "ai-port",
+    "agent-toolset",
+    "ai-service",
+    "search-service"
 )
 
 // Gradle 8.x auto-detects gradle/libs.versions.toml at the conventional path and

@@ -101,25 +101,38 @@ spring:
                 - Path=/api/v1/payments/**
               filters:
                 - StripPrefix=2
+            # Phase 8 (Plan 08-01): ai-service SSE chat stream.
+            # api-contracts.md §6: SSE routes MUST set response-timeout: -1 and
+            # MUST NOT have ModifyResponseBody / RetryFilter (both buffer the
+            # body and break token-by-token streaming).
+            - id: ai-service-chat-stream
+              uri: lb://AI-SERVICE
+              predicates:
+                - Path=/api/v1/chat/stream/**
+              metadata:
+                response-timeout: -1
+                connect-timeout: 5000
+              filters:
+                - StripPrefix=2
+                - PreserveHostHeader=true
+            # Phase 8 (Plan 08-01): ai-service sync chat (POST /chat, conversation replay).
+            # POST /api/v1/chat/** is on the public allowlist (api-contracts.md §3) — guests
+            # reach ai-service without JWT. Authed users get X-User-Id from the gateway.
+            - id: ai-service-chat
+              uri: lb://AI-SERVICE
+              predicates:
+                - Path=/api/v1/chat/**
+              filters:
+                - StripPrefix=2
+            # search-service route stays disabled until v2 (AI-V2-01 / D-09):
+            # - id: search-service
+            #   uri: lb://SEARCH-SERVICE
+            #   predicates:
+            #     - Path=/api/v1/search/**
+            #   filters:
+            #     - StripPrefix=2
 
-          # ─────────────────────────────────────────────────────────────────
-          # Phase 8 SSE forward-reference (DO NOT enable in Phase 1 -- no
-          # ai-service exists yet). Documented here so Phase 8's planner has a
-          # known-good shape to copy-paste. See RESEARCH §4.10 lines 871-893
-          # and .planning/api-contracts.md §SSE-routing.
-          # ─────────────────────────────────────────────────────────────────
-          # routes:
-          #   - id: ai-service-chat-stream
-          #     uri: lb://ai-service
-          #     predicates:
-          #       - Path=/api/v1/chat/stream/**
-          #     metadata:
-          #       response-timeout: -1     # SSE: disable per-route timeout
-          #       connect-timeout: 5000
-          #     filters:
-          #       - PreserveHostHeader=true
-          # NOTE for Phase 8: NO ModifyResponseBody filter, NO RetryFilter on SSE
-          # routes -- both buffer the response and break token-by-token streaming.
+          # Phase 8 SSE forward-reference is now ACTIVATED above (ai-service-chat-stream).
   # ── Phase 3 (D-20 / D-03 / Risk 2) ──────────────────────────────────────
   # NimbusReactiveJwtDecoder fetches public keys from this URI on the first
   # protected request. Use the docker-compose hostname, NOT lb://identity-service
@@ -173,3 +186,7 @@ springdoc:
       # Phase 6 (Plan 06-04): payment-service Springdoc surface (PAY-07).
       - name: payment-service
         url: /api/v1/payments/v3/api-docs
+      # Phase 8 (Plan 08-01): ai-service Springdoc surface (QUAL-01).
+      - name: ai-service
+        url: /api/v1/chat/v3/api-docs
+      # search-service Springdoc entry stays commented in v1 (D-09).
