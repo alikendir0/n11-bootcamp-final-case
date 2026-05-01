@@ -356,7 +356,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 7. Notification (Saga Closure) | 6/6 | Complete | 2026-04-30 |
 | 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
 | 9. MCP Server | 0/TBD | Not started | - |
-| 10. Frontend Storefront | 10/10 | Complete   | 2026-05-01 |
+| 10. Frontend Storefront | 11/11 | Complete   | 2026-05-01 |
 | 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
 
 **Milestone progress:** 7 of 11 active phases complete (64%). 37 plans authored and executed across Phases 1–7. Phases 8–11 plan counts are TBD until those phases enter the discuss/plan loop.
@@ -367,7 +367,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 
 **Goal:** [Captured for future planning]
 **Requirements:** TBD
-**Plans:** 10/10 plans complete
+**Plans:** 11/11 plans complete
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog when ready)
