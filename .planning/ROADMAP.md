@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Notification (Saga Closure)** - notification-service mock, saga happy-path closure, end-to-end saga integration test — completed 2026-04-30 (6/6 plans; 07-VERIFICATION.md persisted)
 - [x] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat — completed 2026-05-01 (5/5 plans; ai-port zero-Gemini guard verified by AiPortContractTest; EchoChatProvider second adapter proves substitutability)
 - [ ] **Phase 9: MCP Server** - mcp-server consumes shared agent-toolset, stdio + HTTP+SSE transports, API-key auth bridge
-- [ ] **Phase 10: Frontend Storefront** - Turkish React storefront: header/footer/hero/listing/PDP/cart/checkout/account
+- [x] **Phase 10: Frontend Storefront** - Turkish React storefront: header/footer/hero/listing/PDP/cart/checkout/account (completed 2026-05-01)
 - [ ] **Phase 11: Frontend Chat Assistant + DevOps Deploy** - Floating chat bubble with SSE streaming, Jib for every service, GH Actions build/test, local docker-compose deploy on the candidate's machine, public demo URL via Cloudflare Tunnel / ngrok, Slack webhook
 
 ## Phase Details
@@ -356,7 +356,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 7. Notification (Saga Closure) | 6/6 | Complete | 2026-04-30 |
 | 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
 | 9. MCP Server | 0/TBD | Not started | - |
-| 10. Frontend Storefront | 7/9 | In Progress|  |
+| 10. Frontend Storefront | 9/9 | Complete   | 2026-05-01 |
 | 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
 
 **Milestone progress:** 7 of 11 active phases complete (64%). 37 plans authored and executed across Phases 1–7. Phases 8–11 plan counts are TBD until those phases enter the discuss/plan loop.
@@ -367,7 +367,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 
 **Goal:** [Captured for future planning]
 **Requirements:** TBD
-**Plans:** 7/9 plans executed
+**Plans:** 9/9 plans complete
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog when ready)

@@ -100,18 +100,18 @@
 - [ ] **FE-10**: Account section: "Siparişlerim" (orders list), order detail with status timeline, address book
 - [ ] **FE-11**: Login / register pages in Turkish with form validation messages in Turkish
 - [ ] **FE-12**: Floating chat assistant bubble bottom-right; persistent across all pages; opens overlay panel; streams Gemini responses token-by-token
-- [ ] **FE-13**: All UI copy in Turkish — "Sepete Ekle", "Hemen Al", "Stokta", "Tükendi", "Kargo Bedava", "Siparişi Tamamla", "Önceki", "Sonraki", "Sepetim Boş"
+- [x] **FE-13**: All UI copy in Turkish — "Sepete Ekle", "Hemen Al", "Stokta", "Tükendi", "Kargo Bedava", "Siparişi Tamamla", "Önceki", "Sonraki", "Sepetim Boş"
 - [ ] **FE-14**: Pagination component with Turkish labels and accessible keyboard navigation
-- [ ] **FE-15**: Skeleton loaders on PDP and listing; toast or inline error messages on action failures (React Query handles most retry/cache)
-- [ ] **FE-16**: Frontend integrates with backend via api-gateway only (no direct service URLs)
+- [x] **FE-15**: Skeleton loaders on PDP and listing; toast or inline error messages on action failures (React Query handles most retry/cache)
+- [x] **FE-16**: Frontend integrates with backend via api-gateway only (no direct service URLs)
 
 ### Localization (Turkish-Locale Conventions)
 
 - [ ] **LOC-01**: KDV-inclusive price display everywhere; backend stores `price_gross` + `kdv_rate`
-- [ ] **LOC-02**: TRY currency formatting via `Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' })` → `1.299,90 ₺`
-- [ ] **LOC-03**: Taksit preview on PDP — client-side `Math.ceil(price / installments)` for 2/3/6/9/12 tiers
+- [x] **LOC-02**: TRY currency formatting via `Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' })` → `1.299,90 ₺`
+- [x] **LOC-03**: Taksit preview on PDP — client-side `Math.ceil(price / installments)` for 2/3/6/9/12 tiers
 - [ ] **LOC-04**: "Kargo Bedava" badge on PDP / listing when `price >= FREE_SHIPPING_THRESHOLD` (config value)
-- [ ] **LOC-05**: Date formatting with tr-TR locale (`28 Nisan 2026`)
+- [x] **LOC-05**: Date formatting with tr-TR locale (`28 Nisan 2026`)
 
 ### Architecture Mandates (microservices coordinator requirements)
 
@@ -279,15 +279,15 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | FE-10 | Phase 10 | Pending |
 | FE-11 | Phase 10 | Pending |
 | FE-12 | Phase 11 | Pending |
-| FE-13 | Phase 10 | Pending |
+| FE-13 | Phase 10 | Complete |
 | FE-14 | Phase 10 | Pending |
-| FE-15 | Phase 10 | Pending |
-| FE-16 | Phase 10 | Pending |
+| FE-15 | Phase 10 | Complete |
+| FE-16 | Phase 10 | Complete |
 | LOC-01 | Phase 10 | Pending |
-| LOC-02 | Phase 10 | Pending |
-| LOC-03 | Phase 10 | Pending |
+| LOC-02 | Phase 10 | Complete |
+| LOC-03 | Phase 10 | Complete |
 | LOC-04 | Phase 10 | Pending |
-| LOC-05 | Phase 10 | Pending |
+| LOC-05 | Phase 10 | Complete |
 | ARCH-01 | Phase 1 | Pending |
 | ARCH-02 | Phase 1 (01-05) | Complete |
 | ARCH-03 | Phase 1 (01-05) | Complete |
