@@ -3,11 +3,12 @@ import { Layout } from './components/layout/Layout';
 import { RequireAuth } from './components/layout/RequireAuth';
 import { RedirectIfAuthed } from './components/layout/RedirectIfAuthed';
 import HomePage from './pages/HomePage';
+import CategoryListingPage from './pages/CategoryListingPage';
+import SearchPage from './pages/SearchPage';
 import NotFoundPage from './pages/NotFoundPage';
 import PlaceholderPage from './pages/PlaceholderPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import { CATEGORY_SLUGS } from './lib/categories';
 import { ROUTES } from './lib/routes';
 
 export const router = createBrowserRouter([
@@ -17,17 +18,16 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
 
-      // 8 category routes — Plan 10-04 replaces PlaceholderPage with CategoryListingPage
-      ...CATEGORY_SLUGS.map(slug => ({
-        path: slug,
-        element: <PlaceholderPage name={`Category: ${slug}`} />,
-      })),
+      // Search results — Plan 10-04
+      { path: 'arama', element: <SearchPage /> },
 
-      { path: 'arama', element: <PlaceholderPage name="Arama" /> },                    // Plan 10-04
-      { path: 'urun/:slugAndId', element: <PlaceholderPage name="Ürün Detay" /> },     // Plan 10-05
-      { path: 'sepetim', element: <PlaceholderPage name="Sepetim" /> },                // Plan 10-06
+      // Product detail — Plan 10-05
+      { path: 'urun/:slugAndId', element: <PlaceholderPage name="Ürün Detay" /> },
 
-      // Anonymous-only auth pages — Plan 10-03 replaces these
+      // Cart — Plan 10-06
+      { path: 'sepetim', element: <PlaceholderPage name="Sepetim" /> },
+
+      // Anonymous-only auth pages — Plan 10-03
       {
         element: <RedirectIfAuthed />,
         children: [
@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
         ],
       },
 
-      // Auth-required routes — Plans 10-07 and 10-08 replace these
+      // Auth-required routes — Plans 10-07 and 10-08
       {
         element: <RequireAuth />,
         children: [
@@ -49,6 +49,10 @@ export const router = createBrowserRouter([
           { path: 'adreslerim', element: <PlaceholderPage name="Adreslerim" /> },     // Plan 10-08
         ],
       },
+
+      // Category listing — MUST come LAST before catch-all (after all literal paths)
+      // CategoryListingPage validates slug via isCategorySlug and renders NotFoundPage for unknowns
+      { path: ':categorySlug', element: <CategoryListingPage /> },
 
       { path: '*', element: <NotFoundPage /> },
     ],
