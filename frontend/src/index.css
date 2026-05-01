@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@import "@fontsource/open-sans/400.css";
+@import "@fontsource/open-sans/700.css";
+
+@theme {
+  /* Spacing scale (UI-SPEC §Spacing Scale) */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  --spacing-3xl: 4rem;     /* 64px */
+
+  /* Color tokens — recon §4 + UI-SPEC §Color */
+  --color-body-bg: #EDEFF3;          /* Dominant 60% — page background */
+  --color-surface-card: #FFFFFF;     /* Secondary 30% — card/modal/form bg */
+  --color-surface-header: #FFFFFF;   /* Sticky header bg */
+  --color-cta-primary-bg: #1C1C1E;   /* Accent 10% — primary CTA black (#1C1C1E), recon-locked */
+  --color-cta-primary: #FFFFFF;      /* Text on CTA */
+  --color-link: #000000;
+  --color-heading-primary: #000000;
+  --color-destructive: #DC2626;      /* Tailwind red-600 — cancel order, errors */
+  --color-stock-in: #34A853;         /* "Stokta" indicator dot */
+  --color-stock-out: #DC2626;        /* "Tükendi" indicator dot */
+  --color-badge-free-ship-bg: #34A853;  /* "Kargo Bedava" badge */
+  --color-border: #E5E7EB;           /* card borders, input borders */
+
+  /* Typography (UI-SPEC §Typography) */
+  --font-sans: "Open Sans", Arial, Helvetica, sans-serif;
+  --font-cta: Arial, Helvetica, sans-serif;  /* PDP "Sepete Ekle" recon §5 lock */
+  --font-size-label: 0.875rem;   /* 14px */
+  --font-size-body: 1rem;        /* 16px */
+  --font-size-heading: 1.25rem;  /* 20px */
+  --font-size-display: 1.5rem;   /* 24px */
+}
+
+/* Body baseline so body bg + font apply globally; verifies tokens are wired */
+html, body, #root {
+  height: 100%;
+}
+body {
+  background-color: var(--color-body-bg);
+  color: var(--color-link);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+  margin: 0;
+}
