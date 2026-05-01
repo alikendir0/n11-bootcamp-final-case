@@ -266,7 +266,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 08-04-PLAN.md -- Conversation/Message JPA + GuestSessionStore + ToolDispatcher (D-04 + D-08 provenance) + ChatService manual loop + SystemPromptProvider + ChatController + ChatStreamController (typed SSE) + 4 integration tests (`AI-06, AI-07, AI-08, AI-09, AI-10`)
 
   **Wave 3** *(blocked on 08-04)* -- search-service skeleton + infra-tests + smoke runbook + human-verify
-  - [ ] 08-05-PLAN.md -- search-service EmbeddingProvider stub + SearchServiceContextTest + infra-tests classpath extension (AiServiceTestConfig) + 08-SMOKE-RUNBOOK.md + human-verify SOLID swap demo + AI-15 cart-bridge demo (`QUAL-08`)
+  - [x] 08-05-PLAN.md -- search-service EmbeddingProvider stub + SearchServiceContextTest + infra-tests classpath extension (AiServiceTestConfig) + 08-SMOKE-RUNBOOK.md + human-verify SOLID swap demo + AI-15 cart-bridge demo (`QUAL-08`)
 
   **Cross-cutting constraints** (recurring across >=2 plans):
   - Pitfall #7 sealed boundary: `com.google.genai` imports allowed ONLY in ai-service/.../infrastructure/llm/ (Plans 01 + 03 + 05 verify)
