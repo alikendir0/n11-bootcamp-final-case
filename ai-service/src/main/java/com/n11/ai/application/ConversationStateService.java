@@ -57,7 +57,8 @@ public class ConversationStateService {
         private final ConversationRepository convRepo;
         private final MessageRepository msgRepo;
         private final ObjectMapper json;
-        private final List<Message> persistedHistory;
+        /** Live list: initialized from DB, extended in-memory as messages are appended this session. */
+        private final List<Message> liveHistory;
         private final Set<String> seenIds;
         private int seq;
 
@@ -67,9 +68,10 @@ public class ConversationStateService {
             this.convRepo = convRepo;
             this.msgRepo = msgRepo;
             this.json = json;
-            this.persistedHistory = msgRepo.findByConversationIdOrderBySequenceNoAsc(c.getId());
-            this.seq = persistedHistory.isEmpty() ? 0
-                    : persistedHistory.get(persistedHistory.size() - 1).getSequenceNo() + 1;
+            // Load history from DB and put in a mutable list so appendXxx can extend it in-memory.
+            this.liveHistory = new ArrayList<>(msgRepo.findByConversationIdOrderBySequenceNoAsc(c.getId()));
+            this.seq = liveHistory.isEmpty() ? 0
+                    : liveHistory.get(liveHistory.size() - 1).getSequenceNo() + 1;
             this.seenIds = parseSeenIds(c.getSeenIdsJson(), json);
         }
 
@@ -89,8 +91,8 @@ public class ConversationStateService {
 
         @Override
         public List<ChatMessage> history() {
-            List<ChatMessage> out = new ArrayList<>(persistedHistory.size());
-            for (Message m : persistedHistory) {
+            List<ChatMessage> out = new ArrayList<>(liveHistory.size());
+            for (Message m : liveHistory) {
                 out.add(toChatMessage(m, json));
             }
             return out;
@@ -101,25 +103,37 @@ public class ConversationStateService {
 
         @Override
         public void appendUserMessage(String content) {
-            msgRepo.save(new Message(conv.getId(), MessageRoleEntity.USER, content, null, null, nextSequence()));
+            int sn = nextSequence();
+            Message m = new Message(conv.getId(), MessageRoleEntity.USER, content, null, null, sn);
+            msgRepo.save(m);
+            liveHistory.add(m);
             touch();
         }
 
         @Override
         public void appendAssistantText(String text) {
-            msgRepo.save(new Message(conv.getId(), MessageRoleEntity.ASSISTANT, text, null, null, nextSequence()));
+            int sn = nextSequence();
+            Message m = new Message(conv.getId(), MessageRoleEntity.ASSISTANT, text, null, null, sn);
+            msgRepo.save(m);
+            liveHistory.add(m);
             touch();
         }
 
         @Override
         public void appendAssistantToolCalls(String toolCallJson) {
-            msgRepo.save(new Message(conv.getId(), MessageRoleEntity.ASSISTANT, null, toolCallJson, null, nextSequence()));
+            int sn = nextSequence();
+            Message m = new Message(conv.getId(), MessageRoleEntity.ASSISTANT, null, toolCallJson, null, sn);
+            msgRepo.save(m);
+            liveHistory.add(m);
             touch();
         }
 
         @Override
         public void appendToolResults(String toolResultJson) {
-            msgRepo.save(new Message(conv.getId(), MessageRoleEntity.TOOL, null, null, toolResultJson, nextSequence()));
+            int sn = nextSequence();
+            Message m = new Message(conv.getId(), MessageRoleEntity.TOOL, null, null, toolResultJson, sn);
+            msgRepo.save(m);
+            liveHistory.add(m);
             String seenIdsJsonStr;
             try {
                 seenIdsJsonStr = json.writeValueAsString(new ArrayList<>(seenIds));
