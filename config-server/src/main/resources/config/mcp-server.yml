@@ -1,0 +1,82 @@
+# ---------------------------------------------------------------------------
+# config-server/src/main/resources/config/mcp-server.yml
+# Phase 9 (D-01, D-02, D-08).
+#
+# mcp-server-specific runtime config served via Spring Cloud Config to clients
+# requesting profile `default`. The bootstrap stub
+# mcp-server/src/main/resources/application.yml owns only `spring.application.name`
+# and the `spring.config.import=optional:configserver:...` declaration.
+#
+# Editing this file requires `./gradlew :config-server:jibDockerBuild` BEFORE
+# `docker compose up -d` because config-server reads classpath:/config/ which is
+# JAR-bound at image-build time (Plan 01-06 lesson).
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8090
+
+# D-08: MCP_API_KEY arrives via environment variable (.env / docker-compose);
+# binds to the application property `mcp.api-key`. Plan 09-04's AgentJwtCache
+# reads via @Value("${mcp.api-key}").
+mcp:
+  api-key: ${MCP_API_KEY:}
+
+spring:
+  # Pitfall #7 mitigation (09-RESEARCH.md): mcp-server has no DB.
+  # Without explicit exclusion, Spring Boot tries to configure a DataSource
+  # because spring-cloud-starter-config pulls jdbc-related autoconfig classes
+  # onto the classpath in some transitive paths.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
+  ai:
+    mcp:
+      server:
+        name: n11-storefront
+        version: 1.0.0
+        type: SYNC
+        # D-02: Streamable HTTP is the current MCP standard (spec 2025-06-18).
+        # SSE is deprecated and not enabled.
+        protocol: STREAMABLE
+        # D-01: stdio also active so the SAME Jib image serves Claude Desktop
+        # via `docker run -i -e MCP_STDIO_ENABLED=true`. Default is true so the
+        # baseline image always advertises both transports.
+        stdio: ${MCP_STDIO_ENABLED:true}
+        streamable-http:
+          # Default per Spring AI 1.1.5 docs; explicit for clarity.
+          mcp-endpoint: /mcp
+        capabilities:
+          # Pitfall #5 mitigation (09-RESEARCH.md): explicitly disable capabilities
+          # we do not register, otherwise MCP Inspector warns about empty resource
+          # / prompt registries.
+          tool: true
+          resource: false
+          prompt: false
+
+# Eureka client for lb:// resolution (Plan 09-04 AgentJwtClient + agent-toolset
+# tool clients all use lb://). Same posture as every other service.
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'health,info'
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.n11.mcp: INFO
+    org.springframework.ai: INFO
