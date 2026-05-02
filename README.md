@@ -2,7 +2,7 @@
 
 > **Patika.dev × n11 Spring Boot Bootcamp** — Capstone Project
 
-A **13-microservice** Turkish e-commerce platform modeled after [n11.com](https://www.n11.com), built with Spring Boot 3.5, Spring Cloud 2025.0 (Northfields), and a React 19 storefront. The defining differentiator is **agentic commerce**: an in-storefront AI shopping assistant powered by Gemini, and an MCP server that exposes the same toolset to external AI agents (e.g. Claude Desktop).
+A **13-microservice** Turkish e-commerce platform modeled after [n11.com](https://www.n11.com), built with Spring Boot 3.5, Spring Cloud 2025.0 (Northfields), and a React 19 storefront.
 
 ---
 
@@ -166,7 +166,7 @@ open http://localhost:5173
 
 ## 🗓️ Build Journey — 11 Phases
 
-This project was built in **11 phases over 6 days** using AI-assisted execution. Each phase had explicit success criteria, plans, and human verification gates.
+This project was built in **11 phases** using AI-assisted execution. Each phase had explicit success criteria, plans, and human verification gates.
 
 ### Phase 1 — Foundations + Day-1 Contracts
 > *Completed 2026-04-28 · 8 plans · 4 waves*
@@ -505,7 +505,4 @@ See the [tunnel setup guide](#) in the root README sections below for full step-
 
 Built for the **Patika.dev × n11 Spring Boot Bootcamp** final case.
 
----
-
-*Built with ❤️ and a lot of AI assistance over 6 days.*
 ]]>
