@@ -31,7 +31,7 @@ export async function streamChat(
     method: 'POST',
     headers,
     body: JSON.stringify({ conversationId: req.conversationId, message: req.message }),
-    signal: options?.signal,
+    ...(options?.signal ? { signal: options.signal } : {}),
   });
 
   if (res.status === 401) {

@@ -1,4 +1,4 @@
-import type { ChatStreamEvent } from './types';
+import type { ChatStreamEvent, ChatToolResultEvent } from './types';
 
 export const SSE_EVENT_NAMES = {
   DELTA: 'delta',
@@ -71,16 +71,22 @@ function parseFrame(frame: string): ChatStreamEvent | null {
           callId: String(payload.callId ?? ''),
           argsJson: String(payload.argsJson ?? '{}'),
         };
-      case SSE_EVENT_NAMES.TOOL_RESULT:
-        return {
+      case SSE_EVENT_NAMES.TOOL_RESULT: {
+        const tr: ChatToolResultEvent = {
           type: 'tool_result',
           callId: String(payload.callId ?? ''),
-          toolName: payload.toolName ? String(payload.toolName) : undefined,
           ok: Boolean(payload.ok),
           summary: String(payload.summary ?? ''),
           resultType: isValidResultType(payload.resultType) ? payload.resultType : 'generic',
-          data: payload.data ?? undefined,
         };
+        if (payload.toolName) {
+          (tr as unknown as Record<string, unknown>).toolName = String(payload.toolName);
+        }
+        if (payload.data !== undefined) {
+          (tr as unknown as Record<string, unknown>).data = payload.data;
+        }
+        return tr;
+      }
       case SSE_EVENT_NAMES.DONE:
         return {
           type: 'done',

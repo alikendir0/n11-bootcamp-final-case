@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useChatAssistant } from './useChatAssistant';
 import { streamChat } from '../api/chatApi';
 import { toast } from 'sonner';
-import type { ChatStreamEvent } from '../lib/types';
 
 vi.mock('../api/chatApi', () => ({
   streamChat: vi.fn(),
@@ -60,9 +59,9 @@ describe('useChatAssistant', () => {
     });
 
     expect(result.current.messages).toHaveLength(2);
-    expect(result.current.messages[0].role).toBe('user');
-    expect(result.current.messages[0].text).toBe('Merhaba');
-    expect(result.current.messages[1].role).toBe('assistant');
+    expect(result.current.messages[0]!.role).toBe('user');
+    expect(result.current.messages[0]!.text).toBe('Merhaba');
+    expect(result.current.messages[1]!.role).toBe('assistant');
   });
 
   it('disables duplicate sends while streaming', async () => {
@@ -103,7 +102,7 @@ describe('useChatAssistant', () => {
 
     const assistantMessages = result.current.messages.filter(m => m.role === 'assistant');
     expect(assistantMessages.length).toBeGreaterThan(0);
-    const lastAssistant = assistantMessages[assistantMessages.length - 1];
+    const lastAssistant = assistantMessages[assistantMessages.length - 1]!;
     expect(lastAssistant.text).toContain('Yanıt alınamadı');
   });
 

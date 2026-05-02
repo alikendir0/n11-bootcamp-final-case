@@ -202,6 +202,7 @@ export interface ChatTranscriptItem {
   role: 'user' | 'assistant' | 'tool';
   text?: string;
   events?: ChatStreamEvent[];
+  ctaUrl?: string;
 }
 
 export interface ChatProductCardData {
@@ -225,9 +226,9 @@ export interface ChatOrderHandoffData {
 }
 
 export type ChatToolResultData =
-  | { resultType: 'products'; products: ChatProductCardData[] }
-  | { resultType: 'product'; product: ChatProductCardData }
-  | { resultType: 'cart'; cart: ChatCartSummaryData }
-  | { resultType: 'order'; order: ChatOrderHandoffData }
-  | { resultType: 'payment'; paymentPageUrl: string }
-  | { resultType: 'generic'; [key: string]: unknown };
+  | { products: ChatProductCardData[] }
+  | { product: ChatProductCardData }
+  | { cart: ChatCartSummaryData }
+  | { order: ChatOrderHandoffData }
+  | { paymentPageUrl: string }
+  | Record<string, unknown>;

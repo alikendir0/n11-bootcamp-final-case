@@ -38,8 +38,8 @@ export function useChatAssistant() {
       setMessages((prev) => {
         const idx = prev.findIndex((m) => m.id === assistantId);
         if (idx === -1) return prev;
-        const assistant = prev[idx];
-        const events = [...(assistant.events ?? []), event];
+        const assistant = prev[idx]!;
+        const events: ChatStreamEvent[] = [...(assistant.events ?? []), event];
 
         if (event.type === 'tool_call') {
           pendingCallIds.current.set(event.callId, event.name);
@@ -62,10 +62,10 @@ export function useChatAssistant() {
             const authItem: ChatTranscriptItem = {
               id: `auth-${nowIso()}`,
               role: 'assistant',
-              text: `Sepete eklemek ve sipariş işlemleri için giriş yapmanız gerekiyor.`,
+              text: 'Sepete eklemek ve sipariş işlemleri için giriş yapmanız gerekiyor.',
+              ctaUrl: `${ROUTES.LOGIN}?redirectUrl=${redirectUrl}`,
             };
-            // Insert auth item after current assistant
-            const next = [...prev];
+            const next: ChatTranscriptItem[] = [...prev];
             next.splice(idx + 1, 0, authItem);
             return next;
           }
@@ -73,14 +73,20 @@ export function useChatAssistant() {
 
         if (event.type === 'delta') {
           const updated: ChatTranscriptItem = {
-            ...assistant,
+            id: assistant.id,
+            role: assistant.role,
             events,
             text: (assistant.text ?? '') + event.text,
           };
           return [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
         }
 
-        const updated: ChatTranscriptItem = { ...assistant, events };
+        const updated: ChatTranscriptItem = {
+          id: assistant.id,
+          role: assistant.role,
+          events,
+          ...(assistant.text !== undefined ? { text: assistant.text } : {}),
+        };
         return [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
       });
       return null;
@@ -117,9 +123,12 @@ export function useChatAssistant() {
         setMessages((prev) => {
           const idx = prev.findIndex((m) => m.id === assistantItem.id);
           if (idx === -1) return prev;
+          const existing = prev[idx]!;
           const updated: ChatTranscriptItem = {
-            ...prev[idx],
+            id: existing.id,
+            role: existing.role,
             text: 'Yanıt alınamadı. Lütfen tekrar deneyiniz.',
+            ...(existing.events !== undefined ? { events: existing.events } : {}),
           };
           return [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
         });

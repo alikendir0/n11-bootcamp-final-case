@@ -55,7 +55,7 @@ describe('streamChat', () => {
     const req: ChatStreamRequest = { conversationId: 'c1', message: 'Merhaba' };
     await streamChat(req, (e) => events.push(e));
 
-    const fetchCall = vi.mocked(globalThis.fetch).mock.calls[0];
+    const fetchCall = vi.mocked(globalThis.fetch).mock.calls[0]!;
     const [url, init] = fetchCall;
     expect(url).toContain('/api/v1/chat/stream');
     expect((init as RequestInit).method).toBe('POST');
@@ -73,7 +73,7 @@ describe('streamChat', () => {
 
     await streamChat({ conversationId: 'c1', message: 'x' }, () => {});
 
-    const fetchCall = vi.mocked(globalThis.fetch).mock.calls[0];
+    const fetchCall = vi.mocked(globalThis.fetch).mock.calls[0]!;
     const init = fetchCall[1] as RequestInit;
     const headers = new Headers(init.headers);
     expect(headers.get('Authorization')).toBe('Bearer test-token');
