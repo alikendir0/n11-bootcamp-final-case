@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-05-02T08:07:49.021Z"
+stopped_at: Completed 09-04-PLAN.md
+last_updated: "2026-05-02T08:15:20.281Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 13
   completed_phases: 9
   total_plans: 60
-  completed_plans: 56
-  percent: 93
+  completed_plans: 57
+  percent: 95
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 09 (mcp-server) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge
 Status: Ready to execute
 Last activity: 2026-05-02
 
-Progress: [█████████░] 93%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Progress: [█████████░] 93%
 | Phase 09 P01 | 5 min | 4 tasks | 8 files |
 | Phase 09 P02 | 6 min | 6 tasks | 14 files |
 | Phase 09 P03 | 7h 17m | 2 tasks | 3 files |
+| Phase 09 P04 | 5 min | 4 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -140,6 +141,9 @@ Recent decisions affecting current work:
 - [Phase 09]: AgentSeedRunner is the default demo MCP_API_KEY path; R__seed_agent_api_keys remains optional for pre-baked hashes and plaintext is never stored. — Satisfies no-secrets policy while still supporting reproducible demo hashes when explicitly configured.
 - [Phase 09 P03]: Spring AI 1.1.5 FunctionToolCallback.Builder uses direct description/inputSchema methods rather than toolDefinition(ToolDefinition); MCP adapter still sources metadata verbatim from AgentTool.
 - [Phase 09 P03]: AgentJwtCache is intentionally a fail-fast stub in P03 so P04 can replace the implementation without changing the contract path.
+- [Phase 09]: [Phase 09 P04]: AgentJwtClient uses explicit @Qualifier("loadBalancedRestClientBuilder") for cycle-free token exchange instead of parameter-name matching. — Multiple RestClient.Builder beans exist in mcp-server; explicit qualification is more robust and preserves the un-intercepted exchange path.
+- [Phase 09]: [Phase 09 P04]: McpRestClientConfig normalizes RestClient.Builder primaries so the JWT-intercepted tool builder wins while AgentJwtClient still receives the un-intercepted builder by qualifier. — common-logging already contributes a primary RestClient.Builder, so normalization prevents NoUniqueBeanDefinitionException in agent-toolset clients.
+- [Phase 09]: [Phase 09 P04]: AgentJwtCache uses the 10-minute refresh buffer from 09-RESEARCH Pitfall #4, superseding the earlier 5-minute D-07 note. — The larger buffer avoids gateway JwtTimestampValidator clock-skew edge cases during demo tool calls.
 
 ### Pending Todos
 
@@ -162,7 +166,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-02T08:05:31.044Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-05-02T08:14:49.363Z
+Stopped at: Completed 09-04-PLAN.md
 Resume file: None
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge.
