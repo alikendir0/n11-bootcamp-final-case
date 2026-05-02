@@ -1,4 +1,4 @@
-import type { ChatTranscriptItem, ChatStreamEvent, ChatToolResultEvent } from '../../lib/types';
+import type { ChatTranscriptItem, ChatStreamEvent, ChatToolResultEvent, ChatProductCardData, ChatCartSummaryData, ChatOrderHandoffData } from '../../lib/types';
 import { ToolStatusChip } from './ToolStatusChip';
 import { ChatProductCard } from './ChatProductCard';
 import { ChatHandoffCard } from './ChatHandoffCard';
@@ -11,7 +11,7 @@ interface ChatTranscriptProps {
 
 const SUGGESTED_PROMPTS = ['MacBook ara', 'Sepetimi göster', 'Sipariş durumumu kontrol et'];
 
-function getLastToolStatus(events: ChatStreamEvent[] | undefined): { toolName?: string; status: 'pending' | 'success' | 'failure' } | null {
+function getLastToolStatus(events: ChatStreamEvent[] | undefined): { toolName?: string | undefined; status: 'pending' | 'success' | 'failure' } | null {
   if (!events) return null;
   const lastToolCall = events.filter(e => e.type === 'tool_call').pop();
   const lastToolResult = events.filter(e => e.type === 'tool_result').pop();
@@ -29,6 +29,26 @@ function getLastToolResult(events: ChatStreamEvent[] | undefined): ChatToolResul
   if (!events) return null;
   const lastToolResult = events.filter(e => e.type === 'tool_result').pop();
   return lastToolResult ?? null;
+}
+
+function isProductsData(data: unknown): data is { products: ChatProductCardData[] } {
+  return typeof data === 'object' && data !== null && 'products' in data && Array.isArray((data as Record<string, unknown>).products);
+}
+
+function isProductData(data: unknown): data is { product: ChatProductCardData } {
+  return typeof data === 'object' && data !== null && 'product' in data && (data as Record<string, unknown>).product !== undefined;
+}
+
+function isCartData(data: unknown): data is { cart: ChatCartSummaryData } {
+  return typeof data === 'object' && data !== null && 'cart' in data && (data as Record<string, unknown>).cart !== undefined;
+}
+
+function isOrderData(data: unknown): data is { order: ChatOrderHandoffData } {
+  return typeof data === 'object' && data !== null && 'order' in data && (data as Record<string, unknown>).order !== undefined;
+}
+
+function isPaymentData(data: unknown): data is { paymentPageUrl: string; order?: ChatOrderHandoffData } {
+  return typeof data === 'object' && data !== null && 'paymentPageUrl' in data && typeof (data as Record<string, unknown>).paymentPageUrl === 'string';
 }
 
 export function ChatTranscript({ messages, isStreaming, onRetry }: ChatTranscriptProps) {
@@ -105,37 +125,28 @@ export function ChatTranscript({ messages, isStreaming, onRetry }: ChatTranscrip
                 </a>
               )}
               {/* Structured cards from tool_result */}
-              {lastToolResult?.ok && lastToolResult.resultType === 'products' && lastToolResult.data && (
+              {lastToolResult?.ok && lastToolResult.resultType === 'products' && lastToolResult.data && isProductsData(lastToolResult.data) && (
                 <div className="space-y-2">
-                  {'products' in lastToolResult.data && Array.isArray(lastToolResult.data.products) &&
-                    lastToolResult.data.products.map((p) => (
-                      <ChatProductCard key={p.id} product={p} />
-                    ))}
+                  {lastToolResult.data.products.map((p) => (
+                    <ChatProductCard key={p.id} product={p} />
+                  ))}
                 </div>
               )}
-              {lastToolResult?.ok && lastToolResult.resultType === 'product' && lastToolResult.data && (
-                'product' in lastToolResult.data && lastToolResult.data.product && (
-                  <ChatProductCard product={lastToolResult.data.product} />
-                )
+              {lastToolResult?.ok && lastToolResult.resultType === 'product' && lastToolResult.data && isProductData(lastToolResult.data) && (
+                <ChatProductCard product={lastToolResult.data.product} />
               )}
-              {lastToolResult?.ok && lastToolResult.resultType === 'cart' && lastToolResult.data && (
-                'cart' in lastToolResult.data && lastToolResult.data.cart && (
-                  <ChatHandoffCard type="cart" cart={lastToolResult.data.cart} />
-                )
+              {lastToolResult?.ok && lastToolResult.resultType === 'cart' && lastToolResult.data && isCartData(lastToolResult.data) && (
+                <ChatHandoffCard type="cart" cart={lastToolResult.data.cart} />
               )}
-              {lastToolResult?.ok && lastToolResult.resultType === 'order' && lastToolResult.data && (
-                'order' in lastToolResult.data && lastToolResult.data.order && (
-                  <ChatHandoffCard type="order" order={lastToolResult.data.order} />
-                )
+              {lastToolResult?.ok && lastToolResult.resultType === 'order' && lastToolResult.data && isOrderData(lastToolResult.data) && (
+                <ChatHandoffCard type="order" order={lastToolResult.data.order} />
               )}
-              {lastToolResult?.ok && lastToolResult.resultType === 'payment' && lastToolResult.data && (
-                'paymentPageUrl' in lastToolResult.data && (
-                  <ChatHandoffCard
-                    type="payment"
-                    paymentPageUrl={String(lastToolResult.data.paymentPageUrl)}
-                    order={'order' in lastToolResult.data ? lastToolResult.data.order : undefined}
-                  />
-                )
+              {lastToolResult?.ok && lastToolResult.resultType === 'payment' && lastToolResult.data && isPaymentData(lastToolResult.data) && (
+                <ChatHandoffCard
+                  type="payment"
+                  paymentPageUrl={lastToolResult.data.paymentPageUrl}
+                  order={lastToolResult.data.order}
+                />
               )}
             </div>
           </div>

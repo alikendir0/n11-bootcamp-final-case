@@ -2,7 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { toolChipCopy } from '../../lib/chatEvents';
 
 interface ToolStatusChipProps {
-  toolName?: string;
+  toolName?: string | undefined;
   status: 'pending' | 'success' | 'failure';
 }
 

@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { ChatAssistant } from './ChatAssistant';
-import type { ChatTranscriptItem } from '../../lib/types';
+import type { ChatTranscriptItem, ChatStreamEvent } from '../../lib/types';
 
 const mockSendMessage = vi.fn();
 const mockRetryLastMessage = vi.fn();
@@ -183,7 +183,7 @@ describe('ChatAssistant', () => {
                   { id: 'p1', name: 'MacBook Air', priceGross: 49999, stockQty: 5, imageUrl: '', categoryLabel: 'Elektronik' },
                 ],
               },
-            } as unknown as ChatTranscriptItem['events'],
+            } as unknown as ChatStreamEvent,
           ],
         },
       ],
@@ -215,7 +215,7 @@ describe('ChatAssistant', () => {
               summary: 'Sepet güncellendi',
               resultType: 'cart',
               data: { cart: { itemCount: 3, totalAmount: 1299.9 } },
-            } as unknown as ChatTranscriptItem['events'],
+            } as unknown as ChatStreamEvent,
           ],
         },
       ],
@@ -245,7 +245,7 @@ describe('ChatAssistant', () => {
               summary: 'Ödeme bağlantısı hazır',
               resultType: 'payment',
               data: { paymentPageUrl: 'https://iyzico.example.com/pay/123', order: { orderId: 'o1', status: 'PENDING' } },
-            } as unknown as ChatTranscriptItem['events'],
+            } as unknown as ChatStreamEvent,
           ],
         },
       ],

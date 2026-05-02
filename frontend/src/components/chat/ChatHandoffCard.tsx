@@ -5,9 +5,9 @@ import type { ChatCartSummaryData, ChatOrderHandoffData } from '../../lib/types'
 
 interface ChatHandoffCardProps {
   type: 'cart' | 'order' | 'payment';
-  cart?: ChatCartSummaryData;
-  order?: ChatOrderHandoffData;
-  paymentPageUrl?: string;
+  cart?: ChatCartSummaryData | undefined;
+  order?: ChatOrderHandoffData | undefined;
+  paymentPageUrl?: string | undefined;
 }
 
 export function ChatHandoffCard({ type, cart, order, paymentPageUrl }: ChatHandoffCardProps) {
