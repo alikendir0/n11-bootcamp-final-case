@@ -45,6 +45,10 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
 
+mcp:
+  seed:
+    enabled: false
+
 # Test JWT keypair (NOT a real production key — generated once for unit/integration tests).
 # This key is TEST-ONLY and is never used in production environments.
 # The production key is supplied via the JWT_PRIVATE_KEY env var (identity-service.yml in config-server).
