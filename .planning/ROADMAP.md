@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Payment (Iyzico)** - Iyzico Checkout Form, public webhook reachability, payment-timeout job, payment-fail compensation — completed 2026-04-30 (6/6 plans; PAY-07 live Iyzico sandbox smoke PASS)
 - [x] **Phase 7: Notification (Saga Closure)** - notification-service mock, saga happy-path closure, end-to-end saga integration test — completed 2026-04-30 (6/6 plans; 07-VERIFICATION.md persisted)
 - [x] **Phase 8: AI Port + Adapter + Agent Toolset** - ai-port module, GeminiChatAdapter, EchoChatProvider second adapter, agent-toolset shared module, ai-service chat — completed 2026-05-01 (5/5 plans; ai-port zero-Gemini guard verified by AiPortContractTest; EchoChatProvider second adapter proves substitutability)
-- [ ] **Phase 9: MCP Server** - mcp-server consumes shared agent-toolset, stdio + HTTP+SSE transports, API-key auth bridge
+- [x] **Phase 9: MCP Server** - mcp-server consumes shared agent-toolset, stdio + HTTP+SSE transports, API-key auth bridge — completed 2026-05-02 (7/7 plans; RUNBOOK demo flow human-approved for SC-2/SC-3)
 - [x] **Phase 10: Frontend Storefront** - Turkish React storefront: header/footer/hero/listing/PDP/cart/checkout/account (completed 2026-05-01)
 - [ ] **Phase 11: Frontend Chat Assistant + DevOps Deploy** - Floating chat bubble with SSE streaming, Jib for every service, GH Actions build/test, local docker-compose deploy on the candidate's machine, public demo URL via Cloudflare Tunnel / ngrok, Slack webhook
 
@@ -301,7 +301,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 09-06-PLAN.md — infra-tests `McpServerToolsListEqualityTest` (SC-1 + SC-4 grading proof) — `AI-11`
 
   **Wave 4** *(blocked on 09-04 + 09-05 + 09-06)* — RUNBOOK + manual SC-2/SC-3 sign-off
-  - [ ] 09-07-PLAN.md — RUNBOOK.md + STATE.md/ROADMAP.md update + human-verify e2e demo gate — `AI-12, AI-13`
+  - [x] 09-07-PLAN.md — RUNBOOK.md + STATE.md/ROADMAP.md update + human-verify e2e demo gate — `AI-12, AI-13` - DONE 2026-05-02 (operator approved all 8 hard gates)
 
   **Cross-cutting constraints** (recurring across >=2 plans):
   - Spring AI BOM 1.1.5 in root `build.gradle.kts` is the Wave-0 blocker (Plans 09-01 + 09-04 + 09-06 all depend on resolution of `org.springframework.ai:spring-ai-starter-mcp-server-webmvc`)
@@ -376,11 +376,11 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 6. Payment (Iyzico) | 6/6 | Complete | 2026-04-30 |
 | 7. Notification (Saga Closure) | 6/6 | Complete | 2026-04-30 |
 | 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
-| 9. MCP Server | 0/7 | In Progress |  |
+| 9. MCP Server | 7/7 | Complete | 2026-05-02 |
 | 10. Frontend Storefront | 11/11 | Complete   | 2026-05-01 |
 | 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
 
-**Milestone progress:** 7 of 11 active phases complete (64%). 37 plans authored and executed across Phases 1–7. Phases 8–11 plan counts are TBD until those phases enter the discuss/plan loop.
+**Milestone progress:** 10 of 11 active phases complete (91%). Phase 11 remains for the chat assistant UI and deploy/tunnel handoff.
 
 ## Backlog
 

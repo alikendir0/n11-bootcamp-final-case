@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 09-06-PLAN.md
-last_updated: "2026-05-02T08:33:50.986Z"
+status: ready
+stopped_at: Phase 9 mcp-server signed off — RUNBOOK demo flow green; Claude Desktop → Iyzico → CONFIRMED end-to-end proven
+last_updated: "2026-05-02T08:40:21Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 13
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 60
-  completed_plans: 59
-  percent: 98
+  completed_plans: 60
+  percent: 100
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-28)
 
 **Core value:** A graders-impressing demonstration that the candidate can architect a clean, SOLID, microservices system AND layer differentiated AI capabilities on top of it.
-**Current focus:** Phase 09 — mcp-server
+**Current focus:** Phase 11 — frontend-chat-assistant + devops-deploy
 
 ## Current Position
 
-Phase: 09 (mcp-server) — EXECUTING
-Plan: 7 of 7
-Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge
-Status: Ready to execute
+Phase: 11 (frontend-chat-assistant + devops-deploy) — NOT STARTED
+Plan: TBD
+Next: `/gsd-discuss-phase 11` then `/gsd-plan-phase 11` — chat assistant UI + local docker-compose deploy + public tunnel handoff
+Status: Ready to discuss Phase 11
 Last activity: 2026-05-02
 
 Progress: [██████████] 98%
@@ -71,6 +71,7 @@ Progress: [██████████] 98%
 | Phase 09 P04 | 5 min | 4 tasks | 7 files |
 | Phase 09 P05 | 3 min | 4 tasks | 5 files |
 | Phase 09 P06 | 9 min | 3 tasks | 3 files |
+| Phase 09 P07 | operator-approved checkpoint | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -150,6 +151,8 @@ Recent decisions affecting current work:
 - [Phase 09]: mcp-server compose service is internal-only with no host ports, no Postgres dependency, and no RabbitMQ dependency. — Keeps the gateway as the sole public front door while preserving the stateless MCP server boundary.
 - [Phase 09 P06]: MCP infra-tests use explicit `org.springframework.ai:spring-ai-model` test scope because `:mcp-server` exposes Spring AI types through `implementation`, not `api`. — Keeps the integration proof compiling without changing production dependency visibility.
 - [Phase 09 P06]: McpServerTestConfig disables scheduling and excludes foreign `@SpringBootApplication` classes instead of adding entity/repository scans. — mcp-server is DB-free, and the metadata-only test must not trigger AgentJwtCache exchange attempts.
+- [Phase 09]: Human verification approved all 8 hard gates for the external MCP demo flow: Claude Desktop/Inspector list 10 tools over stdio + HTTP, mutating tools complete through Iyzico sandbox, order reaches CONFIRMED, and agent API-key audit trail updates.
+- [Phase 09]: The same Jib image `n11/mcp-server:dev` remains the operator contract for both docker-compose mcp-server and Claude Desktop stdio launch; Phase 11 only needs to expose the gateway tunnel for `/mcp/**`.
 
 ### Pending Todos
 
@@ -172,7 +175,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-02T08:33:50.975Z
-Stopped at: Completed 09-06-PLAN.md
-Resume file: None
-Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge.
+Last session: 2026-05-02T08:40:21Z
+Stopped at: Phase 9 mcp-server signed off — RUNBOOK demo flow green; Claude Desktop → Iyzico → CONFIRMED end-to-end proven
+Resume file: Run `/gsd-discuss-phase 11` (no `.planning/phases/11-*` context file exists yet)
+Next: `/gsd-discuss-phase 11` then `/gsd-plan-phase 11` — chat assistant UI + local docker-compose deploy + public tunnel handoff.
