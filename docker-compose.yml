@@ -521,6 +521,50 @@ services:
     networks:
       - n11-net
 
+  # ---------------------------------------------------------------------------
+  # mcp-server -- Phase 9 (port 8090).
+  # Re-exposes the agent-toolset over the MCP wire protocol via Spring AI 1.1.5.
+  # Streamable HTTP is the docker-compose transport (D-01 / D-02); stdio is
+  # available via SAME image when launched by Claude Desktop with `docker run -i`
+  # (D-04). MCP_API_KEY is exchanged for an internal JWT against identity-service
+  # at first tool call (D-07 / Plan 09-04 AgentJwtCache).
+  # No postgres dep (stateless), no AMQP dep (no events).
+  # Requires: ./gradlew :mcp-server:jibDockerBuild before docker compose up
+  # ---------------------------------------------------------------------------
+  mcp-server:
+    image: n11/mcp-server:dev
+    container_name: n11-mcp-server
+    env_file:
+      - .env
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_PROFILES_ACTIVE: docker
+      # D-01: compose runs HTTP transport. Claude Desktop overrides via `docker run -e`.
+      MCP_TRANSPORT: http
+      MCP_STDIO_ENABLED: "false"
+      # D-08: API key injected from .env (gitignored). The placeholder default
+      # `${MCP_API_KEY:-}` allows compose to start even when .env is missing,
+      # but mcp-server's AgentJwtClient throws IllegalStateException if the key
+      # is empty when the first tool call arrives (Plan 09-04 Task 1).
+      MCP_API_KEY: ${MCP_API_KEY:-}
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8090/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 25s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
 volumes:
   postgres-data:
   rabbitmq-data:
