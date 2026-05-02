@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 09-05-PLAN.md
-last_updated: "2026-05-02T08:21:59.798Z"
+stopped_at: Completed 09-06-PLAN.md
+last_updated: "2026-05-02T08:33:50.986Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 13
   completed_phases: 9
   total_plans: 60
-  completed_plans: 58
-  percent: 97
+  completed_plans: 59
+  percent: 98
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 09 (mcp-server) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge
 Status: Ready to execute
 Last activity: 2026-05-02
 
-Progress: [██████████] 97%
+Progress: [██████████] 98%
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Progress: [██████████] 97%
 | Phase 09 P03 | 7h 17m | 2 tasks | 3 files |
 | Phase 09 P04 | 5 min | 4 tasks | 7 files |
 | Phase 09 P05 | 3 min | 4 tasks | 5 files |
+| Phase 09 P06 | 9 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -147,6 +148,8 @@ Recent decisions affecting current work:
 - [Phase 09]: [Phase 09 P04]: AgentJwtCache uses the 10-minute refresh buffer from 09-RESEARCH Pitfall #4, superseding the earlier 5-minute D-07 note. — The larger buffer avoids gateway JwtTimestampValidator clock-skew edge cases during demo tool calls.
 - [Phase 09]: MCP Streamable HTTP is exposed only through /mcp/** at api-gateway with response-timeout -1 and JWT Bearer auth; no public allowlist entry was added. — Preserves gateway as the JWT validation edge and protects external MCP clients through the same auth posture as logged-in users.
 - [Phase 09]: mcp-server compose service is internal-only with no host ports, no Postgres dependency, and no RabbitMQ dependency. — Keeps the gateway as the sole public front door while preserving the stateless MCP server boundary.
+- [Phase 09 P06]: MCP infra-tests use explicit `org.springframework.ai:spring-ai-model` test scope because `:mcp-server` exposes Spring AI types through `implementation`, not `api`. — Keeps the integration proof compiling without changing production dependency visibility.
+- [Phase 09 P06]: McpServerTestConfig disables scheduling and excludes foreign `@SpringBootApplication` classes instead of adding entity/repository scans. — mcp-server is DB-free, and the metadata-only test must not trigger AgentJwtCache exchange attempts.
 
 ### Pending Todos
 
@@ -169,7 +172,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-02T08:20:53.512Z
-Stopped at: Completed 09-05-PLAN.md
+Last session: 2026-05-02T08:33:50.975Z
+Stopped at: Completed 09-06-PLAN.md
 Resume file: None
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge.

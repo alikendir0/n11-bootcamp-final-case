@@ -298,7 +298,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 09-05-PLAN.md — api-gateway `/mcp/**` route + docker-compose mcp-server entry + .env.example placeholder — `AI-12`
 
   **Wave 3** *(blocked on 09-01 + 09-03)* — infra-tests integration proof
-  - [ ] 09-06-PLAN.md — infra-tests `McpServerToolsListEqualityTest` (SC-1 + SC-4 grading proof) — `AI-11`
+  - [x] 09-06-PLAN.md — infra-tests `McpServerToolsListEqualityTest` (SC-1 + SC-4 grading proof) — `AI-11`
 
   **Wave 4** *(blocked on 09-04 + 09-05 + 09-06)* — RUNBOOK + manual SC-2/SC-3 sign-off
   - [ ] 09-07-PLAN.md — RUNBOOK.md + STATE.md/ROADMAP.md update + human-verify e2e demo gate — `AI-12, AI-13`
