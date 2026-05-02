@@ -100,7 +100,7 @@ The api-gateway resolves routes via `spring.cloud.gateway.server.webflux.discove
 | `/api/v1/notifications/**` | notification-service | notification-service | Phase 7 (admin only — optional gateway exposure) |
 | `/api/v1/search/**` | search-service | search-service | Phase 4 + Phase 8 |
 | `/api/v1/chat/**` | ai-service | ai-service | Phase 8 — see SSE caveat §6 |
-| `/mcp/**` | mcp-server | mcp-server | Phase 9 |
+| `/mcp/**` | mcp-server | mcp-server | StripPrefix=0; JWT Bearer (exchanged via /agents/exchange — Plan 09-02; never raw API key). Streamable HTTP (MCP spec 2025-06-18); response-timeout: -1; same tunnel hostname as the rest of the gateway (D-03). |
 | anything else | — | — | gateway returns 503 (D-14) |
 
 In Phase 1 the gateway has `discovery.locator.enabled=true` and zero explicit routes; routes auto-populate as services register with Eureka. Phase 8 MUST add an explicit route for `/api/v1/chat/stream/**` so SSE-specific metadata can override defaults — see §6.
@@ -175,6 +175,8 @@ spring:
 ```
 
 The `metadata.response-timeout: -1` override is the load-bearing line. Without it the gateway closes the connection at 60s and the AI streaming UX silently breaks.
+
+MCP Streamable HTTP follows the same response-timeout: -1 + no body filters posture as ai-service SSE — applied by Plan 09-05.
 
 ## 7. Error Response Shape (RFC-7807 problem+json) — D-09 / QUAL-07
 
