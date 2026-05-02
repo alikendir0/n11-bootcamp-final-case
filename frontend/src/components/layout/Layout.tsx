@@ -4,6 +4,7 @@ import { CategoryNav } from './CategoryNav';
 import { Footer } from './Footer';
 import { ToastBridge } from '../feedback/ToastBridge';
 import { AuthEventBridge } from '../feedback/AuthEventBridge';
+import { ChatAssistant } from '../chat/ChatAssistant';
 
 export function Layout() {
   return (
@@ -16,6 +17,7 @@ export function Layout() {
       <Footer />
       <ToastBridge />
       <AuthEventBridge />
+      <ChatAssistant />
     </div>
   );
 }
