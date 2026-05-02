@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { MessageCircle } from 'lucide-react';
+import { useChatAssistant } from '../../hooks/useChatAssistant';
 import { ChatDrawer } from './ChatDrawer';
 
 export function ChatAssistant() {
   const [open, setOpen] = useState(false);
+  const { messages, isStreaming, sendMessage, retryLastMessage } = useChatAssistant();
 
   return (
     <>
@@ -15,7 +17,15 @@ export function ChatAssistant() {
       >
         <MessageCircle size={24} />
       </button>
-      {open && <ChatDrawer onClose={() => setOpen(false)} />}
+      {open && (
+        <ChatDrawer
+          messages={messages}
+          isStreaming={isStreaming}
+          sendMessage={sendMessage}
+          retryLastMessage={retryLastMessage}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </>
   );
 }
