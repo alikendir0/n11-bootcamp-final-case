@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 9 context gathered
-last_updated: "2026-05-02T00:46:20.700Z"
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-05-02T08:07:49.021Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 13
   completed_phases: 9
   total_plans: 60
-  completed_plans: 55
-  percent: 92
+  completed_plans: 56
+  percent: 93
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 09 (mcp-server) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge
 Status: Ready to execute
 Last activity: 2026-05-02
 
-Progress: [█████████░] 92%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [█████████░] 92%
 | Phase 10-frontend-storefront P10 | 3min | 3 tasks | 11 files |
 | Phase 09 P01 | 5 min | 4 tasks | 8 files |
 | Phase 09 P02 | 6 min | 6 tasks | 14 files |
+| Phase 09 P03 | 7h 17m | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -137,6 +138,8 @@ Recent decisions affecting current work:
 - [Phase 09]: Spring AI MCP starter version is managed centrally through the root spring-ai-bom:1.1.5 import.
 - [Phase 09]: Agent API-key exchange uses SHA-256 hashed keys and mints standard ROLE_USER JWTs with JWT.sub as the bound users.id UUID string. — Required by AI-13 so external MCP agents act as a real user through existing gateway-backed JWT semantics.
 - [Phase 09]: AgentSeedRunner is the default demo MCP_API_KEY path; R__seed_agent_api_keys remains optional for pre-baked hashes and plaintext is never stored. — Satisfies no-secrets policy while still supporting reproducible demo hashes when explicitly configured.
+- [Phase 09 P03]: Spring AI 1.1.5 FunctionToolCallback.Builder uses direct description/inputSchema methods rather than toolDefinition(ToolDefinition); MCP adapter still sources metadata verbatim from AgentTool.
+- [Phase 09 P03]: AgentJwtCache is intentionally a fail-fast stub in P03 so P04 can replace the implementation without changing the contract path.
 
 ### Pending Todos
 
@@ -159,7 +162,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-02T00:46:12.494Z
-Stopped at: Phase 9 context gathered
+Last session: 2026-05-02T08:05:31.044Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge.

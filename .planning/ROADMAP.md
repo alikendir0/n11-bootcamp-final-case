@@ -293,7 +293,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 09-02-PLAN.md — identity-service `agent_api_keys` table + `/agents/exchange` + AgentSeedRunner — `AI-13`
 
   **Wave 2** *(blocked on Wave 1)* — adapter, JWT cache, gateway/compose entry (parallel)
-  - [ ] 09-03-PLAN.md — `AgentToolMcpRegistration` adapter (DRY proof; ToolCallbackProvider) — `AI-11`
+  - [x] 09-03-PLAN.md — `AgentToolMcpRegistration` adapter (DRY proof; ToolCallbackProvider) — `AI-11`
   - [ ] 09-04-PLAN.md — AgentJwtCache + AgentJwtClient + JwtBearerInterceptor + McpRestClientConfig — `AI-13`
   - [ ] 09-05-PLAN.md — api-gateway `/mcp/**` route + docker-compose mcp-server entry + .env.example placeholder — `AI-12`
 
