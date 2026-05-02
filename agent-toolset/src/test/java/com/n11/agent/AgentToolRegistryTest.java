@@ -21,12 +21,14 @@ class AgentToolRegistryTest {
     private static final Set<String> CANONICAL_NAMES = Set.of(
         "search_products", "get_product", "list_categories",
         "add_to_cart", "view_cart", "update_cart_item", "remove_from_cart",
-        "create_order", "get_payment_link", "get_order_status"
+        "create_order", "get_payment_link", "get_order_status",
+        "list_addresses"
     );
 
     private static final Set<String> MUTATING_NAMES = Set.of(
         "add_to_cart", "view_cart", "update_cart_item", "remove_from_cart",
-        "create_order", "get_payment_link", "get_order_status"
+        "create_order", "get_payment_link", "get_order_status",
+        "list_addresses"
     );
 
     @Autowired ToolRegistry registry;
@@ -34,7 +36,7 @@ class AgentToolRegistryTest {
     @Test
     void registry_contains_exactly_10_canonical_tools() {
         List<AgentTool> all = registry.all();
-        assertThat(all).hasSize(10);
+        assertThat(all).hasSize(11);
         assertThat(all).extracting(AgentTool::name).containsExactlyInAnyOrderElementsOf(CANONICAL_NAMES);
     }
 

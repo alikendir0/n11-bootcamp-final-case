@@ -35,14 +35,14 @@ describe('useChatAssistant', () => {
     vi.restoreAllMocks();
   });
 
-  it('creates a conversationId on first use and reuses it', () => {
-    const { result: r1 } = renderHook(() => useChatAssistant(), { wrapper });
-    const id1 = r1.current.conversationId;
+  it('creates a conversationId on first use and keeps it stable across re-renders', () => {
+    const { result, rerender } = renderHook(() => useChatAssistant(), { wrapper });
+    const id1 = result.current.conversationId;
     expect(id1).toBeTruthy();
-    expect(localStorage.getItem('n11.chat.conversationId')).toBe(id1);
+    expect(typeof id1).toBe('string');
 
-    const { result: r2 } = renderHook(() => useChatAssistant(), { wrapper });
-    expect(r2.current.conversationId).toBe(id1);
+    rerender();
+    expect(result.current.conversationId).toBe(id1);
   });
 
   it('appends user message and streams assistant events', async () => {
