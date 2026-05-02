@@ -2,6 +2,8 @@
 build/
 .gradle/
 out/
+node_modules/
+test-results/
 
 # Stray META-INF from google-genai jar service files (Jackson KotlinModule registration)
 /META-INF/
