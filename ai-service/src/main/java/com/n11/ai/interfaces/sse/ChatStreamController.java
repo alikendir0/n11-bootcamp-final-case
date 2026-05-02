@@ -26,9 +26,13 @@ public class ChatStreamController {
     private static final String HEADER_USER_ID = "X-User-Id";
     private static final String HEADER_CORRELATION_ID = "X-Correlation-Id";
     private static final String MDC_CORRELATION_ID = "correlationId";
-    private static final long EMITTER_TIMEOUT_MS = 0L;       // 0 = no timeout (gateway controls per route metadata)
+    private static final long EMITTER_TIMEOUT_MS = 0L;
+    private static final long HEARTBEAT_INTERVAL_MS = 15_000L;
 
     private final ChatUseCase useCase;
+    private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "sse-heartbeat"); t.setDaemon(true); return t;
+    });
     private final ExecutorService executor = Executors.newCachedThreadPool(r -> {
         Thread t = new Thread(r, "chat-stream"); t.setDaemon(true); return t;
     });
@@ -48,6 +52,16 @@ public class ChatStreamController {
         emitter.onTimeout(() -> { completed.set(true); emitter.complete(); });
         emitter.onError(t -> { completed.set(true); });
 
+        ScheduledFuture<?> heartbeat = heartbeatScheduler.scheduleAtFixedRate(() -> {
+            if (!completed.get()) {
+                try {
+                    emitter.send(SseEmitter.event().comment("keepalive"));
+                } catch (Exception ignored) {
+                    completed.set(true);
+                }
+            }
+        }, HEARTBEAT_INTERVAL_MS, HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS);
+
         executor.execute(() -> {
             MDC.put(MDC_CORRELATION_ID, cid);
             try {
@@ -62,6 +76,7 @@ public class ChatStreamController {
                     Map.of("code", "INTERNAL_ERROR", "messageTr", "Bir hata oluştu: " + e.getMessage()));
                 if (completed.compareAndSet(false, true)) emitter.completeWithError(e);
             } finally {
+                heartbeat.cancel(false);
                 MDC.clear();
             }
         });
