@@ -259,4 +259,28 @@ describe('ChatAssistant', () => {
     fireEvent.click(screen.getByRole('button', { name: /Yapay Zeka Alışveriş Asistanını Aç/i }));
     expect(screen.getByText(/Ödemeye Devam Et/)).toBeInTheDocument();
   });
+
+  it('renders auth-required card with Giriş Yap link containing encoded redirectUrl', () => {
+    mockedUseChatAssistant.mockReturnValue({
+      messages: [
+        {
+          id: 'a1',
+          role: 'assistant',
+          text: 'Sepete eklemek ve sipariş işlemleri için giriş yapmanız gerekiyor.',
+          ctaUrl: '/giris-yap?redirectUrl=%2Fsepetim',
+        },
+      ],
+      isStreaming: false,
+      sendMessage: mockSendMessage,
+      retryLastMessage: mockRetryLastMessage,
+      clearLocalTranscript: vi.fn(),
+      conversationId: 'test-conv',
+    });
+    render(<ChatAssistant />, { wrapper });
+    fireEvent.click(screen.getByRole('button', { name: /Yapay Zeka Alışveriş Asistanını Aç/i }));
+    expect(screen.getByText(/Sepete eklemek ve sipariş işlemleri için giriş yapmanız gerekiyor./)).toBeInTheDocument();
+    const loginLink = screen.getByRole('link', { name: /Giriş Yap/i });
+    expect(loginLink).toBeInTheDocument();
+    expect(loginLink).toHaveAttribute('href', '/giris-yap?redirectUrl=%2Fsepetim');
+  });
 });

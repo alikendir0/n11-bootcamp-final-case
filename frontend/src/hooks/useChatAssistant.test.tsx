@@ -106,7 +106,30 @@ describe('useChatAssistant', () => {
     expect(lastAssistant.text).toContain('Yanıt alınamadı');
   });
 
-  it('invalidates cart and shows toast on add_to_cart tool success', async () => {
+  it('does not invalidate cart on tool_call event alone', async () => {
+    const invalidateQueries = vi.fn();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    queryClient.invalidateQueries = invalidateQueries;
+
+    const customWrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    mockedStreamChat.mockImplementation(async (_req, onEvent) => {
+      onEvent({ type: 'tool_call', name: 'add_to_cart', callId: 'tc1', argsJson: '{}' });
+      onEvent({ type: 'done', conversationId: 'c1', finalText: 'Tamam' });
+    });
+
+    const { result } = renderHook(() => useChatAssistant(), { wrapper: customWrapper });
+
+    await act(async () => {
+      await result.current.sendMessage('Sepete ekle');
+    });
+
+    expect(invalidateQueries).not.toHaveBeenCalled();
+  });
+
+  it('invalidates cart and shows toast on add_to_cart tool_result.ok', async () => {
     const invalidateQueries = vi.fn();
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     queryClient.invalidateQueries = invalidateQueries;
@@ -169,12 +192,13 @@ describe('useChatAssistant', () => {
     expect(hasAuthMsg).toBe(true);
   });
 
-  it('retryLastMessage re-sends the last user message', async () => {
+  it('retryLastMessage re-sends the last user message with same conversationId', async () => {
     mockedStreamChat.mockImplementation(async (_req, onEvent) => {
       onEvent({ type: 'done', conversationId: 'c1', finalText: 'Tamam' });
     });
 
     const { result } = renderHook(() => useChatAssistant(), { wrapper });
+    const conversationId = result.current.conversationId;
 
     await act(async () => {
       await result.current.sendMessage('Soru');
@@ -188,6 +212,13 @@ describe('useChatAssistant', () => {
 
     expect(result.current.messages.filter(m => m.role === 'user')).toHaveLength(2);
     expect(mockedStreamChat).toHaveBeenCalledTimes(2);
+
+    // Both calls must use the same conversationId
+    const firstCall = mockedStreamChat.mock.calls[0]![0] as { conversationId: string; message: string };
+    const secondCall = mockedStreamChat.mock.calls[1]![0] as { conversationId: string; message: string };
+    expect(firstCall.conversationId).toBe(conversationId);
+    expect(secondCall.conversationId).toBe(conversationId);
+    expect(secondCall.message).toBe('Soru');
   });
 
   it('clearLocalTranscript removes all messages', async () => {
