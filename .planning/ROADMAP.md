@@ -367,7 +367,7 @@ Decimal phases appear between their surrounding integers in numeric order.
    - [x] 11-04-PLAN.md — GitHub Actions build/test CI, all-service Jib verification, GHCR Jib release publishing for 13 services, and Slack notifications (`DEV-01, DEV-02, DEV-03, DEV-06, DEV-08`)
 
   **Wave 5** — local deploy posture + pipeline comparison documentation
-  - [ ] 11-05-PLAN.md — docker compose full-profile posture, env examples, root README demo runbook, and public tunnel proof (`DEV-05, DEV-09`)
+   - [x] 11-05-PLAN.md — docker compose full-profile posture, env examples, root README demo runbook, and public tunnel proof (`DEV-05, DEV-09`)
   - [x] 11-06-PLAN.md — Jenkins versus GitHub Actions pipeline-stage comparison and credential-handling doc (`DEV-04`)
 **UI hint**: yes
 **Risks**: Pitfall #19 (chat streaming UI freeze — token buffering), Pitfall #21 (Slack webhook leaked — env var only), tunnel-dependency risk (interview-time tunnel outage — mitigation: keep an ngrok fallback ready in the README so the candidate can re-expose in under a minute if Cloudflare misbehaves), candidate-machine-dependency risk (machine reboot mid-demo — mitigation: docker-compose `restart: unless-stopped`, and a 30-second `compose up` rehearsal documented in the README).
@@ -394,9 +394,9 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
 | 9. MCP Server | 7/7 | Complete | 2026-05-02 |
 | 10. Frontend Storefront | 11/11 | Complete   | 2026-05-01 |
-| 11. Frontend Chat Assistant + DevOps Deploy | 5/6 | In Progress|  |
+| 11. Frontend Chat Assistant + DevOps Deploy | 6/6 | Complete | 2026-05-02 |
 
-**Milestone progress:** 10 of 11 active phases complete (91%). Phase 11 remains for the chat assistant UI and deploy/tunnel handoff.
+**Milestone progress:** 11 of 11 active phases complete (100%). All planned phases executed.
 
 ## Backlog
 
