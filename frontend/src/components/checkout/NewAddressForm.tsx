@@ -1,10 +1,11 @@
 import type React from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { createAddress, addressesQueryKey, type AddressInput } from '../../api/addressApi';
+import { createAddress, updateAddress, addressesQueryKey, type AddressInput } from '../../api/addressApi';
 import type { Address } from '../../lib/types';
 import { ApiError } from '../../lib/apiClient';
 
@@ -22,9 +23,11 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 export function NewAddressForm({
+  address,
   onCreated,
   onCancel,
 }: {
+  address?: Address | null;
   onCreated: (a: Address) => void;
   onCancel: () => void;
 }) {
@@ -36,20 +39,27 @@ export function NewAddressForm({
     reset,
   } = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { title: 'Ev' },
+    defaultValues: addressToValues(address) ?? { title: 'Ev' },
   });
 
+  useEffect(() => {
+    reset(addressToValues(address) ?? { title: 'Ev' });
+  }, [address, reset]);
+
   const mutation = useMutation({
-    mutationFn: (values: Values) => createAddress(values as AddressInput),
+    mutationFn: (values: Values) => {
+      const input = { ...values, isDefault: address?.isDefault ?? false } as AddressInput;
+      return address ? updateAddress(address.id, input) : createAddress(input);
+    },
     onSuccess: (created) => {
       qc.invalidateQueries({ queryKey: addressesQueryKey });
-      toast.success('Adres eklendi.');
+      toast.success(address ? 'Adres güncellendi.' : 'Adres eklendi.');
       reset();
       onCreated(created);
     },
     onError: (err) => {
       const detail = err instanceof ApiError ? err.problem?.detail : undefined;
-      toast.error(detail ?? 'Adres eklenemedi. Lütfen tekrar deneyiniz.');
+      toast.error(detail ?? 'Adres kaydedilemedi. Lütfen tekrar deneyiniz.');
     },
   });
 
@@ -58,7 +68,7 @@ export function NewAddressForm({
       onSubmit={handleSubmit(v => mutation.mutate(v))}
       className="bg-white border border-[var(--color-border)] rounded p-6 space-y-4"
     >
-      <h3 className="font-bold text-sm">Yeni Adres Ekle</h3>
+      <h3 className="font-bold text-sm">{address ? 'Adresi Düzenle' : 'Yeni Adres Ekle'}</h3>
       <Field id="title" label="Adres Başlığı" error={errors.title?.message} {...register('title')} />
       <Field id="recipientName" label="Ad Soyad" error={errors.recipientName?.message} {...register('recipientName')} />
       <Field id="phone" label="Telefon" type="tel" error={errors.phone?.message} {...register('phone')} />
@@ -81,7 +91,7 @@ export function NewAddressForm({
           disabled={mutation.isPending}
           className="bg-[#1C1C1E] text-white px-6 py-2 rounded font-bold disabled:opacity-50"
         >
-          {mutation.isPending ? 'Kaydediliyor...' : 'Adresi Kaydet'}
+          {mutation.isPending ? 'Kaydediliyor...' : address ? 'Adresi Güncelle' : 'Adresi Kaydet'}
         </button>
         <button
           type="button"
@@ -127,3 +137,17 @@ const Field = ({ id, label, error, type = 'text', maxLength, ...rest }: FieldPro
     )}
   </div>
 );
+
+function addressToValues(address?: Address | null): Values | undefined {
+  if (!address) return undefined;
+  return {
+    title: address.title,
+    recipientName: address.recipientName,
+    phone: address.phone,
+    il: address.il,
+    ilce: address.ilce,
+    mahalle: address.mahalle,
+    streetLine: address.streetLine,
+    postalCode: address.postalCode,
+  };
+}

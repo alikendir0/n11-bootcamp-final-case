@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -121,6 +123,36 @@ class PaymentControllerTest {
             .andExpect(status().isAccepted())
             .andExpect(jsonPath("$.status", is("PENDING_INITIALIZATION")))
             .andExpect(jsonPath("$.paymentPageUrl").value(nullValue()));
+    }
+
+    @Test
+    void getPayment_returnsCompleted_withoutConsumedPaymentPageUrl() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        Payment payment = pendingPayment(orderId);
+        payment.markCompleted("iyzico-payment-id");
+        when(paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId)).thenReturn(Optional.of(payment));
+
+        mockMvc.perform(get("/payments/{orderId}", orderId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status", is("COMPLETED")))
+            .andExpect(jsonPath("$.paymentPageUrl").value(nullValue()));
+    }
+
+    @Test
+    void getIyzicoCallback_reachesController_andReturns404ForUnknownToken() throws Exception {
+        when(paymentRepository.findByIyzicoToken("unknown-token")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/payments/iyzico/callback")
+                .queryParam("token", "unknown-token"))
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
+    }
+
+    @Test
+    void getIyzicoCallback_returns400Html_whenTokenMissing() throws Exception {
+        mockMvc.perform(get("/payments/iyzico/callback"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
     }
 
     private static Payment pendingPayment(UUID orderId) {

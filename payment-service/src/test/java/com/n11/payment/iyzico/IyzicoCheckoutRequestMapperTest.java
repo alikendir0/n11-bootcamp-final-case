@@ -107,6 +107,12 @@ class IyzicoCheckoutRequestMapperTest {
         assertThat(buyer.getLastLoginDate()).isEqualTo("2026-04-30 10:15:30");
     }
 
+    @Test
+    void normalizesTurkishMobileNumbersWithLeadingZero() {
+        assertThat(DefaultIyzicoCheckoutClient.normalizeTurkishGsm("05388778077"))
+            .isEqualTo("+905388778077");
+    }
+
     private static IyzicoProperties properties() {
         return new IyzicoProperties("https://sandbox-api.iyzipay.com", "api", "secret", "https://demo.example.com", 15, "74300864791");
     }

@@ -23,7 +23,7 @@ export const CATEGORY_SLUGS = [
   'kozmetik',
   'spor-outdoor',
   'supermarket',
-  'kitap-muzik-film-oyun',
+  'kitap-muzik-film',
 ] as const;
 
 export type CategorySlug = typeof CATEGORY_SLUGS[number];

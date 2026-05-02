@@ -74,9 +74,9 @@ class InventoryFlywayMigrationsTest {
     }
 
     @Test
-    void v3_stockSeedFiftyTwoRows() {
+    void stockSeedIncludesOriginalAndDummyJsonRows() {
         Integer count = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM inventory.stock", Integer.class);
-        assertThat(count).isEqualTo(52);
+        assertThat(count).isEqualTo(246);
     }
 }

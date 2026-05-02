@@ -1,6 +1,18 @@
 import { apiFetch } from '../lib/apiClient';
-import type { BackendProductPage, BackendProductSummaryDto, Product, ProductPage } from '../lib/types';
+import type {
+  BackendProductDetailDto,
+  BackendProductPage,
+  BackendProductSummaryDto,
+  Product,
+  ProductPage,
+  StockState,
+} from '../lib/types';
 import type { BackendListingParams } from '../lib/listingParams';
+
+async function fetchStockQty(productId: string): Promise<number> {
+  const stock = await apiFetch<StockState>(`/inventory/${encodeURIComponent(productId)}`);
+  return stock.availableQty;
+}
 
 function normalizeProductSummary(dto: BackendProductSummaryDto): Product {
   return {
@@ -14,6 +26,21 @@ function normalizeProductSummary(dto: BackendProductSummaryDto): Product {
     categoryLabel: dto.categoryName,
     stockQty: dto.stockQty ?? 0,
     createdAt: dto.createdAt ?? '',
+  };
+}
+
+function normalizeProductDetail(dto: BackendProductDetailDto, stockQty: number): Product {
+  return {
+    id: dto.id,
+    name: dto.nameTr,
+    description: dto.descriptionTr,
+    priceGross: dto.priceGross,
+    kdvRate: dto.kdvRate,
+    imageUrl: dto.imageUrls[0] ?? '',
+    categoryId: dto.categoryId,
+    categoryLabel: dto.categoryName,
+    stockQty,
+    createdAt: '',
   };
 }
 
@@ -52,11 +79,24 @@ export function fetchProducts(
       : params.categoryFilter;
     qs.set('categoryId', resolvedId);
   }
-  return apiFetch<BackendProductPage>(`/products?${qs.toString()}`).then(normalizeProductPage);
+  return apiFetch<BackendProductPage>(`/products?${qs.toString()}`)
+    .then(async page => {
+      const normalized = normalizeProductPage(page);
+      const content = await Promise.all(normalized.content.map(async (product, index) => {
+        const dtoStockQty = page.content[index]?.stockQty;
+        if (typeof dtoStockQty === 'number') return product;
+        return { ...product, stockQty: await fetchStockQty(product.id) };
+      }));
+      return { ...normalized, content };
+    });
 }
 
 export function fetchProductById(id: string): Promise<Product> {
-  return apiFetch<Product>(`/products/${encodeURIComponent(id)}`);
+  return apiFetch<BackendProductDetailDto>(`/products/${encodeURIComponent(id)}`)
+    .then(async product => normalizeProductDetail(
+      product,
+      typeof product.stockQty === 'number' ? product.stockQty : await fetchStockQty(product.id),
+    ));
 }
 
 export const productsQueryKey = (params: BackendListingParams, categoryId?: string) =>

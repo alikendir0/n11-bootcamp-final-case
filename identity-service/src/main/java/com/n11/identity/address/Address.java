@@ -80,4 +80,21 @@ public class Address {
     public String getPostalCode()   { return postalCode; }
     public boolean isDefault()      { return isDefault; }
     public Instant getCreatedAt()   { return createdAt; }
+
+    public void update(String title, String recipientName, String phone, String il, String ilce,
+                       String mahalle, String streetLine, String postalCode, boolean isDefault) {
+        this.title = title;
+        this.recipientName = recipientName;
+        this.phone = phone;
+        this.il = il;
+        this.ilce = ilce;
+        this.mahalle = mahalle;
+        this.streetLine = streetLine;
+        this.postalCode = postalCode;
+        this.isDefault = isDefault;
+    }
+
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 }

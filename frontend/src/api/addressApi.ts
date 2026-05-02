@@ -24,4 +24,23 @@ export function createAddress(input: AddressInput): Promise<Address> {
   });
 }
 
+export function updateAddress(id: string, input: AddressInput): Promise<Address> {
+  return apiFetch<Address>(`/identity/addresses/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  });
+}
+
+export function setDefaultAddress(id: string): Promise<Address> {
+  return apiFetch<Address>(`/identity/addresses/${encodeURIComponent(id)}/default`, {
+    method: 'POST',
+  });
+}
+
+export function deleteAddress(id: string): Promise<void> {
+  return apiFetch<void>(`/identity/addresses/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+}
+
 export const addressesQueryKey = ['addresses'] as const;

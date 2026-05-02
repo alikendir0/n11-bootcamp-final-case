@@ -70,6 +70,40 @@ public class AddressService {
         return toResponse(saved);
     }
 
+    @Transactional
+    public AddressResponse update(UUID userId, UUID addressId, CreateAddressRequest req) {
+        Address address = ownedAddress(userId, addressId);
+        if (req.isDefault()) {
+            addressRepository.clearDefaultForUser(userId);
+        }
+        address.update(req.title(), req.recipientName(), req.phone(), req.il(), req.ilce(),
+                req.mahalle(), req.streetLine(), req.postalCode(), req.isDefault());
+        return toResponse(address);
+    }
+
+    @Transactional
+    public void delete(UUID userId, UUID addressId) {
+        Address address = ownedAddress(userId, addressId);
+        addressRepository.delete(address);
+    }
+
+    @Transactional
+    public AddressResponse makeDefault(UUID userId, UUID addressId) {
+        Address address = ownedAddress(userId, addressId);
+        addressRepository.clearDefaultForUser(userId);
+        address.setDefault(true);
+        return toResponse(address);
+    }
+
+    private Address ownedAddress(UUID userId, UUID addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Adres bulunamadı"));
+        if (!address.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Adres bulunamadı");
+        }
+        return address;
+    }
+
     private static AddressResponse toResponse(Address a) {
         return new AddressResponse(
                 a.getId(),

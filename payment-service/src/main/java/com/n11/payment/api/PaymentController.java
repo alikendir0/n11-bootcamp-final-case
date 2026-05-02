@@ -10,6 +10,7 @@ import com.n11.payment.payment.PaymentStatus;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,13 +58,16 @@ public class PaymentController {
     private final PaymentRepository paymentRepository;
     private final IyzicoCheckoutClient iyzicoCheckoutClient;
     private final PaymentTransactionalService paymentTransactionalService;
+    private final String frontendBaseUrl;
 
     public PaymentController(PaymentRepository paymentRepository,
-                             IyzicoCheckoutClient iyzicoCheckoutClient,
-                             PaymentTransactionalService paymentTransactionalService) {
+                              IyzicoCheckoutClient iyzicoCheckoutClient,
+                              PaymentTransactionalService paymentTransactionalService,
+                              @Value("${FRONTEND_BASE_URL:http://localhost:8083}") String frontendBaseUrl) {
         this.paymentRepository = paymentRepository;
         this.iyzicoCheckoutClient = iyzicoCheckoutClient;
         this.paymentTransactionalService = paymentTransactionalService;
+        this.frontendBaseUrl = frontendBaseUrl;
     }
 
     @GetMapping("/{orderId}")
@@ -84,10 +89,11 @@ public class PaymentController {
                 new PaymentStatusResponse(orderId, "PENDING_INITIALIZATION", null, null, null));
         }
         Payment payment = latest.get();
+        String paymentPageUrl = payment.getStatus() == PaymentStatus.PENDING ? payment.getPaymentPageUrl() : null;
         return ResponseEntity.ok(new PaymentStatusResponse(
             payment.getOrderId(),
             payment.getStatus().name(),
-            payment.getPaymentPageUrl(),
+            paymentPageUrl,
             payment.getFailureReason(),
             payment.getUpdatedAt()
         ));
@@ -98,8 +104,9 @@ public class PaymentController {
      * this path from JWT enforcement; authenticity is verified server-side via
      * {@code CheckoutForm.retrieve} + SDK signature, NOT by trusting the form body.
      *
-     * <p>Wire shape: Iyzico's hosted page POSTs the buyer's browser back to the merchant
-     * with {@code application/x-www-form-urlencoded} and a single {@code token} field.
+     * <p>Wire shape: Iyzico's hosted page returns the buyer's browser back to the merchant
+     * with a single {@code token} field. Sandbox/browser exits have been observed as both
+     * form POST and query-string GET, so both map to the same verified handler.
      * The S2S webhook (separate JSON-bodied endpoint) is out of scope for Phase 6.
      *
      * <p>Response: 200 OK with a minimal {@code text/html} confirmation page so the
@@ -109,7 +116,16 @@ public class PaymentController {
      */
     @PostMapping(path = "/iyzico/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
         produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<String> iyzicoCallback(@RequestParam("token") String token) {
+    public ResponseEntity<String> iyzicoCallback(@RequestParam(value = "token", required = false) String token) {
+        return handleIyzicoCallback(token);
+    }
+
+    @GetMapping(path = "/iyzico/callback", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> iyzicoCallbackGet(@RequestParam(value = "token", required = false) String token) {
+        return handleIyzicoCallback(token);
+    }
+
+    private ResponseEntity<String> handleIyzicoCallback(String token) {
         if (token == null || token.isBlank()) {
             LOG.warn("payment.callback: missing token");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -148,26 +164,21 @@ public class PaymentController {
 
         if (outcome.isCompleted()) {
             paymentTransactionalService.completeFromCallback(payment.getId(), outcome.iyzicoPaymentId());
-            return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_HTML)
-                .body(htmlPage("Ödeme tamamlandı", "Siparişiniz onaylandı, teşekkürler."));
+            return redirectToStorefrontResult(payment);
         }
         paymentTransactionalService.failFromCallback(payment.getId(), outcome.reason(), outcome.errorCode());
-        return ResponseEntity.ok()
-            .contentType(MediaType.TEXT_HTML)
-            .body(htmlPage("Ödeme başarısız", "Lütfen başka bir kart ile tekrar deneyin."));
+        return redirectToStorefrontResult(payment);
     }
 
     private ResponseEntity<String> successPageFor(Payment payment) {
-        String title = switch (payment.getStatus()) {
-            case COMPLETED -> "Ödeme tamamlandı";
-            case FAILED -> "Ödeme başarısız";
-            case TIMED_OUT -> "Ödeme zaman aşımına uğradı";
-            default -> "Ödeme durumu";
-        };
-        return ResponseEntity.ok()
-            .contentType(MediaType.TEXT_HTML)
-            .body(htmlPage(title, "Sipariş #" + payment.getOrderId()));
+        return redirectToStorefrontResult(payment);
+    }
+
+    private ResponseEntity<String> redirectToStorefrontResult(Payment payment) {
+        return ResponseEntity.status(HttpStatus.SEE_OTHER)
+            .location(URI.create(frontendBaseUrl.replaceAll("/+$", "")
+                + "/odeme/sonuc?orderId=" + payment.getOrderId()))
+            .build();
     }
 
     private static String htmlPage(String title, String body) {

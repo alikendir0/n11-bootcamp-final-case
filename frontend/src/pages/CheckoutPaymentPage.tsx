@@ -16,9 +16,9 @@ const PAYMENT_LINK_RETRY_DELAY_MS = 1000;
 async function pollForPaymentPageUrl(orderId: string): Promise<string | null> {
   for (let i = 0; i < PAYMENT_LINK_RETRY_LIMIT; i++) {
     const status = await fetchPaymentForOrder(orderId);
-    if (status.paymentPageUrl) return status.paymentPageUrl;
     if (status.status === 'FAILED' || status.status === 'TIMED_OUT') return null;
     if (status.status === 'COMPLETED') return null;
+    if (status.status === 'PENDING' && status.paymentPageUrl) return status.paymentPageUrl;
     await new Promise(r => setTimeout(r, PAYMENT_LINK_RETRY_DELAY_MS));
   }
   return null;
@@ -40,9 +40,9 @@ export default function CheckoutPaymentPage() {
     if (!addressId || submitting) return;
     setSubmitting(true);
     try {
-      setPaymentMethod('CREDIT_CARD');
+      setPaymentMethod('CARD');
       const idempotencyKey = ensureIdempotencyKey();
-      const order = await createOrder({ addressId, paymentMethod: 'CREDIT_CARD' }, idempotencyKey);
+      const order = await createOrder({ addressId, paymentMethod: 'CARD' }, idempotencyKey);
       const paymentPageUrl = await pollForPaymentPageUrl(order.orderId);
       if (paymentPageUrl) {
         window.location.assign(paymentPageUrl);
@@ -67,7 +67,7 @@ export default function CheckoutPaymentPage() {
       <fieldset className="bg-white border border-[var(--color-border)] rounded p-6 space-y-4">
         <legend className="sr-only">Ödeme yöntemi seçimi</legend>
         <label className="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="payment" value="CREDIT_CARD" defaultChecked className="mt-1" />
+          <input type="radio" name="payment" value="CARD" defaultChecked className="mt-1" />
           <div>
             <p className="font-bold text-sm">Kredi Kartı</p>
             <p className="text-xs text-gray-600 mt-1">

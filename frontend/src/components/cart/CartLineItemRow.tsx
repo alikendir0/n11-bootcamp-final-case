@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react';
 import type { CartLineItem } from '../../lib/types';
 import { ROUTES } from '../../lib/routes';
 import { formatTRY } from '../../lib/format';
+import { productUrlSegment } from '../../lib/productUrls';
 import { QtyStepper } from './QtyStepper';
 
 interface Props {
@@ -14,20 +15,21 @@ interface Props {
 
 export function CartLineItemRow({ item, mutating, onQtyChange, onRemove }: Props) {
   const lineTotal = item.unitPriceSnapshot * item.qty;
+  const productUrl = ROUTES.PRODUCT(productUrlSegment({ id: item.productId, name: item.nameSnapshot }));
   return (
     <article
       className="flex gap-4 items-start py-4 border-b border-[var(--color-border)] last:border-b-0"
       aria-busy={mutating}
     >
       <Link
-        to={ROUTES.PRODUCT(item.productId)}
+        to={productUrl}
         aria-label={item.nameSnapshot}
         className="block w-16 h-16 flex-shrink-0 bg-gray-100 border border-[var(--color-border)] rounded overflow-hidden"
       >
         <img src={item.imageUrlSnapshot} alt="" className="w-full h-full object-cover" />
       </Link>
       <div className="flex-1 min-w-0">
-        <Link to={ROUTES.PRODUCT(item.productId)} className="block text-sm font-bold hover:underline truncate">
+        <Link to={productUrl} className="block text-sm font-bold hover:underline truncate">
           {item.nameSnapshot}
         </Link>
         <p className="text-xs text-gray-600 mt-1">{formatTRY(item.unitPriceSnapshot)} (Birim)</p>

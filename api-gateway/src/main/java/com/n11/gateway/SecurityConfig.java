@@ -62,6 +62,7 @@ public class SecurityConfig {
                 // api-contracts.md §3 public allowlist (Day-1 locked):
                 .pathMatchers(HttpMethod.POST, "/api/v1/identity/auth/login").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/v1/identity/auth/register").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/v1/identity/agents/exchange").permitAll()
                 .pathMatchers(HttpMethod.GET,  "/api/v1/identity/.well-known/jwks.json").permitAll()
                 .pathMatchers(HttpMethod.GET,  "/api/v1/products/**").permitAll()
                 .pathMatchers(HttpMethod.GET,  "/api/v1/categories/**").permitAll()
@@ -73,6 +74,7 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.GET,  "/api/v1/search/**").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/v1/chat/**").permitAll()
                 .pathMatchers(HttpMethod.GET,  "/api/v1/chat/**").permitAll()
+                .pathMatchers(HttpMethod.GET,  "/api/v1/payments/iyzico/callback").permitAll()
                 .pathMatchers(HttpMethod.POST, "/api/v1/payments/iyzico/callback").permitAll()
 
                 // Actuator (T-01-04 mitigation: only health/info/gateway exposed via management.endpoints)
@@ -123,11 +125,18 @@ public class SecurityConfig {
         return converter;
     }
 
-    /** CORS for local Vite development. Phase 11 will append the tunnel hostname. */
+    /** CORS for local Vite development, Cloudflare Tunnel storefront, and Iyzico callback exits. */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://192.168.1.46:8083"));
+        cfg.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",
+                "http://192.168.1.46:8083",
+                "https://n11-shop.alikendir.dev",
+                "https://*.iyzipay.com",
+                "https://*.iyzipay.com.tr",
+                "https://*.iyzico.com",
+                "https://*.iyzico.com.tr"));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setExposedHeaders(List.of("X-Correlation-Id"));

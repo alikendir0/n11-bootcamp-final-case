@@ -2,23 +2,14 @@ import { Link } from 'react-router-dom';
 import { ROUTES } from '../../lib/routes';
 import { formatTRY } from '../../lib/format';
 import type { Product } from '../../lib/types';
-
-/** Build the slug-id segment per FE-07: kebab-cased name + product-id. */
-function productSlug(p: Product, displayName: string): string {
-  const slug = displayName
-    .toLocaleLowerCase('tr-TR')
-    .replace(/[^a-z0-9ğüşıöçĞÜŞİÖÇ]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60);
-  return `${slug}-${p.id}`;
-}
+import { productUrlSegment } from '../../lib/productUrls';
 
 export function ProductCard({ product }: { product: Product }) {
   const outOfStock = product.stockQty <= 0;
   const displayName = product.name?.trim() || 'Ürün';
   return (
     <Link
-      to={ROUTES.PRODUCT(productSlug(product, displayName))}
+      to={ROUTES.PRODUCT(productUrlSegment(product))}
       aria-label={displayName}
       className="block bg-white border border-[var(--color-border)] rounded overflow-hidden hover:shadow-md transition-shadow"
     >

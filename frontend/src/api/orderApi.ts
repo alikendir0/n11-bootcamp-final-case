@@ -3,7 +3,7 @@ import type { Order } from '../lib/types';
 
 export interface CreateOrderRequest {
   addressId: string;
-  paymentMethod: 'CREDIT_CARD';
+  paymentMethod: 'CARD';
 }
 
 /** Minimal response from POST /orders (OrderResponse DTO). */

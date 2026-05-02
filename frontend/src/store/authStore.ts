@@ -6,6 +6,7 @@ import type { User } from '../lib/types';
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  hasHydrated: boolean;
   setSession: (token: string, user: User) => void;
   hydrateFromStorage: () => void;     // call once on App mount; D-04 boot validation
   logout: () => void;
@@ -14,15 +15,16 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
+  hasHydrated: false,
   setSession: (token, user) => {
     setToken(token);
-    set({ user, isAuthenticated: true });
+    set({ user, isAuthenticated: true, hasHydrated: true });
   },
   hydrateFromStorage: () => {
     const token = getToken();
     if (!token || isExpired(token)) {
       clearToken();
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, hasHydrated: true });
       return;
     }
     // Token present + not expired — extract minimal user info from sub claim;
@@ -31,6 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const claims = decodeJwt(token) as { sub?: string; email?: string; roles?: string[] };
       if (!claims.sub) {
         clearToken();
+        set({ user: null, isAuthenticated: false, hasHydrated: true });
         return;
       }
       set({
@@ -41,14 +44,15 @@ export const useAuthStore = create<AuthState>((set) => ({
           roles: claims.roles ?? [],
         },
         isAuthenticated: true,
+        hasHydrated: true,
       });
     } catch {
       clearToken();
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, hasHydrated: true });
     }
   },
   logout: () => {
     clearToken();
-    set({ user: null, isAuthenticated: false });
+    set({ user: null, isAuthenticated: false, hasHydrated: true });
   },
 }));

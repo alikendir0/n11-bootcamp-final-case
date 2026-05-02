@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { fetchOrder, cancelOrder, orderQueryKey, myOrdersQueryKey } from '../api/orderApi';
+import { fetchPaymentForOrder, paymentForOrderQueryKey } from '../api/paymentApi';
 import { isCancellable } from '../lib/orderStatus';
 import { formatTRY, formatTRDate } from '../lib/format';
 import { ApiError } from '../lib/apiClient';
@@ -10,6 +11,23 @@ import { AccountSidebar } from '../components/account/AccountSidebar';
 import { OrderTimeline } from '../components/account/OrderTimeline';
 import { CancelOrderDialog } from '../components/account/CancelOrderDialog';
 import NotFoundPage from './NotFoundPage';
+import type { PaymentStatus } from '../lib/types';
+
+function paymentMethodLabel(method?: string | null): string {
+  if (!method || method === 'CARD' || method === 'CREDIT_CARD') return 'Kredi Kartı';
+  return method;
+}
+
+function paymentStatusLabel(status?: PaymentStatus['status']): string {
+  switch (status) {
+    case 'COMPLETED': return 'Ödeme tamamlandı';
+    case 'FAILED': return 'Ödeme başarısız';
+    case 'TIMED_OUT': return 'Ödeme zaman aşımına uğradı';
+    case 'PENDING': return 'Ödeme bekleniyor';
+    case 'PENDING_INITIALIZATION': return 'Ödeme hazırlanıyor';
+    default: return 'Ödeme bilgisi bekleniyor';
+  }
+}
 
 export default function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -20,6 +38,12 @@ export default function OrderDetailPage() {
     queryKey: orderId ? orderQueryKey(orderId) : ['order', 'invalid'],
     queryFn: () => fetchOrder(orderId!),
     enabled: !!orderId,
+  });
+
+  const { data: payment, isLoading: isPaymentLoading } = useQuery({
+    queryKey: orderId ? paymentForOrderQueryKey(orderId) : ['payment', 'invalid'],
+    queryFn: () => fetchPaymentForOrder(orderId!),
+    enabled: !!orderId && !!order,
   });
 
   const cancelMutation = useMutation({
@@ -96,8 +120,29 @@ export default function OrderDetailPage() {
               </section>
 
               <section className="bg-white border border-[var(--color-border)] rounded p-6 mb-6">
-                <h2 className="font-bold mb-2">Ödeme Yöntemi</h2>
-                <p className="text-sm">{order.paymentMethod === 'CREDIT_CARD' ? 'Kredi Kartı' : order.paymentMethod}</p>
+                <h2 className="font-bold mb-4">Ödeme Bilgileri</h2>
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <dt className="text-gray-600">Ödeme Yöntemi</dt>
+                    <dd className="font-bold mt-1">{paymentMethodLabel(order.paymentMethod)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-gray-600">Ödeme Durumu</dt>
+                    <dd className="font-bold mt-1">{isPaymentLoading ? 'Yükleniyor...' : paymentStatusLabel(payment?.status)}</dd>
+                  </div>
+                  {payment?.updatedAt && (
+                    <div>
+                      <dt className="text-gray-600">Son Güncelleme</dt>
+                      <dd className="font-bold mt-1">{formatTRDate(payment.updatedAt)}</dd>
+                    </div>
+                  )}
+                  {payment?.failureReason && (
+                    <div>
+                      <dt className="text-gray-600">Hata Nedeni</dt>
+                      <dd className="font-bold mt-1">{payment.failureReason}</dd>
+                    </div>
+                  )}
+                </dl>
               </section>
 
               {isCancellable(order.status) && (

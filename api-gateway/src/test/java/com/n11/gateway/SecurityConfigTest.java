@@ -78,6 +78,27 @@ class SecurityConfigTest {
     }
 
     @Test
+    void publicAllowlistAgentExchangeRouteNotRejectedBySecurityWithoutBearer() {
+        // MCP clients need this public exchange to turn MCP_API_KEY into a normal JWT.
+        webTestClient.post().uri("/api/v1/identity/agents/exchange")
+                .exchange()
+                .expectStatus().value(status ->
+                    assertThat(status)
+                        .as("Agent exchange route must be permitted by security (no 401)")
+                        .isNotEqualTo(HttpStatus.UNAUTHORIZED.value()));
+    }
+
+    @Test
+    void publicAllowlistIyzicoCallbackGetRouteNotRejectedBySecurityWithoutBearer() {
+        webTestClient.get().uri("/api/v1/payments/iyzico/callback?token=test-token")
+                .exchange()
+                .expectStatus().value(status ->
+                    assertThat(status)
+                        .as("Iyzico callback GET must be permitted by security (no 401/403)")
+                        .isNotIn(HttpStatus.UNAUTHORIZED.value(), HttpStatus.FORBIDDEN.value()));
+    }
+
+    @Test
     void authenticatedRequestWithValidJwtNotRejectedBySecurity() {
         // With a valid mocked JWT, a protected route must pass the security chain.
         // Security accepting = not 401. The route may return 404 from gateway routing.
@@ -118,6 +139,25 @@ class SecurityConfigTest {
         assertThat(configuration).isNotNull();
         assertThat(configuration.checkOrigin("http://192.168.1.46:8083"))
                 .isEqualTo("http://192.168.1.46:8083");
+    }
+
+    @Test
+    void corsConfigurationAllowsIyzicoSandboxCallbackOrigin() {
+        CorsConfigurationSource source = new SecurityConfig().corsConfigurationSource();
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.post("/api/v1/payments/iyzico/callback").build());
+
+        CorsConfiguration configuration = source.getCorsConfiguration(exchange);
+
+        assertThat(configuration).isNotNull();
+        assertThat(configuration.checkOrigin("https://sandbox-cpp.iyzipay.com"))
+                .isEqualTo("https://sandbox-cpp.iyzipay.com");
+        assertThat(configuration.checkOrigin("https://sandbox-cpp.iyzico.com"))
+                .isEqualTo("https://sandbox-cpp.iyzico.com");
+        assertThat(configuration.checkOrigin("https://sandbox.iyzipay.com"))
+                .isEqualTo("https://sandbox.iyzipay.com");
+        assertThat(configuration.checkOrigin("https://sandbox-cpp.iyzipay.com.tr"))
+                .isEqualTo("https://sandbox-cpp.iyzipay.com.tr");
     }
 
     // Minimal stub — wired for slice test context.

@@ -6,7 +6,7 @@ export const CATEGORY_SLUGS = [
   'kozmetik',
   'spor-outdoor',
   'supermarket',
-  'kitap-muzik-film-oyun',
+  'kitap-muzik-film',
 ] as const;
 
 export type CategorySlug = typeof CATEGORY_SLUGS[number];
@@ -19,7 +19,11 @@ export const CATEGORY_LABELS: Record<CategorySlug, string> = {
   'kozmetik': 'Kozmetik',
   'spor-outdoor': 'Spor & Outdoor',
   'supermarket': 'Süpermarket',
-  'kitap-muzik-film-oyun': 'Kitap, Müzik, Film, Oyun',
+  'kitap-muzik-film': 'Kitap, Müzik, Film, Oyun',
+};
+
+export const LEGACY_CATEGORY_SLUGS: Record<string, CategorySlug> = {
+  'kitap-muzik-film-oyun': 'kitap-muzik-film',
 };
 
 export function isCategorySlug(slug: string): slug is CategorySlug {

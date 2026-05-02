@@ -1,11 +1,14 @@
-import { useParams } from 'react-router-dom';
-import { isCategorySlug, CATEGORY_LABELS } from '../lib/categories';
+import { Navigate, useParams } from 'react-router-dom';
+import { isCategorySlug, CATEGORY_LABELS, LEGACY_CATEGORY_SLUGS } from '../lib/categories';
 import { Breadcrumbs } from '../components/listing/Breadcrumbs';
 import { ListingGrid } from '../components/listing/ListingGrid';
 import NotFoundPage from './NotFoundPage';
 
 export default function CategoryListingPage() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
+  if (categorySlug && LEGACY_CATEGORY_SLUGS[categorySlug]) {
+    return <Navigate to={`/${LEGACY_CATEGORY_SLUGS[categorySlug]}`} replace />;
+  }
   if (!categorySlug || !isCategorySlug(categorySlug)) {
     return <NotFoundPage />;
   }

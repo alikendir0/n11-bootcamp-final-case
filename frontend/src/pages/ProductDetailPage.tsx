@@ -15,14 +15,10 @@ import { FreeShippingBadge } from '../components/pdp/FreeShippingBadge';
 import { TaksitTable } from '../components/pdp/TaksitTable';
 import { PdpTabs } from '../components/pdp/PdpTabs';
 import NotFoundPage from './NotFoundPage';
+import { extractProductIdFromUrlSegment } from '../lib/productUrls';
 
-/** Extract product UUID from /urun/<slug>-<UUID>. UUID v4 is the last 36 chars (with hyphens). */
 function extractUuid(slugAndId: string | undefined): string | null {
-  if (!slugAndId || slugAndId.length < 36) return null;
-  const uuid = slugAndId.slice(-36);
-  // Loose validation — UUID v4 has 4 hyphens at fixed positions
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uuid)) return null;
-  return uuid;
+  return extractProductIdFromUrlSegment(slugAndId);
 }
 
 export default function ProductDetailPage() {

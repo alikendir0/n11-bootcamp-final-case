@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchOrder, orderQueryKey } from '../api/orderApi';
+import { fetchPaymentForOrder, paymentForOrderQueryKey } from '../api/paymentApi';
 import { cartQueryKey } from '../hooks/useCart';
 import { useCheckoutStore } from '../store/checkoutStore';
 import { ROUTES } from '../lib/routes';
-import type { Order } from '../lib/types';
+import type { Cart, Order } from '../lib/types';
 import { CheckoutStepper } from '../components/checkout/CheckoutStepper';
 
 const POLL_INTERVAL_MS = 2000;
@@ -54,9 +55,29 @@ export default function CheckoutResultPage() {
     refetchIntervalInBackground: false,
   });
 
+  const { data: payment } = useQuery({
+    queryKey: isUuid(orderId) ? paymentForOrderQueryKey(orderId) : ['payment', 'invalid'],
+    queryFn: () => fetchPaymentForOrder(orderId!),
+    enabled: isUuid(orderId) && !timedOut,
+    refetchInterval: (q) => {
+      const data = q.state.data;
+      if (data?.status === 'FAILED' || data?.status === 'TIMED_OUT' || data?.status === 'COMPLETED') return false;
+      if (data?.status === 'PENDING' && data.paymentPageUrl) return false;
+      return 1000;
+    },
+    refetchIntervalInBackground: false,
+  });
+
+  useEffect(() => {
+    if (payment?.status === 'PENDING' && payment.paymentPageUrl) {
+      window.location.assign(payment.paymentPageUrl);
+    }
+  }, [payment?.paymentPageUrl, payment?.status]);
+
   // On CONFIRMED: invalidate cart cache + reset checkout state
   useEffect(() => {
     if (order?.status === 'CONFIRMED') {
+      qc.setQueryData<Cart>(cartQueryKey, { userId: '', items: [], updatedAt: new Date().toISOString() });
       qc.invalidateQueries({ queryKey: cartQueryKey });
       resetCheckout();
     }

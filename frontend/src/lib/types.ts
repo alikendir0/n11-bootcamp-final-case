@@ -59,6 +59,26 @@ export interface BackendProductPage {
   size: number;
 }
 
+export interface BackendProductDetailDto {
+  id: string;
+  nameTr: string;
+  descriptionTr: string;
+  priceGross: number;
+  kdvRate: number;
+  imageUrls: string[];
+  categoryId: string;
+  categoryName: string;
+  stockQty?: number;
+}
+
+export interface StockState {
+  productId: string;
+  availableQty: number;
+  stockState: string;
+  stockStateLabel: string;
+  displayQty: number;
+}
+
 export interface ProductPage {
   content: Product[];
   totalElements: number;
@@ -117,7 +137,7 @@ export interface Order {
   cancelReason?: string;
   items: OrderItem[];
   shippingAddress: ShippingAddress;
-  paymentMethod: string;
+  paymentMethod?: string | null;
   createdAt: string;
   updatedAt: string;
 }

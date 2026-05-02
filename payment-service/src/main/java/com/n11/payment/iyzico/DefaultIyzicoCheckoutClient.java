@@ -229,6 +229,9 @@ public class DefaultIyzicoCheckoutClient implements IyzicoCheckoutClient {
         if (digits.length() == 10) {
             return "+90" + digits;
         }
+        if (digits.length() == 11 && digits.startsWith("0")) {
+            return "+90" + digits.substring(1);
+        }
         if ((digits.length() == 11 || digits.length() == 12) && digits.startsWith("90")) {
             return "+" + digits;
         }

@@ -64,7 +64,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "mock.payment.delay-ms=0",
         "iyzico.api-key=test-api-key",
         "iyzico.secret-key=test-secret-key",
-        "iyzico.public-base-url=http://localhost:8080"
+        "iyzico.public-base-url=http://localhost:8080",
+        "FRONTEND_BASE_URL=https://shop.example.test"
     })
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -115,7 +116,7 @@ class IyzicoCallbackIntegrationTest {
         mockMvc.perform(post("/payments/iyzico/callback")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("token", "tok-success"))
-            .andExpect(status().isOk());
+            .andExpect(status().isSeeOther());
 
         var stored = paymentRepository.findByIyzicoToken("tok-success").orElseThrow();
         assertThat(stored.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
@@ -139,7 +140,7 @@ class IyzicoCallbackIntegrationTest {
         mockMvc.perform(post("/payments/iyzico/callback")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("token", "tok-fail"))
-            .andExpect(status().isOk());
+            .andExpect(status().isSeeOther());
 
         var stored = paymentRepository.findByIyzicoToken("tok-fail").orElseThrow();
         assertThat(stored.getStatus()).isEqualTo(PaymentStatus.FAILED);
@@ -163,13 +164,13 @@ class IyzicoCallbackIntegrationTest {
         mockMvc.perform(post("/payments/iyzico/callback")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("token", "tok-dup"))
-            .andExpect(status().isOk());
+            .andExpect(status().isSeeOther());
 
         // Second delivery for same token (e.g. user double-submits hosted form, or Iyzico replays)
         mockMvc.perform(post("/payments/iyzico/callback")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("token", "tok-dup"))
-            .andExpect(status().isOk());
+            .andExpect(status().isSeeOther());
 
         var stored = paymentRepository.findByIyzicoToken("tok-dup").orElseThrow();
         assertThat(stored.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
@@ -197,7 +198,7 @@ class IyzicoCallbackIntegrationTest {
         mockMvc.perform(post("/payments/iyzico/callback")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("token", "tok-md"))
-            .andExpect(status().isOk());
+            .andExpect(status().isSeeOther());
 
         var stored = paymentRepository.findByIyzicoToken("tok-md").orElseThrow();
         assertThat(stored.getStatus()).isEqualTo(PaymentStatus.FAILED);
