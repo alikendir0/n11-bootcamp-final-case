@@ -355,7 +355,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 6 plans (5 waves)
 
   **Wave 1** — chat streaming foundation
-  - [ ] 11-01-PLAN.md — POST SSE chat client, typed event parser, persistent hook state, and confirmed cart-query invalidation (`FE-12`)
+  - [x] 11-01-PLAN.md — POST SSE chat client, typed event parser, persistent hook state, and confirmed cart-query invalidation (`FE-12`)
 
   **Wave 2** — UI shell
   - [ ] 11-02-PLAN.md — floating bubble, 420px right drawer/full-screen mobile sheet, transcript, tool chips, compact cards, and handoff CTAs (`FE-12`)
@@ -394,7 +394,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
 | 9. MCP Server | 7/7 | Complete | 2026-05-02 |
 | 10. Frontend Storefront | 11/11 | Complete   | 2026-05-01 |
-| 11. Frontend Chat Assistant + DevOps Deploy | 0/TBD | Not started | - |
+| 11. Frontend Chat Assistant + DevOps Deploy | 1/6 | In Progress | 2026-05-02 |
 
 **Milestone progress:** 10 of 11 active phases complete (91%). Phase 11 remains for the chat assistant UI and deploy/tunnel handoff.
 
