@@ -82,7 +82,7 @@
 - [x] **AI-10**: System prompt forces Turkish (`dil: tr-TR`); language-detection assertion in tests catches drift to English
 - [x] **AI-11**: mcp-server registers the SAME `agent-toolset` (single source of truth — no copy-paste) via Spring AI MCP starter (`spring-ai-starter-mcp-server-webmvc 1.1.5`)
 - [x] **AI-12**: mcp-server supports stdio transport (Claude Desktop demo) AND HTTP+SSE transport (network demo); both wired
-- [ ] **AI-13**: mcp-server auth bridge: external agents authenticate via `MCP_API_KEY` env var; key exchanged for an internal JWT against identity-service `/agents/exchange`; JWT propagates through gateway like a normal user
+- [x] **AI-13**: mcp-server auth bridge: external agents authenticate via `MCP_API_KEY` env var; key exchanged for an internal JWT against identity-service `/agents/exchange`; JWT propagates through gateway like a normal user
 - [ ] **AI-14**: Chat assistant and MCP both hit the same gateway and use the same JWT/header injection — no parallel auth tree
 - [ ] **AI-15**: Cart added by chat assistant is visible in the cart page (and vice-versa); `cart-service` is the single source of truth
 
@@ -264,7 +264,7 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | AI-10 | Phase 8 | Complete |
 | AI-11 | Phase 9 | Complete |
 | AI-12 | Phase 9 | Complete |
-| AI-13 | Phase 9 | Pending |
+| AI-13 | Phase 9 | Complete |
 | AI-14 | Phase 8 | Pending |
 | AI-15 | Phase 8 | Pending |
 | FE-01 | Phase 2 | Pending |

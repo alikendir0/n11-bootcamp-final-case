@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 9 context gathered
-last_updated: "2026-05-01T20:04:15.904Z"
-last_activity: 2026-05-01
+last_updated: "2026-05-02T00:46:20.700Z"
+last_activity: 2026-05-02
 progress:
   total_phases: 13
   completed_phases: 9
   total_plans: 60
-  completed_plans: 54
-  percent: 90
+  completed_plans: 55
+  percent: 92
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 09 (mcp-server) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge
 Status: Ready to execute
-Last activity: 2026-05-01
+Last activity: 2026-05-02
 
-Progress: [█████████░] 90%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [█████████░] 90%
 | Phase 10-frontend-storefront P09 | ~3min | 3 tasks | 8 files |
 | Phase 10-frontend-storefront P10 | 3min | 3 tasks | 11 files |
 | Phase 09 P01 | 5 min | 4 tasks | 8 files |
+| Phase 09 P02 | 6 min | 6 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,8 @@ Recent decisions affecting current work:
 - [Phase 10]: Root React Router errorElement renders the shared Turkish RouteErrorFallback for route exceptions.
 - [Phase 09]: mcp-server stays DB-free and AMQP-listener-free; only spring-amqp core plus AspectJ runtime are present to satisfy common-logging class loading.
 - [Phase 09]: Spring AI MCP starter version is managed centrally through the root spring-ai-bom:1.1.5 import.
+- [Phase 09]: Agent API-key exchange uses SHA-256 hashed keys and mints standard ROLE_USER JWTs with JWT.sub as the bound users.id UUID string. — Required by AI-13 so external MCP agents act as a real user through existing gateway-backed JWT semantics.
+- [Phase 09]: AgentSeedRunner is the default demo MCP_API_KEY path; R__seed_agent_api_keys remains optional for pre-baked hashes and plaintext is never stored. — Satisfies no-secrets policy while still supporting reproducible demo hashes when explicitly configured.
 
 ### Pending Todos
 
@@ -156,7 +159,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-01T20:04:03.228Z
+Last session: 2026-05-02T00:46:12.494Z
 Stopped at: Phase 9 context gathered
 Resume file: None
 Next: `/gsd-discuss-phase 9` then `/gsd-plan-phase 9` — MCP server consumes shared agent-toolset; stdio + HTTP+SSE transports; API-key auth bridge.
