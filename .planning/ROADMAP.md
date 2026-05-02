@@ -352,7 +352,23 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Adding a product to cart from the chat bubble is reflected in the header cart-counter within 1 second (visual feedback that bridges chat-action and UI), and the chat panel summarizes the cart with localized Turkish text.
   3. `gradle :<service>:jib` builds an OCI image for every backend service with no Dockerfile in the repo; GitHub Actions pipeline runs `build` + `test` on push/PR; on a `v*` release tag the same pipeline pushes the 13 Jib images to GHCR (or Docker Hub) so the local docker-compose can pull them by tag; build success/failure produces a Slack notification ("✅ build green on <ref>" / "❌ build failed on <ref>").
   4. The full stack runs on the candidate's machine via `docker compose --profile full up`; an external `curl https://<tunnel-hostname>/api/v1/products` (Cloudflare Tunnel preferred, ngrok fallback) returns a 200 with seed products; tunnel access tokens live in env vars (never in repo); the public demo URL pointer + env-var matrix + demo card numbers + local-run instructions live in `README.md`; `docs/devops-pipeline-comparison.md` covers the Jenkins-vs-GH-Actions pipeline-logic comparison.
-**Plans**: TBD
+**Plans**: 6 plans (5 waves)
+
+  **Wave 1** — chat streaming foundation
+  - [ ] 11-01-PLAN.md — POST SSE chat client, typed event parser, persistent hook state, and confirmed cart-query invalidation (`FE-12`)
+
+  **Wave 2** — UI shell
+  - [ ] 11-02-PLAN.md — floating bubble, 420px right drawer/full-screen mobile sheet, transcript, tool chips, compact cards, and handoff CTAs (`FE-12`)
+
+  **Wave 3** — chat verification hardening
+  - [ ] 11-03-PLAN.md — Playwright chat smoke, retry/auth/cart handoff tests, and no-direct-ai-service invariant gates (`FE-12`)
+
+  **Wave 4** — CI/release workflows
+  - [ ] 11-04-PLAN.md — GitHub Actions build/test CI, all-service Jib verification, GHCR Jib release publishing for 13 services, and Slack notifications (`DEV-01, DEV-02, DEV-03, DEV-06, DEV-08`)
+
+  **Wave 5** — local deploy posture + pipeline comparison documentation
+  - [ ] 11-05-PLAN.md — docker compose full-profile posture, env examples, root README demo runbook, and public tunnel proof (`DEV-05, DEV-09`)
+  - [ ] 11-06-PLAN.md — Jenkins versus GitHub Actions pipeline-stage comparison and credential-handling doc (`DEV-04`)
 **UI hint**: yes
 **Risks**: Pitfall #19 (chat streaming UI freeze — token buffering), Pitfall #21 (Slack webhook leaked — env var only), tunnel-dependency risk (interview-time tunnel outage — mitigation: keep an ngrok fallback ready in the README so the candidate can re-expose in under a minute if Cloudflare misbehaves), candidate-machine-dependency risk (machine reboot mid-demo — mitigation: docker-compose `restart: unless-stopped`, and a 30-second `compose up` rehearsal documented in the README).
 **Research need**: LOW — docker-compose on a single host is well-trodden; tunnel choice is the only fresh research (Cloudflare Tunnel with `cloudflared` quickstart vs ngrok agent token).
