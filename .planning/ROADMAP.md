@@ -295,7 +295,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   **Wave 2** *(blocked on Wave 1)* — adapter, JWT cache, gateway/compose entry (parallel)
   - [x] 09-03-PLAN.md — `AgentToolMcpRegistration` adapter (DRY proof; ToolCallbackProvider) — `AI-11`
   - [x] 09-04-PLAN.md — AgentJwtCache + AgentJwtClient + JwtBearerInterceptor + McpRestClientConfig — `AI-13`
-  - [ ] 09-05-PLAN.md — api-gateway `/mcp/**` route + docker-compose mcp-server entry + .env.example placeholder — `AI-12`
+  - [x] 09-05-PLAN.md — api-gateway `/mcp/**` route + docker-compose mcp-server entry + .env.example placeholder — `AI-12`
 
   **Wave 3** *(blocked on 09-01 + 09-03)* — infra-tests integration proof
   - [ ] 09-06-PLAN.md — infra-tests `McpServerToolsListEqualityTest` (SC-1 + SC-4 grading proof) — `AI-11`
