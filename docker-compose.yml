@@ -104,8 +104,9 @@ services:
   # wget, switch to a /dev/tcp probe in bash.
   # ---------------------------------------------------------------------------
   eureka-server:
-    image: n11/eureka-server:dev
+    image: ${IMAGE_REGISTRY:-n11}/eureka-server:${IMAGE_TAG:-dev}
     container_name: n11-eureka-server
+    profiles: ["full"]
     ports:
       - "8761:8761"
     healthcheck:
@@ -132,8 +133,9 @@ services:
   # hardening could register it; out of scope for Phase 1.
   # ---------------------------------------------------------------------------
   config-server:
-    image: n11/config-server:dev
+    image: ${IMAGE_REGISTRY:-n11}/config-server:${IMAGE_TAG:-dev}
     container_name: n11-config-server
+    profiles: ["full"]
     environment:
       SPRING_PROFILES_ACTIVE: native
     ports:
@@ -170,8 +172,9 @@ services:
   # tunnel config / production-like overrides).
   # ---------------------------------------------------------------------------
   api-gateway:
-    image: n11/api-gateway:dev
+    image: ${IMAGE_REGISTRY:-n11}/api-gateway:${IMAGE_TAG:-dev}
     container_name: n11-api-gateway
+    profiles: ["full"]
     environment:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
@@ -215,8 +218,9 @@ services:
   # gateway on port 8080 from outside the Docker network.
   # ---------------------------------------------------------------------------
   identity-service:
-    image: n11/identity-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/identity-service:${IMAGE_TAG:-dev}
     container_name: n11-identity-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -252,8 +256,9 @@ services:
   # NO `ports:` mapping — Pitfall #14 (internal-only on n11-net, gateway is the only entry).
   # ---------------------------------------------------------------------------
   product-service:
-    image: n11/product-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/product-service:${IMAGE_TAG:-dev}
     container_name: n11-product-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -286,8 +291,9 @@ services:
   # NO `ports:` mapping — Pitfall #14 (internal-only on n11-net, gateway is the only entry).
   # ---------------------------------------------------------------------------
   inventory-service:
-    image: n11/inventory-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/inventory-service:${IMAGE_TAG:-dev}
     container_name: n11-inventory-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -321,8 +327,9 @@ services:
   # Sync REST dep on product-service (D-01 snapshot fetch on add/update).
   # ---------------------------------------------------------------------------
   cart-service:
-    image: n11/cart-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/cart-service:${IMAGE_TAG:-dev}
     container_name: n11-cart-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -358,8 +365,9 @@ services:
   # re-validation), identity-service (GET /addresses/{id} for D-04 snapshot).
   # ---------------------------------------------------------------------------
   order-service:
-    image: n11/order-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/order-service:${IMAGE_TAG:-dev}
     container_name: n11-order-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -401,8 +409,9 @@ services:
   # Saga producer: payment.completed / payment.failed via callback retrieve.
   # ---------------------------------------------------------------------------
   payment-service:
-    image: n11/payment-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/payment-service:${IMAGE_TAG:-dev}
     container_name: n11-payment-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -435,8 +444,9 @@ services:
   # NO `ports:` mapping — Pitfall #14 (internal-only on n11-net, gateway is the only entry).
   # ---------------------------------------------------------------------------
   notification-service:
-    image: n11/notification-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/notification-service:${IMAGE_TAG:-dev}
     container_name: n11-notification-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -470,8 +480,9 @@ services:
   # Requires: ./gradlew :ai-service:jibDockerBuild before docker compose up
   # ---------------------------------------------------------------------------
   ai-service:
-    image: n11/ai-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/ai-service:${IMAGE_TAG:-dev}
     container_name: n11-ai-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -504,8 +515,9 @@ services:
   # endpoint in v1; second consumer of the AI port (EmbeddingProvider).
   # ---------------------------------------------------------------------------
   search-service:
-    image: n11/search-service:dev
+    image: ${IMAGE_REGISTRY:-n11}/search-service:${IMAGE_TAG:-dev}
     container_name: n11-search-service
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -541,8 +553,9 @@ services:
   # Requires: ./gradlew :mcp-server:jibDockerBuild before docker compose up
   # ---------------------------------------------------------------------------
   mcp-server:
-    image: n11/mcp-server:dev
+    image: ${IMAGE_REGISTRY:-n11}/mcp-server:${IMAGE_TAG:-dev}
     container_name: n11-mcp-server
+    profiles: ["full"]
     env_file:
       - .env
     environment:
@@ -570,6 +583,30 @@ services:
       timeout: 3s
       retries: 6
       start_period: 25s
+    restart: unless-stopped
+    networks:
+      - n11-net
+
+  # ---------------------------------------------------------------------------
+  # frontend -- Phase 11 storefront demo surface.
+  # Vite 8 + React 19 SPA served in dev mode for local demo.
+  # Bind-mounts the local frontend/ directory so hot-reload works during dev.
+  # ---------------------------------------------------------------------------
+  frontend:
+    image: node:24-alpine
+    container_name: n11-frontend
+    profiles: ["full"]
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:9090}
+    ports:
+      - "5173:5173"
+    depends_on:
+      api-gateway:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - n11-net
