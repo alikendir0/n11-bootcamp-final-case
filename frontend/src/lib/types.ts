@@ -150,3 +150,84 @@ export interface PaymentStatus {
   failureReason?: string | null;
   updatedAt?: string | null;
 }
+
+// ── Chat / Assistant types (Phase 11) ──────────────────────────────────
+
+export type ChatEventType = 'delta' | 'tool_call' | 'tool_result' | 'done' | 'error';
+
+export interface ChatDeltaEvent {
+  type: 'delta';
+  text: string;
+  conversationId: string;
+}
+
+export interface ChatToolCallEvent {
+  type: 'tool_call';
+  name: string;
+  callId: string;
+  argsJson: string;
+}
+
+export interface ChatToolResultEvent {
+  type: 'tool_result';
+  callId: string;
+  toolName?: string;
+  ok: boolean;
+  summary: string;
+  resultType?: 'products' | 'product' | 'cart' | 'order' | 'payment' | 'generic';
+  data?: ChatToolResultData;
+}
+
+export interface ChatDoneEvent {
+  type: 'done';
+  conversationId: string;
+  finalText: string;
+}
+
+export interface ChatErrorEvent {
+  type: 'error';
+  code: string;
+  messageTr: string;
+}
+
+export type ChatStreamEvent =
+  | ChatDeltaEvent
+  | ChatToolCallEvent
+  | ChatToolResultEvent
+  | ChatDoneEvent
+  | ChatErrorEvent;
+
+export interface ChatTranscriptItem {
+  id: string;
+  role: 'user' | 'assistant' | 'tool';
+  text?: string;
+  events?: ChatStreamEvent[];
+}
+
+export interface ChatProductCardData {
+  id: string;
+  name: string;
+  priceGross?: number;
+  stockQty?: number;
+  imageUrl?: string;
+  categoryLabel?: string;
+}
+
+export interface ChatCartSummaryData {
+  itemCount: number;
+  totalAmount?: number;
+}
+
+export interface ChatOrderHandoffData {
+  orderId?: string;
+  status?: string;
+  paymentPageUrl?: string;
+}
+
+export type ChatToolResultData =
+  | { resultType: 'products'; products: ChatProductCardData[] }
+  | { resultType: 'product'; product: ChatProductCardData }
+  | { resultType: 'cart'; cart: ChatCartSummaryData }
+  | { resultType: 'order'; order: ChatOrderHandoffData }
+  | { resultType: 'payment'; paymentPageUrl: string }
+  | { resultType: 'generic'; [key: string]: unknown };

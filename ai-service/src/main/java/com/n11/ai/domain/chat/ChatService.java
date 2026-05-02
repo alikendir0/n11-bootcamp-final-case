@@ -126,10 +126,17 @@ public class ChatService {
                 String summary = (r instanceof ToolResult.Err err)
                     ? err.code() + ": " + err.message()
                     : ((ToolResult.Ok) r).data().toString();
-                emit.accept("tool_result", Map.of(
-                    "callId", call.callId(),
-                    "ok", ok,
-                    "summary", summary.length() > 200 ? summary.substring(0, 200) + "…" : summary));
+                String resultType = resolveResultType(call.name(), ok);
+                Map<String, Object> payload = new LinkedHashMap<>();
+                payload.put("callId", call.callId());
+                payload.put("toolName", call.name());
+                payload.put("ok", ok);
+                payload.put("summary", summary.length() > 200 ? summary.substring(0, 200) + "…" : summary);
+                payload.put("resultType", resultType);
+                if (r instanceof ToolResult.Ok okResult) {
+                    payload.put("data", buildResultData(resultType, okResult.data()));
+                }
+                emit.accept("tool_result", payload);
                 results.add(toToolCallResult(call.callId(), r));
             }
             String resultJson = serialize(results);
@@ -166,6 +173,33 @@ public class ChatService {
     private String serialize(Object value) {
         try { return json.writeValueAsString(value); }
         catch (Exception e) { return "[]"; }
+    }
+
+    private String resolveResultType(String toolName, boolean ok) {
+        if (!ok) return "generic";
+        return switch (toolName) {
+            case "search_products" -> "products";
+            case "get_product" -> "product";
+            case "view_cart", "add_to_cart", "update_cart_item", "remove_from_cart" -> "cart";
+            case "create_order", "get_order_status" -> "order";
+            case "get_payment_link" -> "payment";
+            default -> "generic";
+        };
+    }
+
+    private Object buildResultData(String resultType, com.fasterxml.jackson.databind.JsonNode data) {
+        Object plain = json.convertValue(data, Object.class);
+        return switch (resultType) {
+            case "products" -> Map.of("products", plain);
+            case "product" -> Map.of("product", plain);
+            case "cart" -> Map.of("cart", plain);
+            case "order" -> Map.of("order", plain);
+            case "payment" -> {
+                String url = data.isTextual() ? data.asText() : (data.has("paymentPageUrl") ? data.get("paymentPageUrl").asText() : "");
+                yield Map.of("paymentPageUrl", url);
+            }
+            default -> Map.of();
+        };
     }
 
     private ToolCallResult toToolCallResult(String callId, ToolResult r) {
