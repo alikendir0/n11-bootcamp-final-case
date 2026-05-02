@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 11 planned with accepted verification and decision-coverage overrides
-last_updated: "2026-05-02T16:49:22.524Z"
+last_updated: "2026-05-02T16:58:41.279Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 13
   completed_phases: 10
   total_plans: 66
-  completed_plans: 64
-  percent: 97
+  completed_plans: 65
+  percent: 98
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 11 (frontend-chat-assistant + devops-deploy) — EXECUTING
-Plan: 4 of 6 complete (11-04 CI/release workflows)
+Plan: 5 of 6 complete (11-04 CI/release workflows)
 Next: 11-05 local deploy posture + pipeline comparison documentation
 Status: Ready to execute
 Last activity: 2026-05-02
 
-Progress: [██████████] 97%
+Progress: [██████████] 98%
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Progress: [██████████] 97%
 | Phase 11 P01 | 27 min | 3 tasks | 8 files |
 | Phase 11 P11-02 | 19min | 3 tasks | 8 files |
 | Phase 11 P03 | 12min | 3 tasks | 4 files |
+| Phase 11 P06 | 1min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -158,6 +159,7 @@ Recent decisions affecting current work:
 - [Phase 09]: Human verification approved all 8 hard gates for the external MCP demo flow: Claude Desktop/Inspector list 10 tools over stdio + HTTP, mutating tools complete through Iyzico sandbox, order reaches CONFIRMED, and agent API-key audit trail updates.
 - [Phase 09]: The same Jib image `n11/mcp-server:dev` remains the operator contract for both docker-compose mcp-server and Claude Desktop stdio launch; Phase 11 only needs to expose the gateway tunnel for `/mcp/**`.
 - [Phase 11]: E2E drawer-persistence test uses close→navigate→reopen pattern — Drawer scrim intercepts main-content clicks; component persists because Layout never unmounts
+- [Phase ?]: GitHub Actions chosen over Jenkins for zero-infra overhead and native GHCR integration — Zero additional infrastructure needed; native GHCR integration via GITHUB_TOKEN; tight PR integration; first-class matrix jobs for 13 services. Jenkins comparison is illustrative documentation only (DEV-04).
 
 ### Pending Todos
 
@@ -181,7 +183,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-02T16:49:22.514Z
+Last session: 2026-05-02T16:58:34.505Z
 Stopped at: Phase 11 planned with accepted verification and decision-coverage overrides
 Resume file: None
 Next: `/gsd-execute-phase 11` — run chat assistant UI + local docker-compose deploy + public tunnel handoff plans.
