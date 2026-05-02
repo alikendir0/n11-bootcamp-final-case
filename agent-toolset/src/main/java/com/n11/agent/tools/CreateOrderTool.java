@@ -33,14 +33,12 @@ public class CreateOrderTool extends AbstractAgentTool {
 
     @Override
     public String parametersJsonSchema() {
-        return "{\"type\":\"object\",\"properties\":{\"addressId\":{\"type\":\"string\"},\"paymentMethod\":{\"type\":\"string\",\"enum\":[\"CREDIT_CARD\",\"CASH_ON_DELIVERY\"]}},\"required\":[\"addressId\",\"paymentMethod\"]}";
+        return "{\"type\":\"object\",\"properties\":{\"addressId\":{\"type\":\"string\"}},\"required\":[\"addressId\"]}";
     }
 
     @Override
     protected ToolResult doExecute(ToolContext ctx, JsonNode args) {
         String addressId = args.required("addressId").asText();
-        String paymentMethod = args.required("paymentMethod").asText();
-        String apiPaymentMethod = "CREDIT_CARD".equals(paymentMethod) ? "CARD" : paymentMethod;
-        return ToolResult.ok(client.createOrder(ctx.userId(), addressId, apiPaymentMethod));
+        return ToolResult.ok(client.createOrder(ctx.userId(), addressId, "CARD"));
     }
 }
