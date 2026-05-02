@@ -41,6 +41,7 @@ spring:
       flyway.schema: identity
       adminSeedEmail: ${ADMIN_SEED_EMAIL}
       adminSeedPasswordHash: ${ADMIN_SEED_PASSWORD_HASH}
+      mcpAgentSeedHash: ${MCP_AGENT_SEED_HASH:}
 
   jpa:
     open-in-view: false

@@ -33,6 +33,7 @@ spring:
       flyway.schema: identity
       adminSeedEmail: test-admin@n11-demo.local
       adminSeedPasswordHash: $2a$10$abcdefghijklmnopqrstuuvA1234567890abcdefghijklmno
+      mcpAgentSeedHash: ""
   rabbitmq:
     listener:
       simple:
