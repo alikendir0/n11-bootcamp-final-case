@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 11 planned with accepted verification and decision-coverage overrides
-last_updated: "2026-05-02T16:20:39.908Z"
+last_updated: "2026-05-02T16:39:53.287Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 13
   completed_phases: 10
   total_plans: 66
-  completed_plans: 62
-  percent: 94
+  completed_plans: 63
+  percent: 95
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 11 (frontend-chat-assistant + devops-deploy) — EXECUTING
-Plan: 2 of 6 complete (11-01 chat streaming foundation)
+Plan: 3 of 6 complete (11-01 chat streaming foundation)
 Next: 11-02 UI shell (floating bubble, drawer, transcript, tool chips, compact cards)
 Status: Ready to execute
 Last activity: 2026-05-02
 
-Progress: [█████████░] 94%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -75,6 +75,7 @@ Progress: [█████████░] 94%
 | Phase 09 P07 | operator-approved checkpoint | 3 tasks | 3 files |
 | Phase 11 P01 | 27 min | 3 tasks | 8 files |
 | Phase 11 P11-02 | 19min | 3 tasks | 8 files |
+| Phase 11 P03 | 12min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,7 @@ Recent decisions affecting current work:
 - [Phase 09 P06]: McpServerTestConfig disables scheduling and excludes foreign `@SpringBootApplication` classes instead of adding entity/repository scans. — mcp-server is DB-free, and the metadata-only test must not trigger AgentJwtCache exchange attempts.
 - [Phase 09]: Human verification approved all 8 hard gates for the external MCP demo flow: Claude Desktop/Inspector list 10 tools over stdio + HTTP, mutating tools complete through Iyzico sandbox, order reaches CONFIRMED, and agent API-key audit trail updates.
 - [Phase 09]: The same Jib image `n11/mcp-server:dev` remains the operator contract for both docker-compose mcp-server and Claude Desktop stdio launch; Phase 11 only needs to expose the gateway tunnel for `/mcp/**`.
+- [Phase 11]: E2E drawer-persistence test uses close→navigate→reopen pattern — Drawer scrim intercepts main-content clicks; component persists because Layout never unmounts
 
 ### Pending Todos
 
@@ -179,7 +181,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-02T16:20:39.898Z
+Last session: 2026-05-02T16:39:53.276Z
 Stopped at: Phase 11 planned with accepted verification and decision-coverage overrides
 Resume file: None
 Next: `/gsd-execute-phase 11` — run chat assistant UI + local docker-compose deploy + public tunnel handoff plans.
