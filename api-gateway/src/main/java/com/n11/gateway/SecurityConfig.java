@@ -80,8 +80,18 @@ public class SecurityConfig {
                 // Actuator (T-01-04 mitigation: only health/info/gateway exposed via management.endpoints)
                 .pathMatchers("/actuator/**").permitAll()
 
-                // Springdoc aggregator
+                // Springdoc aggregator (gateway's own + proxied service api-docs)
                 .pathMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/webjars/**").permitAll()
+                .pathMatchers(
+                        "/api/v1/identity/v3/api-docs/**",
+                        "/api/v1/products/v3/api-docs/**",
+                        "/api/v1/categories/v3/api-docs/**",
+                        "/api/v1/inventory/v3/api-docs/**",
+                        "/api/v1/cart/v3/api-docs/**",
+                        "/api/v1/orders/v3/api-docs/**",
+                        "/api/v1/payments/v3/api-docs/**",
+                        "/api/v1/chat/v3/api-docs/**"
+                ).permitAll()
 
                 .anyExchange().authenticated()
             )

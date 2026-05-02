@@ -56,6 +56,9 @@ spring:
 # Per-service overrides live in service-template.yml (Plan 01-07).
 # The aggregator at the gateway (api-gateway.yml owned by Plan 01-06) consumes these
 # endpoints to build a uniform `urls=[]` list for the Swagger UI dropdown.
+# Server URLs in OpenAPI specs are corrected by GatewayServerUrlCustomizer (common-error)
+# which replaces internal Docker IPs with the external gateway address (env vars
+# GATEWAY_EXTERNAL_HOST / GATEWAY_EXTERNAL_PORT / GATEWAY_EXTERNAL_SCHEME).
 springdoc:
   api-docs:
     path: /v3/api-docs

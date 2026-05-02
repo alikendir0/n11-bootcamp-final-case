@@ -48,6 +48,48 @@ spring:
           # path to identity-service (/auth/register, /.well-known/jwks.json, etc.).
           # ─────────────────────────────────────────────────────────────────
           routes:
+            # ── Springdoc api-docs routes (StripPrefix=3 strips all 3 segments)
+            # Springdoc serves at /v3/api-docs on every service; the controller
+            # prefix (/products, /cart, etc.) is NOT part of the api-docs path.
+            # These MUST come before the catch-all routes so the more-specific
+            # predicate wins at route-selection time.
+            - id: product-service-api-docs
+              uri: lb://PRODUCT-SERVICE
+              predicates:
+                - Path=/api/v1/products/v3/api-docs/**
+              filters:
+                - StripPrefix=3
+            - id: inventory-service-api-docs
+              uri: lb://INVENTORY-SERVICE
+              predicates:
+                - Path=/api/v1/inventory/v3/api-docs/**
+              filters:
+                - StripPrefix=3
+            - id: cart-service-api-docs
+              uri: lb://CART-SERVICE
+              predicates:
+                - Path=/api/v1/cart/v3/api-docs/**
+              filters:
+                - StripPrefix=3
+            - id: order-service-api-docs
+              uri: lb://ORDER-SERVICE
+              predicates:
+                - Path=/api/v1/orders/v3/api-docs/**
+              filters:
+                - StripPrefix=3
+            - id: payment-service-api-docs
+              uri: lb://PAYMENT-SERVICE
+              predicates:
+                - Path=/api/v1/payments/v3/api-docs/**
+              filters:
+                - StripPrefix=3
+            - id: ai-service-api-docs
+              uri: lb://AI-SERVICE
+              predicates:
+                - Path=/api/v1/chat/v3/api-docs/**
+              filters:
+                - StripPrefix=3
+            # ── Regular service routes (StripPrefix=3 for identity, =2 for others)
             - id: identity-service
               uri: lb://IDENTITY-SERVICE
               predicates:

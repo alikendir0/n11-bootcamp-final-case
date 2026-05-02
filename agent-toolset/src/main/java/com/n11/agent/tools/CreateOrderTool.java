@@ -40,6 +40,7 @@ public class CreateOrderTool extends AbstractAgentTool {
     protected ToolResult doExecute(ToolContext ctx, JsonNode args) {
         String addressId = args.required("addressId").asText();
         String paymentMethod = args.required("paymentMethod").asText();
-        return ToolResult.ok(client.createOrder(ctx.userId(), addressId, paymentMethod));
+        String apiPaymentMethod = "CREDIT_CARD".equals(paymentMethod) ? "CARD" : paymentMethod;
+        return ToolResult.ok(client.createOrder(ctx.userId(), addressId, apiPaymentMethod));
     }
 }

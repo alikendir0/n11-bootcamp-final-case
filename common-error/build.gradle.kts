@@ -13,6 +13,10 @@ dependencies {
     // SLF4J MDC (transitive via slf4j-api in Spring Boot's logging starter; declared explicitly to make the dependency obvious).
     compileOnly("org.slf4j:slf4j-api")
 
+    // Springdoc OpenAPI for GatewayServerUrlCustomizer (OpenApiCustomizer bean).
+    // compileOnly — every consuming service already has springdoc-openapi-starter-webmvc-ui at runtime.
+    compileOnly("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17")
+
     // Tests: full Spring Web + JUnit 5 + Spring Test for MockMvc.
     testImplementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

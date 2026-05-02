@@ -223,6 +223,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1/identity
       # Plan 03-02 V2 admin-seed migration consumes ADMIN_SEED_EMAIL +
       # ADMIN_SEED_PASSWORD_HASH (loaded from .env via env_file above).
       # Plan 03-03 JwtConfig consumes JWT_PRIVATE_KEY + JWT_KEY_ID (same source).
@@ -259,6 +260,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1
     depends_on:
       postgres:
         condition: service_healthy
@@ -292,6 +294,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1
     depends_on:
       postgres:
         condition: service_healthy
@@ -326,6 +329,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1
     depends_on:
       postgres:
         condition: service_healthy
@@ -362,6 +366,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1
     depends_on:
       postgres:
         condition: service_healthy
@@ -404,6 +409,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1
     depends_on:
       postgres:
         condition: service_healthy
@@ -437,6 +443,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1
     depends_on:
       postgres:
         condition: service_healthy
@@ -471,6 +478,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     depends_on:
       postgres:
@@ -504,6 +512,7 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888?fail-fast=true&max-attempts=10&max-interval=1500&multiplier=1.2&initial-interval=1100
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_PATH_PREFIX: /api/v1
     depends_on:
       postgres:
         condition: service_healthy
