@@ -99,7 +99,7 @@
 - [ ] **FE-09**: Multi-step checkout (address → payment → confirmation); Iyzico Checkout Form embedded
 - [ ] **FE-10**: Account section: "Siparişlerim" (orders list), order detail with status timeline, address book
 - [x] **FE-11**: Login / register pages in Turkish with form validation messages in Turkish
-- [ ] **FE-12**: Floating chat assistant bubble bottom-right; persistent across all pages; opens overlay panel; streams Gemini responses token-by-token
+- [x] **FE-12**: Floating chat assistant bubble bottom-right; persistent across all pages; opens overlay panel; streams Gemini responses token-by-token
 - [x] **FE-13**: All UI copy in Turkish — "Sepete Ekle", "Hemen Al", "Stokta", "Tükendi", "Kargo Bedava", "Siparişi Tamamla", "Önceki", "Sonraki", "Sepetim Boş"
 - [ ] **FE-14**: Pagination component with Turkish labels and accessible keyboard navigation
 - [x] **FE-15**: Skeleton loaders on PDP and listing; toast or inline error messages on action failures (React Query handles most retry/cache)
@@ -278,7 +278,7 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | FE-09 | Phase 10 | Pending |
 | FE-10 | Phase 10 | Pending |
 | FE-11 | Phase 10 | Complete |
-| FE-12 | Phase 11 | Pending |
+| FE-12 | Phase 11 | Complete |
 | FE-13 | Phase 10 | Complete |
 | FE-14 | Phase 10 | Pending |
 | FE-15 | Phase 10 | Complete |
