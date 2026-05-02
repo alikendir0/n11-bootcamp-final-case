@@ -60,6 +60,7 @@ dependencies {
     // classpath but NOT on infra-tests' compile classpath via transitive resolution.
     testImplementation(project(":ai-service"))
     testImplementation(project(":search-service"))
+    testImplementation(project(":mcp-server"))
     testImplementation(project(":ai-port"))
     testImplementation(project(":agent-toolset"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
