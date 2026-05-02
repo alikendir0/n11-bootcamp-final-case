@@ -17,7 +17,7 @@ Source: ARCHITECTURE.md §2.4–§2.13. Each service section below lists its Day
 | GET  | /addresses | JWT | List user's saved Türkiye addresses |
 | POST | /addresses | JWT | Add address |
 | GET  | /.well-known/jwks.json | public | JWKS for JWT validation by gateway |
-| POST | /agents/exchange | API-key (Phase 9) | Exchange MCP_API_KEY for internal JWT |
+| POST | /agents/exchange | none (public; API-key validated inside service) | POST /agents/exchange — Body: `{"apiKey":"<plaintext key>"}`; 200: `{"accessToken":"<RS256 JWT, 24h>", "expiresIn": 86400}`; errors: 401 if hash unknown or revoked, 400 if apiKey missing/blank. Phase 9 / D-05 + D-06. JWT.sub = bound user_id; JWT.roles = [ROLE_USER]; same RS256 path as /auth/login. |
 
 ### product-service (Phase 4)
 
@@ -82,7 +82,7 @@ Source: ARCHITECTURE.md §2.4–§2.13. Each service section below lists its Day
 
 | Verb | Path | Auth | Purpose |
 |------|------|------|---------|
-| POST | /mcp/messages | API-key → exchanged JWT | MCP HTTP+SSE transport |
+| POST | /mcp | Authorization: Bearer <exchanged JWT> | MCP Streamable HTTP transport (spec 2025-06-18); + stdio for local subprocess demo. |
 | (stdio) | n/a | n/a | Claude Desktop transport |
 
 ## 2. Gateway Routing Table
