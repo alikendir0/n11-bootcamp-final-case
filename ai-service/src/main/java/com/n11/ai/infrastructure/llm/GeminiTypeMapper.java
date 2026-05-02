@@ -50,7 +50,17 @@ final class GeminiTypeMapper {
                     }
                     if (m.toolCalls() != null) {
                         for (ToolCallRequest tc : m.toolCalls()) {
-                            parts.add(Part.fromFunctionCall(tc.name(), parseJsonAsMap(tc.argsJson())));
+                            // Use FunctionCall.builder() to include call ID for history replay.
+                            // Gemini 3 Flash Preview requires function call IDs to match
+                            // thought_signature expectations when replaying multi-turn tool history.
+                            FunctionCall fc = FunctionCall.builder()
+                                .id(tc.callId())
+                                .name(tc.name())
+                                .args(parseJsonAsMap(tc.argsJson()))
+                                .build();
+                            // Part.fromFunctionCall(FunctionCall) includes the ID field
+                            // which prevents thought_signature 400 errors on history replay.
+                            parts.add(Part.builder().functionCall(fc).build());
                         }
                     }
                     out.add(Content.builder().role("model").parts(parts).build());

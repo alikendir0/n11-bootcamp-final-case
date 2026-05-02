@@ -6,6 +6,7 @@ import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.GetModelConfig;
+import com.google.genai.types.ThinkingConfig;
 import com.google.genai.types.Tool;
 import com.n11.ai.port.ChatProvider;
 import com.n11.ai.port.dto.ChatMessage;
@@ -121,6 +122,13 @@ public class GeminiChatAdapter implements ChatProvider {
             List<Tool> geminiTools = mapper.toGeminiTools(tools);
             builder.tools(geminiTools);
         }
+        // Disable Gemini thinking mode to avoid thought_signature errors when
+        // replaying tool-call history. Gemini 3 Flash Preview requires thought_signature
+        // in FunctionCall parts when thinking is on; our DTO doesn't carry it.
+        // Disabling thinking keeps function calling reliable through Cloudflare Tunnel.
+        builder.thinkingConfig(ThinkingConfig.builder()
+            .includeThoughts(false)
+            .build());
         return builder.build();
     }
 }
