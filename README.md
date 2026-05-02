@@ -1,4 +1,4 @@
-<![CDATA[# n11 Bootcamp Final Case — Agentic E-Commerce Clone
+# n11 Bootcamp Final Case — Agentic E-Commerce Clone
 
 > **Patika.dev × n11 Spring Boot Bootcamp** — Capstone Project
 

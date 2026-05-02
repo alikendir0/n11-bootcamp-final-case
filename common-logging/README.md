@@ -1,4 +1,4 @@
-<![CDATA[# common-logging
+# common-logging
 
 > **Phase 1** — Correlation-ID Propagation
 

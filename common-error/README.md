@@ -1,4 +1,4 @@
-<![CDATA[# common-error
+# common-error
 
 > **Phase 1** — RFC-7807 Error Handling
 

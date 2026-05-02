@@ -1,4 +1,4 @@
-<![CDATA[# common-outbox
+# common-outbox
 
 > **Phase 5** — Transactional Outbox Pattern
 

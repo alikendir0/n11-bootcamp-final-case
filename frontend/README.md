@@ -1,4 +1,4 @@
-<![CDATA[# frontend — Turkish React Storefront
+# frontend — Turkish React Storefront
 
 > **Phase 2 (toolchain) · Phase 10 (storefront) · Phase 11 (chat assistant)**
 

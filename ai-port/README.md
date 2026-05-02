@@ -1,4 +1,4 @@
-<![CDATA[# ai-port
+# ai-port
 
 > **Phase 8** — Provider-Agnostic LLM Abstraction
 

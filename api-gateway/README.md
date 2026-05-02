@@ -1,4 +1,4 @@
-<![CDATA[# api-gateway
+# api-gateway
 
 > **Phase 1 (shell) · Phase 3 (JWT auth) · Phase 8+ (SSE/MCP routing)**
 

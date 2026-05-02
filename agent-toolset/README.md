@@ -1,4 +1,4 @@
-<![CDATA[# agent-toolset
+# agent-toolset
 
 > **Phase 8** — 10 Canonical Agent Tools
 

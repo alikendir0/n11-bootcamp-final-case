@@ -1,4 +1,4 @@
-<![CDATA[# config-server
+# config-server
 
 > **Phase 1** — Centralized Configuration
 

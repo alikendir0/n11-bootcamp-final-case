@@ -1,4 +1,4 @@
-<![CDATA[# eureka-server
+# eureka-server
 
 > **Phase 1** — Service Discovery
 

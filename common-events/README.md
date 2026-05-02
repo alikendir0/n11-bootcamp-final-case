@@ -1,4 +1,4 @@
-<![CDATA[# common-events
+# common-events
 
 > **Phase 1** — Saga Event Schemas + Validation
 
