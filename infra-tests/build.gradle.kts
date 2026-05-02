@@ -63,6 +63,9 @@ dependencies {
     testImplementation(project(":mcp-server"))
     testImplementation(project(":ai-port"))
     testImplementation(project(":agent-toolset"))
+    // Compile-time access to ToolCallback / ToolCallbackProvider for MCP infra assertions.
+    // :mcp-server brings this transitively at runtime, but exposes it through implementation.
+    testImplementation("org.springframework.ai:spring-ai-model")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     // @EnableJpaRepositories needs spring-data-jpa on compile classpath for PaymentServiceTestConfig;
