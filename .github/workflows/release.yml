@@ -1,4 +1,7 @@
 name: release-images
+# Secrets policy: GITHUB_TOKEN is provided automatically by GitHub Actions.
+# SLACK_WEBHOOK_URL must be set as a GitHub Actions secret only.
+# Never commit real webhook URLs, registry passwords, or Docker Hub credentials in this file.
 on:
   push:
     tags: ['v*']

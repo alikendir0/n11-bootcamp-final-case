@@ -1,4 +1,6 @@
 name: ci
+# Secrets policy: SLACK_WEBHOOK_URL must be set as a GitHub Actions secret only.
+# Never commit real webhook URLs, tokens, or registry credentials in this file.
 on:
   push:
     branches: [main, master, develop]
