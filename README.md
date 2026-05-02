@@ -169,77 +169,66 @@ open http://localhost:5173
 This project was built in **11 phases** using AI-assisted execution. Each phase had explicit success criteria, plans, and human verification gates.
 
 ### Phase 1 — Foundations + Day-1 Contracts
-> *Completed 2026-04-28 · 8 plans · 4 waves*
 
 Established the Gradle multi-module skeleton with 13 service stubs, infrastructure (Postgres 16 + pgvector, RabbitMQ 4.x), and locked the **saga contracts** (`saga-contracts.md`) and **REST API contracts** (`api-contracts.md`) that every downstream service depends on. Schema-per-service boundary enforced via 10 distinct DB users with role-level cross-schema REVOKE deny matrix.
 
 **Key deliverables:** `docker-compose.yml`, `infra/postgres/init.sh`, `common-error`, `common-logging`, `common-events`, `eureka-server`, `config-server`, `api-gateway` shell.
 
 ### Phase 2 — Frontend Recon + Toolchain Lock
-> *Completed 2026-04-29 · 3 plans · 3 waves*
 
 Ran **Playwright** against [n11.com](https://www.n11.com) to capture real layout structure, Turkish copy patterns (644 phrases), color tokens (25), and category taxonomy. Locked the frontend toolchain: **Vite 8 + React 19 SPA + TypeScript strict + Tailwind 4 + Zustand 5**.
 
 **Key deliverables:** `.planning/intel/n11-recon.md` (8 sections, screenshots), toolchain decision in `PROJECT.md`.
 
 ### Phase 3 — Identity + Gateway Auth
-> *Completed 2026-04-29 · 6 plans · 4 waves*
 
 `identity-service` issues **RS256 JWTs** (24h TTL, BCrypt cost 10), serves JWKS at `/.well-known/jwks.json`. API Gateway validates JWT via Nimbus, strips `Authorization`, injects `X-User-Id` / `X-User-Email` / `X-User-Roles`. Transactional outbox publishes `user.registered` events.
 
 **Key deliverables:** Auth flow, address book (Türkiye addresses), admin seed migration.
 
 ### Phase 4 — Catalog + Inventory
-> *Completed 2026-04-29 · 3 plans · 3 waves*
 
 `product-service` with **50+ Turkish seed products** across 8 categories. Paginated listing, sort (price/date), free-text **ILIKE search** with GIN trigram index. `inventory-service` manages stock with `@Version` optimistic locking and Turkish stock labels ("Stokta", "Tükendi", "Son N ürün!").
 
 **Key deliverables:** Product CRUD, category hierarchy, stock reservation saga consumer.
 
 ### Phase 5 — Cart & Order Skeleton
-> *Completed 2026-04-30 · 5 plans · 4 waves*
 
 `cart-service` (per-user cart state, product-snapshot pricing) and `order-service` (saga initiator, `Idempotency-Key` dedup, transactional outbox). Proved the **choreography SAGA end-to-end** on real RabbitMQ: `OrderCreated → StockReserved → PaymentCompleted → OrderConfirmed` in ~3 seconds.
 
 **Key deliverables:** `common-outbox` shared module, full saga skeleton, ArchUnit idempotency gate.
 
 ### Phase 6 — Payment (Iyzico)
-> *Completed 2026-04-30 · 6 plans · 5 waves*
 
 Integrated **Iyzico Checkout Form** (sandbox) with 3DS support. Public webhook via Cloudflare Tunnel. Payment-timeout scheduled job for stuck orders. Full compensation path: `PaymentFailed → StockReleased → OrderCancelled`.
 
 **Key deliverables:** Live sandbox smoke test with test card `5528 7900 0000 0008`, callback troubleshooting runbook.
 
 ### Phase 7 — Notification (Saga Closure)
-> *Completed 2026-04-30 · 6 plans · 3 waves*
 
 `notification-service` as a fully independent saga leaf consumer. Consumes 4 event types (`order.confirmed`, `order.cancelled`, `payment.failed`, `user.registered`), logs structured Turkish "email payloads", and closes the saga loop.
 
 **Key deliverables:** QUAL-04 saga integration test, `notifications` audit table.
 
 ### Phase 8 — AI Port + Adapter + Agent Toolset
-> *Completed 2026-05-01 · 5 plans · 4 waves*
 
 The **SOLID centerpiece**: `ai-port` module with zero Gemini SDK dependencies. `GeminiChatAdapter` + `GeminiEmbeddingAdapter` (google-genai 1.52.0). `EchoChatProvider` second adapter proves port substitutability. `agent-toolset` shared module with **10 canonical tools**. `ai-service` chat with Turkish system prompt, function-calling loop (max 6 rounds), SSE streaming, conversation persistence.
 
 **Key deliverables:** Provider-agnostic abstraction, tool dispatch with ID provenance validation, search-service skeleton consuming `EmbeddingProvider`.
 
 ### Phase 9 — MCP Server
-> *Completed 2026-05-02 · 7 plans · 4 waves*
 
 `mcp-server` using Spring AI MCP 1.1.5. Registers the **same `agent-toolset`** (zero local tool definitions). Dual transport: stdio (Claude Desktop) + HTTP+SSE (network). Auth bridge: `MCP_API_KEY` → `/agents/exchange` → internal JWT.
 
 **Key deliverables:** DRY proof (infra-test catalog equality), human-verified demo flow with Claude Desktop.
 
 ### Phase 10 — Frontend Storefront
-> *Completed 2026-05-01 · 9 plans · 4 waves*
 
 Full Turkish React storefront: sticky header, hero carousel, category navigation, paginated listing, PDP with image gallery + taksit table + KDV-inclusive pricing, cart with qty stepper, multi-step checkout (address → Iyzico form → confirmation), account section with order timeline, login/register with Turkish validation.
 
 **Key deliverables:** 32 Vitest unit tests, Playwright E2E smoke, `Intl.NumberFormat('tr-TR')` formatting throughout.
 
 ### Phase 11 — Chat Assistant + DevOps Deploy
-> *Completed 2026-05-02 · 6 plans · 5 waves*
 
 Floating **AI chat bubble** (bottom-right, every page) with SSE token streaming, tool-use chips, compact product cards. Jib images for all 13 services. GitHub Actions CI (build + test on push/PR, Jib → GHCR on `v*` tag). Local docker-compose deploy. Slack notifications. Jenkins comparison doc.
 
