@@ -1,6 +1,6 @@
 # n11 Bootcamp Final Case — Agentic E-Commerce Clone
 
-> **Patika.dev × n11 Spring Boot Bootcamp** — Capstone Project
+> **Patika.dev × n11 Spring Boot Bootcamp** — Final Project
 
 A **13-microservice** Turkish e-commerce platform modeled after [n11.com](https://www.n11.com), built with Spring Boot 3.5, Spring Cloud 2025.0 (Northfields), and a React 19 storefront.
 
