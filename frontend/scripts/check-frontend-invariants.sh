@@ -74,13 +74,35 @@ else
   pass
 fi
 
-step "11. No chat-bubble placeholder (Phase 11 territory)"
-bad=$(grep -rinE "chat[- ]?bubble|coming soon|chat ?placeholder|asistan|yapay zeka" "$FRONTEND_SRC" --include='*.ts' --include='*.tsx' || true)
-if [ -n "$bad" ]; then fail "Chat-bubble placeholder detected: $bad"; else pass; fi
+step "11. No chat-bubble placeholder text (real components are allowed)"
+bad=$(grep -rinE "coming soon|chat ?placeholder" "$FRONTEND_SRC" --include='*.ts' --include='*.tsx' || true)
+if [ -n "$bad" ]; then fail "Chat placeholder text detected: $bad"; else pass; fi
+
+step "12. chatApi.ts uses gateway route /api/v1/chat/stream"
+if ! grep -q "chat/stream" "$FRONTEND_SRC/api/chatApi.ts"; then
+  fail "chatApi.ts missing gateway route chat/stream"
+else
+  pass
+fi
+
+step "13. chatApi.ts sends Accept: text/event-stream"
+if ! grep -q "text/event-stream" "$FRONTEND_SRC/api/chatApi.ts"; then
+  fail "chatApi.ts missing Accept text/event-stream header"
+else
+  pass
+fi
+
+step "14. chatApi.ts does not instantiate native EventSource"
+bad=$(grep -rln "new EventSource" "$FRONTEND_SRC" --include='*.ts' --include='*.tsx' | grep -v "check-frontend-invariants" || true)
+if [ -n "$bad" ]; then fail "Native EventSource found in: $bad"; else pass; fi
+
+step "15. No direct ai-service or :8088 URLs in frontend source"
+bad=$(grep -rlnE "ai-service|localhost:8088|:8088" "$FRONTEND_SRC" --include='*.ts' --include='*.tsx' | grep -vE "check-frontend-invariants|\.test\." || true)
+if [ -n "$bad" ]; then fail "Direct ai-service or :8088 URL in: $bad"; else pass; fi
 
 echo
 if [ "$FAIL" -eq 0 ]; then
-  echo "All 11 frontend invariants OK."
+  echo "All 15 frontend invariants OK."
   exit 0
 else
   echo "$FAIL invariant(s) violated."
