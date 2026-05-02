@@ -364,7 +364,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 11-03-PLAN.md — Playwright chat smoke, retry/auth/cart handoff tests, and no-direct-ai-service invariant gates (`FE-12`)
 
   **Wave 4** — CI/release workflows
-  - [ ] 11-04-PLAN.md — GitHub Actions build/test CI, all-service Jib verification, GHCR Jib release publishing for 13 services, and Slack notifications (`DEV-01, DEV-02, DEV-03, DEV-06, DEV-08`)
+   - [x] 11-04-PLAN.md — GitHub Actions build/test CI, all-service Jib verification, GHCR Jib release publishing for 13 services, and Slack notifications (`DEV-01, DEV-02, DEV-03, DEV-06, DEV-08`)
 
   **Wave 5** — local deploy posture + pipeline comparison documentation
   - [ ] 11-05-PLAN.md — docker compose full-profile posture, env examples, root README demo runbook, and public tunnel proof (`DEV-05, DEV-09`)
@@ -394,7 +394,7 @@ Phases execute in numeric order. Parallel groups (per `Depends on:` lines):
 | 8. AI Port + Adapter + Agent Toolset | 4/5 | In Progress|  |
 | 9. MCP Server | 7/7 | Complete | 2026-05-02 |
 | 10. Frontend Storefront | 11/11 | Complete   | 2026-05-01 |
-| 11. Frontend Chat Assistant + DevOps Deploy | 3/6 | In Progress|  |
+| 11. Frontend Chat Assistant + DevOps Deploy | 4/6 | In Progress|  |
 
 **Milestone progress:** 10 of 11 active phases complete (91%). Phase 11 remains for the chat assistant UI and deploy/tunnel handoff.
 

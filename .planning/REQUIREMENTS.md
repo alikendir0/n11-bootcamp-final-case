@@ -142,14 +142,14 @@
 
 ### DevOps & Deployment
 
-- [ ] **DEV-01**: Backend services containerized with Jib (Gradle plugin 3.5.3) — no Dockerfiles
-- [ ] **DEV-02**: GitHub Actions CI pipeline (`build`, `test`) on push/PR
-- [ ] **DEV-03**: GitHub Actions release pipeline on `v*` tags publishes the 13 Jib images to a container registry (GHCR or Docker Hub) so the local docker-compose can pull them by tag (this is the "deploy" half of CI/CD reframed for a local-host deploy)
+- [x] **DEV-01**: Backend services containerized with Jib (Gradle plugin 3.5.3) — no Dockerfiles
+- [x] **DEV-02**: GitHub Actions CI pipeline (`build`, `test`) on push/PR
+- [x] **DEV-03**: GitHub Actions release pipeline on `v*` tags publishes the 13 Jib images to a container registry (GHCR or Docker Hub) so the local docker-compose can pull them by tag (this is the "deploy" half of CI/CD reframed for a local-host deploy)
 - [ ] **DEV-04**: Jenkins comparison documented in `docs/devops-pipeline-comparison.md` (pipeline-logic understanding requirement)
 - [ ] **DEV-05**: Full deployment runs on the candidate's machine via `docker compose --profile full up` (Postgres + RabbitMQ + all 13 services); the gateway is exposed publicly via a Cloudflare Tunnel (preferred) or ngrok (fallback); a `curl https://<tunnel-hostname>/api/v1/products` from outside the candidate's network returns 200 with seed products
-- [ ] **DEV-06**: Slack webhook fires CI build notifications on success/failure (the deploy-equivalent signal for the local-host deploy model)
+- [x] **DEV-06**: Slack webhook fires CI build notifications on success/failure (the deploy-equivalent signal for the local-host deploy model)
 - [ ] **DEV-07**: docker-compose.yml provides full local stack (Postgres + RabbitMQ + all 13 services) for development and demo (this *is* the deploy artifact, not just a dev convenience)
-- [ ] **DEV-08**: Tunnel access token (Cloudflare Tunnel token or ngrok authtoken) and registry-publish credentials live as env vars / GitHub Actions secrets — never committed; OIDC is not in scope (no AWS account)
+- [x] **DEV-08**: Tunnel access token (Cloudflare Tunnel token or ngrok authtoken) and registry-publish credentials live as env vars / GitHub Actions secrets — never committed; OIDC is not in scope (no AWS account)
 - [ ] **DEV-09**: README.md covers local-run instructions, env-var matrix, demo card numbers, the public tunnel hostname pointer, and a 30-second `docker compose up` rehearsal so the candidate can re-launch the demo cleanly during the interview
 
 ---
@@ -309,14 +309,14 @@ Populated by the roadmapper agent on 2026-04-28. Every v1 requirement maps to ex
 | QUAL-07 | Phase 1 (01-02 + 01-04) | Complete (01-04: ProblemDetailControllerAdvice in common-error) |
 | QUAL-08 | Phase 8 | Pending |
 | QUAL-09 | Phase 1 | Pending |
-| DEV-01 | Phase 11 | Pending |
-| DEV-02 | Phase 11 | Pending |
-| DEV-03 | Phase 11 | Pending |
+| DEV-01 | Phase 11 | Complete |
+| DEV-02 | Phase 11 | Complete |
+| DEV-03 | Phase 11 | Complete |
 | DEV-04 | Phase 11 | Pending |
 | DEV-05 | Phase 11 | Pending |
-| DEV-06 | Phase 11 | Pending |
+| DEV-06 | Phase 11 | Complete |
 | DEV-07 | Phase 1 | Pending |
-| DEV-08 | Phase 11 | Pending |
+| DEV-08 | Phase 11 | Complete |
 | DEV-09 | Phase 11 | Pending |
 
 **Coverage:**
