@@ -36,7 +36,6 @@ class ChatServiceTest {
 
     @Test
     void search_products_tool_result_emits_structured_product_data() throws Exception {
-        // Arrange
         UUID convId = UUID.randomUUID();
         when(store.conversationId()).thenReturn(convId);
         when(store.userIdOrNull()).thenReturn(null);
@@ -44,26 +43,16 @@ class ChatServiceTest {
         when(store.seenIds()).thenReturn(new HashSet<>());
         when(systemPrompt.prompt()).thenReturn("test prompt");
 
-        // Streaming yields no deltas
-        doAnswer(inv -> {
-            Runnable onComplete = inv.getArgument(3);
-            onComplete.run();
-            return null;
-        }).when(chatProvider).chatStream(any(), any(), any(), any(), any());
-
-        // Post-check returns a tool call
         ToolCallRequest call = new ToolCallRequest("call-1", "search_products", "{\"query\":\"laptop\"}");
-        ChatResponse postCheck = new ChatResponse(null, List.of(call), null);
-        when(chatProvider.chat(any(), any())).thenReturn(postCheck);
+        ChatResponse response = new ChatResponse(null, List.of(call), null);
+        when(chatProvider.chat(any(), any())).thenReturn(response);
 
-        // Tool result returns Ok with product array
         JsonNode productData = json.readTree("[{\"id\":\"p1\",\"name\":\"MacBook Pro\",\"priceGross\":49999.00,\"stockQty\":5}]");
         when(toolDispatcher.dispatch(eq("search_products"), any(), isNull(), eq("corr-1"), any()))
             .thenReturn(ToolResult.ok(productData));
 
         when(toolRegistry.all()).thenReturn(List.of());
 
-        // Capture emitted events
         List<Map<String, Object>> capturedEvents = new ArrayList<>();
         BiConsumer<String, Object> emit = (name, payload) -> {
             Map<String, Object> m = new LinkedHashMap<>();
@@ -76,10 +65,8 @@ class ChatServiceTest {
             capturedEvents.add(m);
         };
 
-        // Act
         chatService.handleStream(store, "laptop ara", "corr-1", emit);
 
-        // Assert
         Optional<Map<String, Object>> toolResultOpt = capturedEvents.stream()
             .filter(e -> "tool_result".equals(e.get("_eventName")))
             .findFirst();
@@ -110,12 +97,6 @@ class ChatServiceTest {
         when(store.history()).thenReturn(new ArrayList<>());
         when(store.seenIds()).thenReturn(new HashSet<>());
         when(systemPrompt.prompt()).thenReturn("test prompt");
-
-        doAnswer(inv -> {
-            Runnable onComplete = inv.getArgument(3);
-            onComplete.run();
-            return null;
-        }).when(chatProvider).chatStream(any(), any(), any(), any(), any());
 
         ToolCallRequest call = new ToolCallRequest("call-2", "get_product", "{\"productId\":\"p1\"}");
         when(chatProvider.chat(any(), any())).thenReturn(new ChatResponse(null, List.of(call), null));
@@ -148,6 +129,6 @@ class ChatServiceTest {
         Map<String, Object> tr = trOpt.get();
         assertThat(tr.get("summary")).isInstanceOf(String.class);
         String summary = (String) tr.get("summary");
-        assertThat(summary.length()).isLessThanOrEqualTo(201); // 200 + ellipsis if truncated
+        assertThat(summary.length()).isLessThanOrEqualTo(201);
     }
 }

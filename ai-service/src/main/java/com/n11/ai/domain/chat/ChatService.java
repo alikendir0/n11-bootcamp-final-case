@@ -72,7 +72,7 @@ public class ChatService {
         return fallback;
     }
 
-    // ---- SSE (GET /chat/stream) ---------------------------------------
+    // ---- SSE (POST /chat/stream) ---------------------------------------
 
     public void handleStream(ConversationStore store, String userMessage,
                              String correlationId, BiConsumer<String, Object> emit) {
@@ -83,39 +83,40 @@ public class ChatService {
         StringBuilder finalText = new StringBuilder();
 
         for (int i = 0; i < MAX_TOOL_LOOPS; i++) {
-            StringBuilder chunkBuf = new StringBuilder();
-            chatProvider.chatStream(history, tools,
-                delta -> {
-                    chunkBuf.append(delta);
-                    emit.accept("delta", Map.of(
-                        "text", delta,
-                        "conversationId", store.conversationId().toString()));
-                },
-                () -> { /* stream completed */ },
-                err -> emit.accept("error", Map.of(
+            // Single blocking call per iteration — eliminates the idle gap that
+            // killed SSE connections through Cloudflare Tunnel when using chatStream()
+            // followed by a second chat() call (the double-call pattern caused a
+            // 10–30 second gap with zero bytes flowing, triggering ERR_HTTP2_PROTOCOL_ERROR).
+            ChatResponse resp;
+            try {
+                resp = chatProvider.chat(history, tools);
+            } catch (Exception e) {
+                emit.accept("error", Map.of(
                     "code", "UPSTREAM_LLM_ERROR",
-                    "messageTr", "Asistan yanıt veremedi: " + err.getMessage()))
-            );
+                    "messageTr", "Asistan yanıt veremedi: " + e.getMessage()));
+                break;
+            }
 
-            // EchoChatProvider does not surface tool-calls in the stream.
-            // GeminiChatAdapter requires a follow-up generateContent (non-stream) call to
-            // detect tool-call parts; to keep D-06 control flow straightforward, after each
-            // stream call we issue a non-streaming call to detect tool-calls.
-            ChatResponse postCheck = chatProvider.chat(history, tools);
-            if (postCheck.toolCalls() == null || postCheck.toolCalls().isEmpty()) {
-                String acc = chunkBuf.length() > 0 ? chunkBuf.toString() : (postCheck.text() == null ? "" : postCheck.text());
-                finalText.append(acc);
-                store.appendAssistantText(acc);
+            if (resp.toolCalls() == null || resp.toolCalls().isEmpty()) {
+                // Text response — emit as a single delta for reliable proxy delivery
+                String text = resp.text() == null ? "" : resp.text();
+                if (!text.isEmpty()) {
+                    emit.accept("delta", Map.of(
+                        "text", text,
+                        "conversationId", store.conversationId().toString()));
+                }
+                finalText.append(text);
+                store.appendAssistantText(text);
                 break;
             }
 
             // Tool-call branch — emit tool_call + dispatch + emit tool_result
-            String toolCallJson = serialize(postCheck.toolCalls());
+            String toolCallJson = serialize(resp.toolCalls());
             store.appendAssistantToolCalls(toolCallJson);
-            history.add(new ChatMessage(MessageRole.ASSISTANT, null, postCheck.toolCalls(), null));
+            history.add(new ChatMessage(MessageRole.ASSISTANT, null, resp.toolCalls(), null));
 
             List<ToolCallResult> results = new ArrayList<>();
-            for (ToolCallRequest call : postCheck.toolCalls()) {
+            for (ToolCallRequest call : resp.toolCalls()) {
                 emit.accept("tool_call", Map.of(
                     "name", call.name(),
                     "callId", call.callId(),
