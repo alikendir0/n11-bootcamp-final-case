@@ -124,6 +124,34 @@ spring:
                 - Path=/api/v1/chat/**
               filters:
                 - StripPrefix=2
+            # Phase 9 (Plan 09-05 / D-02 / D-03): mcp-server Streamable HTTP transport.
+            # api-contracts.md §2 routing table: /mcp/** → mcp-server.
+            #
+            # response-timeout: -1 — Streamable HTTP holds the response stream
+            # open while the LLM reads tool results (same pattern as Phase 8
+            # ai-service-chat-stream above). Without this override, the
+            # gateway's 60s default would close the stream mid-tool-call.
+            #
+            # StripPrefix=0 — the Streamable HTTP endpoint IS the literal `/mcp`
+            # path on mcp-server (NOT a sub-path). RESEARCH.md Pattern 6 verified
+            # against Spring AI's `streamable-http.mcp-endpoint: /mcp` default.
+            #
+            # No allowlist entry — /mcp/** falls through to anyExchange().authenticated().
+            # External MCP clients MUST already carry a valid Bearer JWT obtained
+            # via /agents/exchange (Plan 09-02 / D-05). The gateway validates the
+            # JWT via the existing oauth2ResourceServer config (Phase 3) and
+            # injects X-User-Id downstream — exactly the same path a logged-in
+            # user takes (CLAUDE.md auth posture).
+            - id: mcp-server
+              uri: lb://MCP-SERVER
+              predicates:
+                - Path=/mcp/**
+              metadata:
+                response-timeout: -1
+                connect-timeout: 5000
+              filters:
+                - StripPrefix=0
+                - PreserveHostHeader=true
             # search-service route stays disabled until v2 (AI-V2-01 / D-09):
             # - id: search-service
             #   uri: lb://SEARCH-SERVICE
