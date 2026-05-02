@@ -67,8 +67,6 @@ public class ChatStreamController {
             try {
                 useCase.handleStream(body.conversationId(), body.message(), userId, cid,
                     (eventName, payload) -> sendIfOpen(emitter, completed, eventName, payload));
-                sendIfOpen(emitter, completed, SseEvents.DONE,
-                    Map.of("conversationId", body.conversationId().toString()));
                 if (completed.compareAndSet(false, true)) emitter.complete();
             } catch (Exception e) {
                 log.error("Chat stream failed", e);

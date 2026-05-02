@@ -133,6 +133,24 @@ export function toolChipCopy(toolName: string): string {
   return TOOL_CHIP_MAP[toolName] ?? 'İşlem hazırlanıyor...';
 }
 
+const TOOL_COMPLETED_MAP: Record<string, string> = {
+  search_products: 'Ürünler bulundu.',
+  get_product: 'Ürün detayı getirildi.',
+  list_categories: 'Kategoriler hazır.',
+  add_to_cart: 'Sepete eklendi.',
+  update_cart_item: 'Sepet güncellendi.',
+  remove_from_cart: 'Üründen çıkarıldı.',
+  view_cart: 'Sepet kontrol edildi.',
+  create_order: 'Sipariş oluşturuldu.',
+  get_payment_link: 'Ödeme bağlantısı hazır.',
+  get_order_status: 'Sipariş durumu kontrol edildi.',
+  list_addresses: 'Adresler getirildi.',
+};
+
+export function toolCompletedCopy(toolName: string): string {
+  return TOOL_COMPLETED_MAP[toolName] ?? 'Tamamlandı.';
+}
+
 export function isCartMutationTool(toolName: string): boolean {
   return toolName === 'add_to_cart' || toolName === 'update_cart_item' || toolName === 'remove_from_cart';
 }

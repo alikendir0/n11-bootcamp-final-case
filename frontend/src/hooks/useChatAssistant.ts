@@ -7,18 +7,9 @@ import { cartQueryKey } from './useCart';
 import { ROUTES } from '../lib/routes';
 import type { ChatStreamEvent, ChatTranscriptItem } from '../lib/types';
 
-const CONVERSATION_ID_KEY = 'n11.chat.conversationId';
-
-function getOrCreateConversationId(): string {
-  try {
-    const existing = localStorage.getItem(CONVERSATION_ID_KEY);
-    if (existing) return existing;
-    const fresh = crypto.randomUUID();
-    localStorage.setItem(CONVERSATION_ID_KEY, fresh);
-    return fresh;
-  } catch {
-    return crypto.randomUUID();
-  }
+/** Each chat view session gets a fresh conversation — no cross-session memory. */
+function newConversationId(): string {
+  return crypto.randomUUID();
 }
 
 function nowIso(): string {
@@ -27,7 +18,7 @@ function nowIso(): string {
 
 export function useChatAssistant() {
   const queryClient = useQueryClient();
-  const [conversationId] = useState<string>(() => getOrCreateConversationId());
+  const [conversationId] = useState<string>(() => newConversationId());
   const [messages, setMessages] = useState<ChatTranscriptItem[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const pendingCallIds = useRef<Map<string, string>>(new Map());
@@ -71,12 +62,39 @@ export function useChatAssistant() {
           }
         }
 
+        if (event.type === 'error') {
+          const errText = assistant.text || event.messageTr || 'Bir hata oluştu.';
+          const updated: ChatTranscriptItem = {
+            id: assistant.id,
+            role: assistant.role,
+            events,
+            text: errText,
+          };
+          return [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
+        }
+
         if (event.type === 'delta') {
           const updated: ChatTranscriptItem = {
             id: assistant.id,
             role: assistant.role,
             events,
             text: (assistant.text ?? '') + event.text,
+          };
+          return [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
+        }
+
+        // When the stream ends, use finalText as fallback if no delta text arrived.
+        // This handles the case where tools ran but the LLM returned no text.
+        if (event.type === 'done') {
+          let text = assistant.text ?? '';
+          if (!text && event.finalText) {
+            text = event.finalText;
+          }
+          const updated: ChatTranscriptItem = {
+            id: assistant.id,
+            role: assistant.role,
+            events,
+            text,
           };
           return [...prev.slice(0, idx), updated, ...prev.slice(idx + 1)];
         }

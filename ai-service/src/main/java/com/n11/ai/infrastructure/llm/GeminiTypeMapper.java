@@ -69,7 +69,15 @@ final class GeminiTypeMapper {
                     List<Part> parts = new ArrayList<>();
                     if (m.toolResults() != null) {
                         for (ToolCallResult tr : m.toolResults()) {
-                            parts.add(Part.fromFunctionResponse(tr.callId(), parseJsonAsMap(tr.resultJson())));
+                            // FunctionResponse requires the function name (not call ID).
+                            // Use functionName for matching; include id for Gemini call correlation.
+                            String fnName = tr.functionName() != null ? tr.functionName() : tr.callId();
+                            FunctionResponse fr = FunctionResponse.builder()
+                                .id(tr.callId())
+                                .name(fnName)
+                                .response(parseJsonAsMap(tr.resultJson()))
+                                .build();
+                            parts.add(Part.builder().functionResponse(fr).build());
                         }
                     }
                     out.add(Content.builder().role("user").parts(parts).build());

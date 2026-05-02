@@ -44,8 +44,8 @@ public class GeminiChatAdapter implements ChatProvider {
     private final GeminiTypeMapper mapper = new GeminiTypeMapper();
 
     public GeminiChatAdapter(
-            @Value("${ai.gemini.model.chat:gemini-3-flash-preview}") String chatModel,
-            @Value("${ai.gemini.model.chat-fallback:gemini-2.5-flash}") String fallbackModel,
+            @Value("${ai.gemini.model.chat:gemini-2.5-flash}") String chatModel,
+            @Value("${ai.gemini.model.chat-fallback:gemini-2.0-flash}") String fallbackModel,
             @Value("${ai.gemini.api-key:}") String apiKey) {
         this.chatModel = chatModel;
         this.fallbackModel = fallbackModel;

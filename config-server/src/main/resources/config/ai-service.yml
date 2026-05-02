@@ -53,8 +53,8 @@ ai:
   gemini:
     api-key: ${GEMINI_API_KEY:}
     model:
-      chat: gemini-3-flash-preview                 # Pitfall #1: probed at startup, fallback applied if 404
-      chat-fallback: gemini-2.5-flash
+      chat: gemini-2.5-flash                         # gemini-3-flash-preview requires thought_signature support; use 2.5-flash for stable function calling
+      chat-fallback: gemini-2.0-flash
       embedding: gemini-embedding-2
     embedding-dims: 768
   conversation:

@@ -33,12 +33,23 @@ export function ChatHandoffCard({ type, cart, order, paymentPageUrl }: ChatHando
       <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 space-y-3">
         <p className="text-sm font-bold">Sipariş #{order.orderId}</p>
         {order.status && <p className="text-xs text-gray-600">Durum: {order.status}</p>}
-        <Link
-          to={ROUTES.CHECKOUT_ADDRESS}
-          className="inline-block text-sm bg-[#1C1C1E] text-white px-4 py-2 rounded font-medium"
-        >
-          Ödemeye Git
-        </Link>
+        {order.paymentPageUrl ? (
+          <a
+            href={order.paymentPageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-sm bg-[#1C1C1E] text-white px-4 py-2 rounded font-medium"
+          >
+            Ödemeye Git
+          </a>
+        ) : (
+          <Link
+            to={order.orderId ? ROUTES.ORDER_DETAIL(order.orderId) : ROUTES.ORDERS}
+            className="inline-block text-sm bg-[#1C1C1E] text-white px-4 py-2 rounded font-medium"
+          >
+            Sipariş Detayı
+          </Link>
+        )}
       </div>
     );
   }

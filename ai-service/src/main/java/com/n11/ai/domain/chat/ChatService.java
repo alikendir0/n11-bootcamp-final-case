@@ -61,7 +61,7 @@ public class ChatService {
             for (ToolCallRequest call : resp.toolCalls()) {
                 ToolResult r = toolDispatcher.dispatch(
                     call.name(), call.argsJson(), userId, correlationId, store.seenIds());
-                results.add(toToolCallResult(call.callId(), r));
+                results.add(toToolCallResult(call.callId(), call.name(), r));
             }
             String resultJson = serialize(results);
             store.appendToolResults(resultJson);
@@ -91,6 +91,13 @@ public class ChatService {
             try {
                 resp = chatProvider.chat(history, tools);
             } catch (Exception e) {
+                log.error("LLM call failed on tool-loop iteration {}: {}", i, e.getMessage());
+                String errText = "Üzgünüm, yanıt oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.";
+                emit.accept("delta", Map.of(
+                    "text", errText,
+                    "conversationId", store.conversationId().toString()));
+                finalText.append(errText);
+                store.appendAssistantText(errText);
                 emit.accept("error", Map.of(
                     "code", "UPSTREAM_LLM_ERROR",
                     "messageTr", "Asistan yanıt veremedi: " + e.getMessage()));
@@ -100,6 +107,10 @@ public class ChatService {
             if (resp.toolCalls() == null || resp.toolCalls().isEmpty()) {
                 // Text response — emit as a single delta for reliable proxy delivery
                 String text = resp.text() == null ? "" : resp.text();
+                // If LLM returned empty text after tool calls, provide a fallback
+                if (text.isEmpty() && i > 0) {
+                    text = "İşlem tamamlandı. Başka bir konuda yardımcı olabilir miyim?";
+                }
                 if (!text.isEmpty()) {
                     emit.accept("delta", Map.of(
                         "text", text,
@@ -138,7 +149,7 @@ public class ChatService {
                     payload.put("data", buildResultData(resultType, okResult.data()));
                 }
                 emit.accept("tool_result", payload);
-                results.add(toToolCallResult(call.callId(), r));
+                results.add(toToolCallResult(call.callId(), call.name(), r));
             }
             String resultJson = serialize(results);
             store.appendToolResults(resultJson);
@@ -203,16 +214,16 @@ public class ChatService {
         };
     }
 
-    private ToolCallResult toToolCallResult(String callId, ToolResult r) {
+    private ToolCallResult toToolCallResult(String callId, String functionName, ToolResult r) {
         try {
             if (r instanceof ToolResult.Ok ok) {
-                return new ToolCallResult(callId, json.writeValueAsString(Map.of("data", ok.data())), false);
+                return new ToolCallResult(callId, functionName, json.writeValueAsString(Map.of("data", ok.data())), false);
             }
             ToolResult.Err err = (ToolResult.Err) r;
-            return new ToolCallResult(callId,
+            return new ToolCallResult(callId, functionName,
                 json.writeValueAsString(Map.of("code", err.code(), "message", err.message())), true);
         } catch (Exception e) {
-            return new ToolCallResult(callId, "{\"error\":\"serialization\"}", true);
+            return new ToolCallResult(callId, functionName, "{\"error\":\"serialization\"}", true);
         }
     }
 }
