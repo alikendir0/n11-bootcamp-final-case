@@ -62,6 +62,9 @@ jobs:
       - name: Lint invariants
         run: npm run lint:invariants
         working-directory: frontend
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: frontend
       - name: E2E chat smoke
         run: npm run test:e2e -- chat-assistant.spec.ts
         working-directory: frontend

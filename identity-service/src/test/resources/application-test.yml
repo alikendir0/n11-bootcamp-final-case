@@ -30,7 +30,7 @@ spring:
       schema: identity
       # flyway.schema is used in V1 migration comment; must be provided to avoid Flyway
       # placeholder substitution error (the key in ${flyway.schema} is "flyway.schema").
-      flyway.schema: identity
+      "[flyway.schema]": identity
       adminSeedEmail: test-admin@n11-demo.local
       adminSeedPasswordHash: $2a$10$abcdefghijklmnopqrstuuvA1234567890abcdefghijklmno
       mcpAgentSeedHash: ""
