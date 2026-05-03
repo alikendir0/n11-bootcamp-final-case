@@ -32,7 +32,8 @@ import static org.mockito.Mockito.when;
     "spring.flyway.schemas=public",
     "spring.flyway.default-schema=public",
     "spring.jpa.properties.hibernate.default_schema=public",
-    "spring.main.allow-bean-definition-overriding=true"
+    "spring.main.allow-bean-definition-overriding=true",
+    "ai.gemini.api-key=dummy"
 })
 class SearchServiceContextTest {
 

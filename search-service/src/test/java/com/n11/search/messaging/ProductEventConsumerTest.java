@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.amqp.core.Message;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -58,7 +59,7 @@ class ProductEventConsumerTest {
         when(processedEventRepository.existsById(eventId)).thenReturn(false);
         when(embeddingProvider.embed(anyString(), eq(768))).thenReturn(new float[]{0.1f, 0.2f});
 
-        consumer.consume(objectMapper.writeValueAsString(envelope));
+        consumer.consume(new Message(objectMapper.writeValueAsBytes(envelope)));
 
         verify(embeddingProvider).embed("Product: Telefon. Description: Akıllı Telefon", 768);
         verify(repository).save(argThat(entity -> entity.getProductId().equals(productId) && entity.getNameTr().equals("Telefon")));
@@ -82,7 +83,7 @@ class ProductEventConsumerTest {
 
         when(processedEventRepository.existsById(eventId)).thenReturn(true);
 
-        consumer.consume(objectMapper.writeValueAsString(envelope));
+        consumer.consume(new Message(objectMapper.writeValueAsBytes(envelope)));
 
         verifyNoInteractions(embeddingProvider);
         verifyNoInteractions(repository);
@@ -109,7 +110,7 @@ class ProductEventConsumerTest {
 
         when(processedEventRepository.existsById(eventId)).thenReturn(false);
 
-        consumer.consume(objectMapper.writeValueAsString(envelope));
+        consumer.consume(new Message(objectMapper.writeValueAsBytes(envelope)));
 
         verify(repository).deleteById(productId);
         verifyNoInteractions(embeddingProvider);
