@@ -84,10 +84,10 @@ class McpServerToolsListEqualityTest {
     @Autowired ToolRegistry toolRegistry;
 
     @Test
-    void exposes_exactly_10_callbacks() {
+    void exposes_exactly_11_callbacks() {
         ToolCallback[] callbacks = toolCallbackProvider.getToolCallbacks();
-        assertThat(callbacks).hasSize(10);
-        assertThat(toolRegistry.all()).hasSize(10);
+        assertThat(callbacks).hasSize(11);
+        assertThat(toolRegistry.all()).hasSize(11);
     }
 
     @Test
@@ -158,9 +158,9 @@ class McpServerToolsListEqualityTest {
     }
 
     @Test
-    void boot_log_reports_10_registered_tools(CapturedOutput output) {
+    void boot_log_reports_11_registered_tools(CapturedOutput output) {
         assertThat(output.getOut())
-                .contains("MCP transport adapter registered 10 tools");
+                .contains("MCP transport adapter registered 11 tools");
     }
 
     private boolean containsLocalAgentToolDefinition(Path path) {

@@ -52,7 +52,8 @@ import static org.awaitility.Awaitility.await;
         "spring.cloud.config.enabled=false",
         "spring.cloud.config.import-check.enabled=false",
         "eureka.client.enabled=false",
-        "mock.payment.delay-ms=0"            // skip the sleep so the Awaitility window stays tight
+        "mock.payment.delay-ms=0",           // skip the sleep so the Awaitility window stays tight
+        "spring.rabbitmq.listener.simple.auto-startup=true" // override application-test.yml false
     })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")

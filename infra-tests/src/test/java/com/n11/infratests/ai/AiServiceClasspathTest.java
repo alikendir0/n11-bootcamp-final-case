@@ -43,9 +43,9 @@ class AiServiceClasspathTest {
     @Autowired ConversationStateService stateService;
 
     @Test
-    void context_boots_with_echo_provider_and_10_tools() {
+    void context_boots_with_echo_provider_and_11_tools() {
         assertThat(chatProvider).isNotNull();
-        assertThat(toolRegistry.all()).hasSize(10);
+        assertThat(toolRegistry.all()).hasSize(11);
         assertThat(stateService).isNotNull();
     }
 }
