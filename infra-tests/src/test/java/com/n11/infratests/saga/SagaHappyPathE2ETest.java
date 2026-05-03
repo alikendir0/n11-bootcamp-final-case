@@ -25,6 +25,15 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import com.n11.payment.iyzico.IyzicoCheckoutClient;
+import com.n11.payment.iyzico.IyzicoCheckoutResult;
+import com.n11.payment.order.OrderPaymentContext;
+import com.n11.payment.order.OrderPaymentContextClient;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * End-to-end saga publishing test: real Testcontainers Postgres + RabbitMQ, real AMQP delivery.
@@ -98,12 +107,19 @@ class SagaHappyPathE2ETest {
 
     @Autowired com.n11.payment.payment.PaymentRepository paymentRepository;
     @Autowired com.n11.payment.messaging.PaymentTransactionalService paymentTransactionalService;
+    @MockBean OrderPaymentContextClient orderPaymentContextClient;
+    @MockBean IyzicoCheckoutClient iyzicoCheckoutClient;
 
     @Test
     void publishingStockReserved_yieldsPaymentCompletedOnPaymentsTx_within15s() throws Exception {
         UUID orderId = UUID.randomUUID();
         UUID eventId = UUID.randomUUID();
         UUID correlationId = orderId;
+
+        when(orderPaymentContextClient.getPaymentContext(orderId)).thenReturn(context(orderId));
+        when(iyzicoCheckoutClient.initialize(any(IyzicoCheckoutResult.CheckoutInitializationCommand.class)))
+            .thenReturn(new IyzicoCheckoutResult.InitializedCheckout(
+                "token-123", "https://sandbox.iyzico/pay/token-123", "success", null, null));
 
         String envelope = """
             {"eventId":"%s","eventType":"stock.reserved","eventVersion":1,
@@ -141,5 +157,16 @@ class SagaHappyPathE2ETest {
                 String envelopeEventId = env.path("eventId").asText();
                 assertThat(messageId).isEqualTo(envelopeEventId);
             });
+    }
+    private static OrderPaymentContext context(UUID orderId) {
+        return new OrderPaymentContext(
+            orderId,
+            UUID.randomUUID(),
+            new BigDecimal("150.00"),
+            "TRY",
+            Instant.parse("2026-04-30T10:15:30Z"),
+            new OrderPaymentContext.ShippingAddress(
+                "Ayşe Yılmaz", "+90 535 000 00 00", "İstanbul", "Kadıköy", "Merkez Mah.", "Test Sk. No:1", "34000", "Ev"),
+            List.of(new OrderPaymentContext.Item(UUID.randomUUID(), "Telefon", 2, new BigDecimal("75.00"))));
     }
 }
