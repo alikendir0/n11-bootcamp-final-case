@@ -9,10 +9,12 @@ import com.n11.search.repository.ProductEmbedding;
 import com.n11.search.repository.ProductEmbeddingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Component
@@ -37,7 +39,8 @@ public class ProductEventConsumer {
 
     @RabbitListener(queues = SearchRabbitConfig.QUEUE_PRODUCT_EVENTS)
     @Transactional
-    public void consume(String envelopeJson) {
+    public void consume(Message message) {
+        String envelopeJson = new String(message.getBody(), StandardCharsets.UTF_8);
         try {
             Envelope envelope = objectMapper.readValue(envelopeJson, Envelope.class);
             UUID eventId = UUID.fromString(envelope.eventId());
