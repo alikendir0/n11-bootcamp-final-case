@@ -59,10 +59,10 @@ class AgentToolMcpRegistrationTest {
     private static final ObjectMapper M = new ObjectMapper();
 
     @Test
-    void exposes_exactly_10_callbacks() {
+    void exposes_exactly_11_callbacks() {
         ToolCallback[] callbacks = toolCallbackProvider.getToolCallbacks();
-        assertThat(callbacks).hasSize(10);
-        assertThat(toolRegistry.all()).hasSize(10);
+        assertThat(callbacks).hasSize(11);
+        assertThat(toolRegistry.all()).hasSize(11);
     }
 
     @Test
