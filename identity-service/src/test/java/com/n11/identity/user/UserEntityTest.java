@@ -51,6 +51,7 @@ class UserEntityTest {
         registry.add("spring.flyway.placeholders.adminSeedPasswordHash",
                 () -> "$2a$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX");
         registry.add("spring.flyway.placeholders.flyway.schema", () -> "public");
+        registry.add("spring.flyway.placeholders.mcpAgentSeedHash", () -> "");
         registry.add("spring.flyway.enabled", () -> "true");
         // Use the public schema — no identity schema isolation needed in the test container
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
