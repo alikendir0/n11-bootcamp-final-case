@@ -24,9 +24,15 @@ spring:
     username: search_user
     password: ${SEARCH_DB_PASSWORD}
     hikari:
-      maximum-pool-size: 2                          # Pitfall #8 budget -- skeleton only
+      maximum-pool-size: 4                          # Increased from skeleton
       minimum-idle: 1
       connection-init-sql: SET search_path = search, public
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: n11
+    password: ${RABBITMQ_DEFAULT_PASS:changeme-rabbit}
 
   flyway:
     enabled: true
@@ -42,6 +48,19 @@ spring:
     properties:
       hibernate:
         default_schema: search
+
+ai:
+  gemini:
+    model:
+      embedding: gemini-embedding-2
+    api-key: ${GEMINI_API_KEY:}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    use-root-path: true
 
 management:
   endpoints:

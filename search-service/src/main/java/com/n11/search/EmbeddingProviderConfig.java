@@ -23,13 +23,16 @@ public class EmbeddingProviderConfig {
 
     private static final Logger log = LoggerFactory.getLogger(EmbeddingProviderConfig.class);
 
+    private final com.n11.search.infrastructure.llm.GeminiEmbeddingAdapter geminiEmbeddingAdapter;
+
+    public EmbeddingProviderConfig(com.n11.search.infrastructure.llm.GeminiEmbeddingAdapter geminiEmbeddingAdapter) {
+        this.geminiEmbeddingAdapter = geminiEmbeddingAdapter;
+    }
+
     @Bean
+    @org.springframework.context.annotation.Primary
     public EmbeddingProvider embeddingProvider() {
-        log.info("search-service: wiring no-op EmbeddingProvider stub (D-09 v1 skeleton). " +
-                 "v2 will replace via AI-V2-01.");
-        return (text, outputDims) -> {
-            // Deterministic zero vector — never invoked at runtime in v1 (no /search endpoint).
-            return new float[outputDims];
-        };
+        log.info("search-service: wiring real GeminiEmbeddingAdapter (AI-V2-01).");
+        return geminiEmbeddingAdapter;
     }
 }

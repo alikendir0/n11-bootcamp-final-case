@@ -36,4 +36,21 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     Page<Product> search(@Param("q") String q,
                          @Param("categoryId") String categoryId,
                          Pageable pageable);
+
+    @Query(
+        value = """
+            SELECT * FROM products
+            WHERE id IN :ids
+              AND (:categoryId IS NULL OR category_id = CAST(:categoryId AS uuid))
+            """,
+        countQuery = """
+            SELECT count(*) FROM products
+            WHERE id IN :ids
+              AND (:categoryId IS NULL OR category_id = CAST(:categoryId AS uuid))
+            """,
+        nativeQuery = true
+    )
+    Page<Product> findByIdsAndCategory(@Param("ids") java.util.List<UUID> ids,
+                                       @Param("categoryId") String categoryId,
+                                       Pageable pageable);
 }

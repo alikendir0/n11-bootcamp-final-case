@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n11clone/saga/product-updated.schema.json",
+  "title": "product.updated payload",
+  "type": "object",
+  "required": ["productId", "nameTr", "descriptionTr", "priceGross", "sku"],
+  "additionalProperties": false,
+  "properties": {
+    "productId":     { "type": "string", "format": "uuid" },
+    "sku":           { "type": "string", "minLength": 1 },
+    "nameTr":        { "type": "string", "minLength": 1 },
+    "descriptionTr": { "type": "string" },
+    "priceGross":    { "type": "number", "minimum": 0 },
+    "categoryId":    { "type": ["string", "null"], "format": "uuid" }
+  }
+}

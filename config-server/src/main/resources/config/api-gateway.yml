@@ -259,4 +259,10 @@ springdoc:
       # Phase 8 (Plan 08-01): ai-service Springdoc surface (QUAL-01).
       - name: ai-service
         url: /api/v1/chat/v3/api-docs
+      - name: search-service
+        url: /api/v1/search/v3/api-docs
+/v3/api-docs
+      # Phase 8 (Plan 08-01): ai-service Springdoc surface (QUAL-01).
+      - name: ai-service
+        url: /api/v1/chat/v3/api-docs
       # search-service Springdoc entry stays commented in v1 (D-09).

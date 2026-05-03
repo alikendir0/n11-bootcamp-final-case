@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n11clone/saga/product-deleted.schema.json",
+  "title": "product.deleted payload",
+  "type": "object",
+  "required": ["productId"],
+  "additionalProperties": false,
+  "properties": {
+    "productId": { "type": "string", "format": "uuid" }
+  }
+}

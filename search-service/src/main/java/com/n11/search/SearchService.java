@@ -3,17 +3,15 @@ package com.n11.search;
 import com.n11.ai.port.EmbeddingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
 /**
- * D-09 v1 skeleton. The EmbeddingProvider injection point exists; v2 (AI-V2-01)
- * will fill in the body with: embed query text -> pgvector cosine search ->
- * return product IDs.
- *
- * The ONLY purpose of this class in v1 is to be the second consumer of the
- * ai-port EmbeddingProvider — alongside ai-service's GeminiEmbeddingAdapter.
- * Two consumers + zero google-genai imports in search-service is the SOLID
- * demonstration QUAL-08 codifies.
+ * AI-V2-01 semantic search implementation.
  */
 @Service
 public class SearchService {
@@ -21,12 +19,34 @@ public class SearchService {
     private static final Logger log = LoggerFactory.getLogger(SearchService.class);
 
     private final EmbeddingProvider embeddings;
+    private final JdbcTemplate jdbcTemplate;
 
-    public SearchService(EmbeddingProvider embeddings) {
+    public SearchService(EmbeddingProvider embeddings, JdbcTemplate jdbcTemplate) {
         this.embeddings = embeddings;
+        this.jdbcTemplate = jdbcTemplate;
         log.info("search-service: SearchService wired with EmbeddingProvider impl = {}",
                  embeddings.getClass().getName());
     }
 
-    // v2: public List<UUID> search(String q) { float[] qv = embeddings.embed(q, 768); ... }
+    /**
+     * Semantic search via pgvector cosine similarity (<=>).
+     * @param q query text
+     * @param limit max results
+     * @return List of product IDs sorted by relevance
+     */
+    public List<UUID> search(String q, int limit) {
+        log.info("search-service: performing semantic search for: '{}' (limit: {})", q, limit);
+        
+        float[] queryVector = embeddings.embed(q, 768);
+        
+        // Use pgvector <=> operator (cosine distance)
+        String sql = "SELECT product_id FROM product_embeddings ORDER BY embedding <=> ?::vector LIMIT ?";
+        
+        return jdbcTemplate.query(
+                sql,
+                (rs, i) -> UUID.fromString(rs.getString("product_id")),
+                Arrays.toString(queryVector),
+                limit
+        );
+    }
 }

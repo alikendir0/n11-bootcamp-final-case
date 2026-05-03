@@ -7,5 +7,11 @@ export default defineConfig({
   server: {
     port: 5173,
     allowedHosts: ['n11-shop.alikendir.dev'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9090',
+        changeOrigin: true,
+      },
+    },
   },
 });

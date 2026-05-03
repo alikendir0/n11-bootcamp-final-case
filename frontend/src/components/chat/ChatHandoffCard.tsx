@@ -54,7 +54,7 @@ export function ChatHandoffCard({ type, cart, order, paymentPageUrl }: ChatHando
     );
   }
 
-  if (type === 'payment' && paymentPageUrl) {
+  if (type === 'payment' && paymentPageUrl && paymentPageUrl !== 'null') {
     return (
       <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 space-y-3">
         <p className="text-sm font-bold">Ödeme bağlantınız hazır</p>

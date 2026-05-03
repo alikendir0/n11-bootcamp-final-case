@@ -16,12 +16,20 @@ public class ProductToolClient {
 
     private final RestClient client;
     private final String baseUrl;
+    private final String searchServiceUrl;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public ProductToolClient(RestClient.Builder builder,
-                             @Value("${app.clients.product.base-url:http://product-service:8082}") String baseUrl) {
+                             @Value("${app.clients.product.base-url:http://product-service:8082}") String baseUrl,
+                             @Value("${app.clients.search.base-url:http://search-service:8089}") String searchServiceUrl) {
         this.baseUrl = stripTrailingSlash(baseUrl);
+        this.searchServiceUrl = stripTrailingSlash(searchServiceUrl);
         this.client = builder.build();
+    }
+
+    public JsonNode searchProductsSemantic(String q, int limit) {
+        String url = searchServiceUrl + "/search?q=" + java.net.URLEncoder.encode(q, java.nio.charset.StandardCharsets.UTF_8) + "&limit=" + limit;
+        return getAsJson(url);
     }
 
     public JsonNode searchProducts(String q, String categoryId, int page, int size) {

@@ -43,6 +43,35 @@ public class SearchProductsTool extends AbstractAgentTool {
         String categoryId = args.path("categoryId").asText(null);
         int page = args.path("page").asInt(0);
         int size = args.path("size").asInt(10);
+        
+        if (q != null && !q.isBlank() && (categoryId == null || categoryId.isBlank())) {
+            try {
+                JsonNode uuids = client.searchProductsSemantic(q, size);
+                if (uuids != null && uuids.isArray() && !uuids.isEmpty()) {
+                    com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                    com.fasterxml.jackson.databind.node.ArrayNode results = mapper.createArrayNode();
+                    for (JsonNode uuid : uuids) {
+                        try {
+                            results.add(client.getProduct(uuid.asText()));
+                        } catch (Exception e) {
+                            // ignore missing products
+                        }
+                    }
+                    if (!results.isEmpty()) {
+                        com.fasterxml.jackson.databind.node.ObjectNode pageResult = mapper.createObjectNode();
+                        pageResult.set("content", results);
+                        pageResult.put("totalElements", results.size());
+                        pageResult.put("totalPages", 1);
+                        pageResult.put("number", 0);
+                        pageResult.put("size", size);
+                        return ToolResult.ok(pageResult);
+                    }
+                }
+            } catch (Exception e) {
+                // Semantic search failed, fallback to text search
+            }
+        }
+        
         return ToolResult.ok(client.searchProducts(q, categoryId, page, size));
     }
 }

@@ -207,7 +207,12 @@ public class ChatService {
             case "cart" -> Map.of("cart", plain);
             case "order" -> Map.of("order", plain);
             case "payment" -> {
-                String url = data.isTextual() ? data.asText() : (data.has("paymentPageUrl") ? data.get("paymentPageUrl").asText() : "");
+                String url = "";
+                if (data.isTextual()) {
+                    url = data.asText();
+                } else if (data.has("paymentPageUrl") && !data.get("paymentPageUrl").isNull()) {
+                    url = data.get("paymentPageUrl").asText();
+                }
                 yield Map.of("paymentPageUrl", url);
             }
             default -> Map.of();
