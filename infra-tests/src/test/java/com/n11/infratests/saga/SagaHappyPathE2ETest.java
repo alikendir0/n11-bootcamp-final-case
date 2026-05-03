@@ -96,6 +96,9 @@ class SagaHappyPathE2ETest {
         admin.declareBinding(BindingBuilder.bind(sniffer).to(paymentsTx).with("payment.completed"));
     }
 
+    @Autowired com.n11.payment.payment.PaymentRepository paymentRepository;
+    @Autowired com.n11.payment.messaging.PaymentTransactionalService paymentTransactionalService;
+
     @Test
     void publishingStockReserved_yieldsPaymentCompletedOnPaymentsTx_within15s() throws Exception {
         UUID orderId = UUID.randomUUID();
@@ -115,6 +118,14 @@ class SagaHappyPathE2ETest {
         props.setCorrelationId(correlationId.toString());
         Message m = new Message(envelope.getBytes(), props);
         rabbitTemplate.send("inventory.tx", "stock.reserved", m);
+
+        // Phase 6 changed payment to PENDING (waiting for Iyzico callback). We must simulate the callback.
+        await().atMost(Duration.ofSeconds(10))
+            .pollInterval(Duration.ofMillis(500))
+            .until(() -> paymentRepository.findFirstByOrderIdAndStatusOrderByCreatedAtDesc(orderId, com.n11.payment.payment.PaymentStatus.PENDING).isPresent());
+            
+        com.n11.payment.payment.Payment payment = paymentRepository.findFirstByOrderIdAndStatusOrderByCreatedAtDesc(orderId, com.n11.payment.payment.PaymentStatus.PENDING).get();
+        paymentTransactionalService.completeFromCallback(payment.getId(), "mock-iyzico-id");
 
         // Awaitility: poll sniffer queue until payment.completed message arrives (outbox poller fires every 5s)
         await().atMost(Duration.ofSeconds(15))
