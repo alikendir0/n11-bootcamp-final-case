@@ -141,6 +141,7 @@ public class SecurityConfig {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
+                "http://localhost:8083",
                 "http://192.168.1.46:8083",
                 "https://n11-shop.alikendir.dev",
                 "https://*.iyzipay.com",

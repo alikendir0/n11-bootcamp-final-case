@@ -106,9 +106,11 @@ final class GeminiTypeMapper {
             return new ChatResponse("", List.of(), "STOP");
         }
 
-        // Use the SDK's convenience methods (verified against 1.52.0 API)
+        // Use the SDK's convenience methods (verified against 1.52.0 API).
+        // functionCalls() returns null (not an empty list) when the model
+        // replies with plain text and no tool call — guard against the NPE.
         List<FunctionCall> sdkCalls = response.functionCalls();
-        if (!sdkCalls.isEmpty()) {
+        if (sdkCalls != null && !sdkCalls.isEmpty()) {
             List<ToolCallRequest> calls = new ArrayList<>();
             for (FunctionCall fc : sdkCalls) {
                 String callId = fc.id().orElseGet(() -> fc.name().orElse("call"));
