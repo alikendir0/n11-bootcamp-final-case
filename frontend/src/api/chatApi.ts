@@ -3,7 +3,9 @@ import { ApiError } from '../lib/apiClient';
 import { parseSseFrames } from '../lib/chatEvents';
 import type { ChatStreamEvent } from '../lib/types';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+// Same-origin by default (see apiClient.ts) so the SSE stream is proxied identically on
+// localhost and through the Cloudflare tunnel — no baked-in origin to break the demo.
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 const API_PREFIX = '/api/v1';
 
 export interface ChatStreamRequest {

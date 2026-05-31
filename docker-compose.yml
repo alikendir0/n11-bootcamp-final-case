@@ -601,7 +601,11 @@ services:
       - ./frontend:/app
     command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
     environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:9090}
+      # Empty base URL => SPA makes same-origin /api requests; Vite proxies them to the
+      # gateway INSIDE the docker network (VITE_PROXY_TARGET). This makes the storefront
+      # reachable through the Cloudflare tunnel without baking a host-specific origin.
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+      VITE_PROXY_TARGET: ${VITE_PROXY_TARGET:-http://api-gateway:8080}
     ports:
       - "8083:8083"
     depends_on:

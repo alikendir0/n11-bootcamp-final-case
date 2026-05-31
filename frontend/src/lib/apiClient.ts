@@ -1,6 +1,10 @@
 import { getToken, clearToken } from './tokenStore';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+// Empty (the default) means same-origin relative requests (`/api/v1/...`), which the
+// dev/runtime proxy forwards to the gateway. This keeps the SPA portable: it works on
+// localhost AND behind a reverse proxy / Cloudflare tunnel without rebaking the origin.
+// Set VITE_API_BASE_URL only to target a gateway on a different origin from the browser.
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 const API_PREFIX = '/api/v1';
 
 export interface ProblemDetail {
