@@ -11,11 +11,40 @@ A **13-microservice** Turkish e-commerce platform modeled after [n11.com](https:
 - **13 Microservices** — Eureka discovery, Config Server, API Gateway, plus 10 business services
 - **Choreography SAGA** — RabbitMQ event-driven order lifecycle with transactional outbox + idempotency inbox
 - **Iyzico Payment Integration** — Full Checkout Form sandbox flow with 3DS, callbacks, timeout compensation
-- **AI Shopping Assistant** — Gemini-powered Turkish chat with SSE streaming, function-calling (10 tools), and conversation persistence
+- **AI Shopping Assistant** — Gemini-powered Turkish chat with SSE streaming, multi-turn function-calling (11 tools), and interactive product cards rendered in-chat
 - **MCP Server** — Same toolset exposed to external AI agents via MCP Streamable HTTP + stdio transports
 - **Provider-Agnostic LLM Abstraction** — `ChatProvider` / `EmbeddingProvider` ports (SOLID demonstration)
 - **Turkish-First Storefront** — React 19 + Vite 8 + Tailwind 4 SPA with full Turkish UI copy
 - **Zero Cloud Spend** — Runs entirely on docker-compose with Cloudflare Tunnel for public demo URL
+
+---
+
+## 📸 Screens & Demo
+
+### 🤖 AI Shopping Assistant — Turkish, streaming, tool-calling
+
+Ask in plain Turkish. The assistant calls the `search_products` tool, streams its reply over SSE, and renders **interactive product cards** (image, price, *Sepete Ekle*) right inside the chat — no page reload, works the same on localhost and through the public tunnel.
+
+<p align="center">
+  <img src="docs/assets/chat-demo.gif" alt="AI shopping assistant: ask in Turkish and get product cards" width="880">
+</p>
+
+### 🛍️ Storefront & Checkout
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/assets/home.jpg" alt="Homepage"><br><sub><b>Anasayfa</b> — hero + product rails</sub></td>
+    <td width="33%"><img src="docs/assets/listing.jpg" alt="Category listing"><br><sub><b>Kategori</b> — sort + pagination</sub></td>
+    <td width="33%"><img src="docs/assets/pdp.jpg" alt="Product detail"><br><sub><b>Ürün</b> — taksit table, stock/free-shipping badges</sub></td>
+  </tr>
+  <tr>
+    <td width="33%"><img src="docs/assets/cart.png" alt="Cart"><br><sub><b>Sepet</b> — KDV-included totals</sub></td>
+    <td width="33%"><img src="docs/assets/checkout.png" alt="Checkout"><br><sub><b>Ödeme</b> — address → payment → confirm</sub></td>
+    <td width="33%"><img src="docs/assets/iyzico.png" alt="Iyzico payment"><br><sub><b>Iyzico</b> — real sandbox 3DS page</sub></td>
+  </tr>
+</table>
+
+> Every screenshot is captured from the **live stack running through the Cloudflare tunnel** — the AI cards, prices, badges, installment table, and the Iyzico sandbox total (₺1.799,98) are all real responses, not mockups.
 
 ---
 
@@ -158,8 +187,8 @@ curl http://localhost:9090/actuator/health
 # Products listing
 curl http://localhost:9090/api/v1/products
 
-# Frontend
-open http://localhost:5173
+# Frontend (Vite dev server; same-origin /api proxied to the gateway)
+open http://localhost:8083
 ```
 
 ---
@@ -381,7 +410,11 @@ Test card for the happy path:
 | **CVC** | `123` |
 | **3DS OTP** | `283356` |
 
-**Flow:** Add to cart → Checkout → Select address → Siparişi Tamamla → Enter test card → Complete 3DS → Order CONFIRMED.
+**Flow:** Add to cart → Checkout → Select address → choose **Kredi Kartı** → Sipariş Ver → redirected to the Iyzico sandbox page → enter test card → complete 3DS → Order CONFIRMED.
+
+<p align="center">
+  <img src="docs/assets/payment.png" alt="Checkout payment-method step — credit card via Iyzico, cash-on-delivery disabled" width="760">
+</p>
 
 > Full test card matrix (decline, 3DS edge cases, timeout) is in [`payment-service/README.md`](./payment-service/README.md).
 
@@ -389,14 +422,16 @@ Test card for the happy path:
 
 ## 🤖 AI Assistant Demo
 
-1. Open the storefront at `http://localhost:5173`
+![AI assistant rendering interactive product cards in chat](docs/assets/chat.jpg)
+
+1. Open the storefront (`http://localhost:8083`, or the public tunnel URL)
 2. Click the floating **Yapay Zeka Alışveriş Asistanı** bubble (bottom-right)
-3. Type `MacBook ara` — the assistant streams a Turkish response with product cards
-4. Click **Sepete Ekle** — header cart badge updates within 1 second
-5. Ask `Sepetimde ne var?` — assistant summarizes the cart
+3. Type `Samsung telefon ara` — the assistant calls `search_products`, streams a Turkish reply over SSE, and renders product cards
+4. Click **Sepete Ekle** on a card — the header cart badge updates within ~1 second (guests are routed to login first)
+5. Ask `Sepetimde ne var?` — the assistant summarizes the cart
 6. Proceed to checkout from the cart page
 
-The conversation persists across page navigation and browser refresh.
+The assistant keeps multi-turn context within a session (the chat stays mounted across page navigation); each new browser session starts a fresh conversation.
 
 ---
 
