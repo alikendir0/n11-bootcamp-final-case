@@ -15,6 +15,8 @@ import com.n11.ai.port.dto.ChatResponse;
 import com.n11.ai.port.dto.ToolCallRequest;
 import com.n11.ai.port.dto.ToolCallResult;
 import com.n11.ai.port.dto.ToolSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -33,6 +35,8 @@ import java.util.Map;
  * MUST list exactly three files (this one + the two adapters).
  */
 final class GeminiTypeMapper {
+
+    private static final Logger log = LoggerFactory.getLogger(GeminiTypeMapper.class);
 
     private final ObjectMapper json = new ObjectMapper();
 
@@ -118,7 +122,10 @@ final class GeminiTypeMapper {
                 String argsJson = "{}";
                 if (fc.args().isPresent()) {
                     try { argsJson = json.writeValueAsString(fc.args().get()); }
-                    catch (Exception ignored) { }
+                    catch (Exception e) {
+                        log.warn("Could not serialize Gemini function-call args for tool '{}'; "
+                            + "dispatching with empty args", fname, e);
+                    }
                 }
                 calls.add(new ToolCallRequest(callId, fname, argsJson));
             }
@@ -130,7 +137,9 @@ final class GeminiTypeMapper {
         try {
             var fr = response.finishReason();
             if (fr != null) finishReason = fr.toString();
-        } catch (Exception ignored) { }
+        } catch (Exception e) {
+            log.debug("Could not read Gemini finishReason, defaulting to STOP", e);
+        }
 
         return new ChatResponse(text != null ? text : "", List.of(), finishReason);
     }

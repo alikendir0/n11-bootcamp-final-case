@@ -41,7 +41,7 @@ If a file in `.planning/` conflicts with this CLAUDE.md, **the `.planning/` file
 
 1. **Provider-agnostic LLM abstraction is the SOLID demo.** `ChatProvider` and `EmbeddingProvider` ports live in a zero-dep `ai-port` Gradle module with **neutral DTOs only** — no Gemini SDK types (`Content`, `Part`, `FunctionCall`) leak into the port. A trivial `EchoChatProvider` second adapter ships in tests to prove substitutability. **If the abstraction leaks, the entire grading thesis collapses.** Cannot be fixed at demo time.
 
-2. **One agent toolset, two consumers.** The `agent-toolset` shared Gradle module defines the 10 tools (`search_products`, `get_product`, `list_categories`, `add_to_cart`, `view_cart`, `update_cart_item`, `remove_from_cart`, `create_order`, `get_payment_link`, `get_order_status`). Both `ai-service` (chat assistant) and `mcp-server` import this module. Never duplicate tool definitions.
+2. **One agent toolset, two consumers.** The `agent-toolset` shared Gradle module defines the 11 tools (`search_products`, `get_product`, `list_categories`, `add_to_cart`, `view_cart`, `update_cart_item`, `remove_from_cart`, `create_order`, `get_payment_link`, `get_order_status`, `list_addresses`). Both `ai-service` (chat assistant) and `mcp-server` import this module. Never duplicate tool definitions. (`list_addresses` was added in Phase 11 to support the checkout flow — `create_order` needs a real address ID.)
 
 3. **Saga consumers must be idempotent.** Every consumer uses a `processed_events` inbox table keyed by event ID. RabbitMQ delivers at-least-once — duplicates will arrive. Test for redelivery.
 

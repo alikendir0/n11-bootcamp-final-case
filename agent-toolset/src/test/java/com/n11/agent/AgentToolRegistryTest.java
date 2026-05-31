@@ -34,7 +34,7 @@ class AgentToolRegistryTest {
     @Autowired ToolRegistry registry;
 
     @Test
-    void registry_contains_exactly_10_canonical_tools() {
+    void registry_contains_exactly_11_canonical_tools() {
         List<AgentTool> all = registry.all();
         assertThat(all).hasSize(11);
         assertThat(all).extracting(AgentTool::name).containsExactlyInAnyOrderElementsOf(CANONICAL_NAMES);
