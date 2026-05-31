@@ -509,7 +509,7 @@ ngrok http 9090
 # Update PUBLIC_BASE_URL in .env with the forwarding URL
 ```
 
-See the [tunnel setup guide](#) in the root README sections below for full step-by-step instructions.
+Once the tunnel is up, run `DEMO_TUNNEL_HOSTNAME=<your-host> scripts/verify-demo-tunnel.sh` to confirm the public URL serves both the storefront and the API.
 
 ---
 
@@ -529,5 +529,3 @@ See the [tunnel setup guide](#) in the root README sections below for full step-
 ## 📄 License
 
 Built for the **Patika.dev × n11 Spring Boot Bootcamp** final case.
-
-]]>
