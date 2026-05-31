@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
 // (Spring AMQP 3.2.x removed the spring-rabbit shadow class — only RetryInterceptorBuilder
 // remains in org.springframework.amqp.rabbit.config). Plan 01-04 import path was stale.
 import org.springframework.retry.interceptor.StatefulRetryOperationsInterceptor;
+import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,13 +69,25 @@ public class RabbitRetryConfig {
      * on the next consumer cycle or connection reset.
      *
      * <p>Phase 5+ consumers reference this bean by name.
+     *
+     * <p>The factory is first passed through Spring Boot's
+     * {@link SimpleRabbitListenerContainerFactoryConfigurer} so that all
+     * {@code spring.rabbitmq.listener.simple.*} properties bind correctly — most
+     * importantly {@code auto-startup}. Without the configurer a hand-built factory
+     * silently defaults {@code autoStartup=true} and ignores the property, so
+     * integration tests that set {@code auto-startup=false} (to assert business
+     * logic via direct consumer invocation, no broker) still eagerly start listener
+     * containers and fail with an AMQP connection error at context load. The custom
+     * AUTO ack mode and saga retry advice are applied <em>after</em> the configurer
+     * so they win over Boot's defaults.
      */
     @Bean
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            SimpleRabbitListenerContainerFactoryConfigurer configurer,
             ConnectionFactory cf,
             StatefulRetryOperationsInterceptor sagaRetryInterceptor) {
         SimpleRabbitListenerContainerFactory f = new SimpleRabbitListenerContainerFactory();
-        f.setConnectionFactory(cf);
+        configurer.configure(f, cf);
         f.setAcknowledgeMode(AcknowledgeMode.AUTO);
         f.setAdviceChain(sagaRetryInterceptor);
         return f;
