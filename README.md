@@ -360,7 +360,8 @@ All secrets live in the root `.env` file (gitignored). **Never commit real keys.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VITE_API_BASE_URL` | `http://localhost:9090` | Frontend → gateway base URL |
+| `VITE_API_BASE_URL` | _(empty)_ | Leave empty: the SPA makes same-origin `/api` requests that Vite proxies to the gateway — works on localhost and through the Cloudflare tunnel. Set only to target a gateway on a different origin from the browser. |
+| `VITE_PROXY_TARGET` | `http://api-gateway:8080` | Where the Vite dev server forwards `/api` (in compose: the gateway service; for host `npm run dev`: `http://localhost:9090`). |
 | `IMAGE_REGISTRY` | `n11` | Docker image registry prefix |
 | `IMAGE_TAG` | `dev` | Docker image tag |
 
@@ -484,7 +485,7 @@ See the [tunnel setup guide](#) in the root README sections below for full step-
 | `no such image` on compose up | Run `./gradlew jibDockerBuild` first |
 | Tunnel returns non-200 | Check `docker compose ps`, verify gateway at `localhost:9090` |
 | Iyzico payment stays PENDING | Verify `PUBLIC_BASE_URL` is reachable, tunnel is connected |
-| Frontend shows "Bir hata oluştu" | Verify `VITE_API_BASE_URL=http://localhost:9090` in `frontend/.env` |
+| Frontend shows "Bir hata oluştu" | Keep `VITE_API_BASE_URL` empty (same-origin) and ensure `VITE_PROXY_TARGET` points at the gateway (`http://api-gateway:8080` in compose, `http://localhost:9090` for host `npm run dev`); confirm the gateway is healthy |
 | Gateway 401 on all routes | Verify `JWT_PRIVATE_KEY` is set in `.env` and identity-service is healthy |
 | Chat assistant not responding | Verify `GEMINI_API_KEY` is set and valid |
 
