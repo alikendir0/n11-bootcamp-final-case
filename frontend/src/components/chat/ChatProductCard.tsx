@@ -41,6 +41,14 @@ export function ChatProductCard({ product }: ChatProductCardProps) {
 
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-lg p-3 space-y-2">
+      {product.imageUrl && (
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          loading="lazy"
+          className="w-full h-28 object-contain bg-gray-50 rounded"
+        />
+      )}
       <h4 className="text-sm font-bold line-clamp-2">{product.name}</h4>
       {typeof product.priceGross === 'number' && (
         <p className="text-sm font-bold">{formatTRY(product.priceGross)}</p>

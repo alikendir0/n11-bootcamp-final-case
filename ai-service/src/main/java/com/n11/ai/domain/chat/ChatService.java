@@ -202,8 +202,21 @@ public class ChatService {
     private Object buildResultData(String resultType, com.fasterxml.jackson.databind.JsonNode data) {
         Object plain = json.convertValue(data, Object.class);
         return switch (resultType) {
-            case "products" -> Map.of("products", plain);
-            case "product" -> Map.of("product", plain);
+            case "products" -> {
+                // search_products returns a Spring Page ({content:[...], totalElements,...}).
+                // Map each item to the stable card view-model the chat UI renders, so the
+                // transcript never depends on product-service DTO field names (nameTr,
+                // imageUrls, ...). Falls back to the node itself when it is already a flat
+                // list (the mocked tool result in ChatServiceTest).
+                com.fasterxml.jackson.databind.JsonNode content = data.path("content");
+                com.fasterxml.jackson.databind.JsonNode arr = content.isArray() ? content : data;
+                List<Map<String, Object>> cards = new ArrayList<>();
+                if (arr.isArray()) {
+                    for (com.fasterxml.jackson.databind.JsonNode p : arr) cards.add(toProductCard(p));
+                }
+                yield Map.of("products", cards);
+            }
+            case "product" -> Map.of("product", toProductCard(data));
             case "cart" -> Map.of("cart", plain);
             case "order" -> Map.of("order", plain);
             case "payment" -> {
@@ -217,6 +230,32 @@ public class ChatService {
             }
             default -> Map.of();
         };
+    }
+
+    /**
+     * Maps a raw product DTO (product-service listing item) — or a test/echo fixture — to the
+     * minimal product-card view-model the chat transcript renders. Keeps the chat UI decoupled
+     * from product-service field naming: {@code nameTr -> name}, {@code imageUrls[0] -> imageUrl},
+     * {@code categoryName -> categoryLabel}.
+     */
+    private Map<String, Object> toProductCard(com.fasterxml.jackson.databind.JsonNode p) {
+        Map<String, Object> card = new LinkedHashMap<>();
+        card.put("id", p.path("id").asText(""));
+        card.put("name", p.hasNonNull("nameTr") ? p.get("nameTr").asText() : p.path("name").asText(""));
+        if (p.hasNonNull("priceGross")) card.put("priceGross", p.get("priceGross").asDouble());
+        if (p.path("stockQty").isNumber()) card.put("stockQty", p.get("stockQty").asInt());
+        com.fasterxml.jackson.databind.JsonNode imgs = p.path("imageUrls");
+        if (imgs.isArray() && !imgs.isEmpty()) {
+            card.put("imageUrl", imgs.get(0).asText());
+        } else if (p.hasNonNull("imageUrl")) {
+            card.put("imageUrl", p.get("imageUrl").asText());
+        }
+        if (p.hasNonNull("categoryName")) {
+            card.put("categoryLabel", p.get("categoryName").asText());
+        } else if (p.hasNonNull("categoryLabel")) {
+            card.put("categoryLabel", p.get("categoryLabel").asText());
+        }
+        return card;
     }
 
     private ToolCallResult toToolCallResult(String callId, String functionName, ToolResult r) {
